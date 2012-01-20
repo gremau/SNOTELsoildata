@@ -14,7 +14,7 @@ function [m,headers]=loadsnotel(interval, site_id)
 if strcmp(interval, 'daily')
     datapath = '../datafiles/allsensors_daily/';
     %datapath = '/home/greg/data/rawdata/SNOTELdata/allsensors_daily/';
-    %datapath = '/home/greg/data/rawdata/SNOTEL_data/NiwotSNOTELs_90-2010/';
+    %datapath = '../datafiles/NiwotSNOTELs_90-2010/';
     
     % A complete datafile has this many sensors
     fullset = 20;
