@@ -1,14 +1,10 @@
-function [m,fileheaders]=loadsnotel(interval, siteID)
-% loadsnotel.m
+function [m,fileheaders]=test_loadsnotel(interval, siteID)
+% test_loadsnotel.m
 %
-% Parses headers and loads desired fields from NWCC (SNOTEL/SCAN) yearly 
-% datafiles into one array, removes bad data, returns array + headers.
-%
-% arg 1 = 'hourly' or 'daily' ... load hourly or daily data files
-% arg 2 = 3-4 digit int ... site identifier (0 is dummy site)
-%
-% v2: 2/22/2011 Greg Maurer (changed to loadsnotel.m)
-% added dummy site generator and plot of original/removed datapoints
+% this tests the loadsnotel function to assure that unneccesary data are 
+% not removed
+
+fignum=0; close all;
 % ------------------------------------------------------------------------
 % select daily files (all sensors) or hourly soil sensor data
 if strcmp(interval, 'daily')
@@ -35,6 +31,15 @@ elseif strcmp(interval, 'hourly')
     'SMS.I-1:-20' 'STO.I-1:-2 ' 'STO.I-1:-8' 'STO.I-1:-20'};
 else
     error('Not a valid data type (daily or hourly)')
+end
+
+% Set dummy flag on if siteID = 0
+% This will trigger dummy generator at end of file
+if siteID == 0
+    siteID = 828;
+    dummysite = 1;
+else
+    dummysite = 0;
 end
 
 %--------------------------------------------------------------------------
@@ -127,7 +132,7 @@ for i = 1:length(files)
         % j iterates over which NEW columns to add data to
         % desiredcols iterates over which INPUTFILE columns to use
         % remember to index desiredcols by loop iteration (with loopindex)
-        orderedcell{j} = readfilecell{desiredcols{i}(loopindex)}; 
+        orderedcell{j} = readfilecell{desiredcols{i}(loopindex)};
         
         % Then append the column to m (output array)
         m{j} = [m{j}; orderedcell{j}];
@@ -149,126 +154,110 @@ for i = 1:length(files)
 end
 
 %--------------------------------------------------------------------------
-% CLEAN OUT BAD DATA
+%[m_test, fileheaders_test] = loadsnotel(interval, siteID);
+
+% PLOT the original and cleaned data series (including dummysite)
 %
-% But first, extract test column to preserve original data
-testColumn = 7; % m{7} is Ts @ 5cm
-unfilteredData = m{testColumn};
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - SWE, Precip & Snow Depth']);
 
-% Start with hourly files-----
-if strcmp(interval, 'hourly')
-    
-    % Mark and remove sub-hourly rows
-    tvec = datevec(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
-    datenumUnfiltered = datenum(tvec); % again, for bad data removal tests
-    subhourly = tvec(:, 5) ~= 0;
-    tvec(subhourly,:) = [];
-    clear test;
-    
-    % remove rows marked in subhourly array
-    for i = 1:completesensorset
-        m{i}(subhourly) = [];
-    end
-    
-    % Create a quality control array that collects errors for all columns
-    qualitycontrol = false(length(m{1}), 1);
-    
-    for i = 4:completesensorset
-        
-        % mark the datalogger error signals (-99.9, -273.2)
-        test = m{i} == -99.9 | m{i} == -273.2;
-        qualitycontrol = qualitycontrol | test;
-        m{i}(test) = nan;
-        clear test;
-        
-        % change unreasonably high and low numbers to nan
-        test = m{i} < -15 | m{i} > 100;
-        m{i}(test) = nan;
-        clear test;
-        
-        % Dont let soil moisture values go down to 0.0 in winter 
-        % (its usually an error)
-        if i<7
-            test_val = m{i} == 0.0;
-            test_winter = tvec(:,2) > 10 | tvec(:, 2) < 4;
-            test = test_val & test_winter;
-            %qualitycontrol = qualitycontrol | test;
-            m{i}(test) = nan;
-            clear test_val test_winter test;
-        end
-        
-        % Remove bad soil temperature values
-        if i>6           
-            % Get rid of silly values
-            test = m{i} > 45 | m{i} < -15;
-            m{i}(test) = nan;
-            clear test
-        end
-    end
-    clear i;
-    
-    % change data to nan if flagged in qc array
-%     for i = 4:completesensorset
-%         m{i}(qualitycontrol) = nan;
-%     end
-%     clear i;
+subplot(3, 1, 1)
+plot(m{4});
+title('SWE');
+subplot(3, 1, 2)
+plot(m{5});
+title('Precip');
+subplot(3, 1, 3)
+plot(m{10});
+title('Snow depth');
 
-% Filter daily files-----
-elseif strcmp(interval, 'daily')
-    
-    % Mark and remove sub-daily rows
-    tvec = datevec(m{2}, 'yyyy-mm-dd');
-    datenumUnfiltered = datenum(tvec); % again, for bad data removal tests
-    subdaily = ~strcmp(m{3}, '');
-    tvec(subdaily,:) = [];
-    clear test;
-    
-    % remove rows marked in subdaily array
-    for i = 1:completesensorset
-        m{i}(subdaily) = [];
-    end
-    
-    % Create a qc array that collects errors for all columns
-    qualitycontrol = false(length(m{1}), 1);
-    
-    for i = 4:completesensorset
-        % mark the datalogger error signals (-99.9, -273.2)
-        test = m{i} == -99.9 | m{i} == -273.2;
-        m{i}(test) = nan;
-        qualitycontrol = qualitycontrol | test;
-        clear test;
-        
-        % Remove negative WTEQ and PREC values
-        if i<6
-            test = m{i} < 0.0;
-            m{i}(test) = nan;
-            clear test;
-        end
-        
-        % Remove negative snow depth values
-        if i>9 && i<11
-            test = m{i} < 0.0;
-            m{i}(test) = nan;
-            clear test;
-        end
-        
-        % Remove High temp values for deep soil sensors
-        if i>13 && i<17
-            test = m{i} > 30.0;
-            m{i}(test) = nan;
-            clear test;
-        end
-        
-    end
-    clear i;
-    
-    % change data to nan if flagged in qc array
-    for i = 4:completesensorset
-        m{i}(qualitycontrol) = nan;
-    end
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Tobs, Tmax, Tmin, Tavg']);
+
+subplot(4, 1, 1)
+plot(m{6});
+title('Tobs');
+subplot(4, 1, 2)
+plot(m{7});
+title('Tmax');
+subplot(4, 1, 3)
+plot(m{8});
+title('Tmin');
+subplot(4, 1, 4)
+plot(m{9});
+title('Tavg');
+
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Soil VWC @ 3 depths']);
+
+subplot(3, 1, 1)
+plot(m{11});
+title('VWC -2in');
+subplot(3, 1, 2)
+plot(m{12});
+title('VWC -8in');
+subplot(3, 1, 3)
+plot(m{13});
+title('VWC -20in');
+
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Soil temp @ 3 depths']);
+
+subplot(3, 1, 1)
+plot(m{14});
+title('Ts -2in');
+subplot(3, 1, 2)
+plot(m{15});
+title('Ts -8in');
+subplot(3, 1, 3)
+plot(m{16});
+title('Ts -20in');
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ...
+    ' - Dielectric const @ 3 depths and battery voltage']);
+
+subplot(4, 1, 1)
+plot(m{17});
+title('RDC -2in');
+subplot(4, 1, 2)
+plot(m{18});
+title('RDC -8in');
+subplot(4, 1, 3)
+plot(m{19});
+title('RDC -20in');
+subplot(4, 1, 4)
+plot(m{20});
+title('BattVolt');
+%--------------------------------------------------------------------------
+% CREATE DUMMYSITE if called for -  for QA testing of code
+%
+if strcmp(interval, 'hourly') && dummysite == 1;
+    % find all July time periods
+    test = tvec(:,2) == 7;
+    % get the actual T data for this site (2 in)
+    tmp = m{7};
+    % modify the July periods to be exactly 4 degress
+    tmp(test,:) = 4;
+    % replace T data in m with dummy data
+    m{7} = tmp;
 end
 
-
-
+%--------------------------------------------------------------------------
+% PLOT the original and cleaned data series (including dummysite)
+%
+% h = figure;
+% set(h, 'Name', ['Site ' num2str(siteID) ' - Bad data removed by loadsnotel.m']);
+% plot(datenumUnfiltered, unfilteredData, '.r');
+% hold on
+% plot(datenum(tvec), m{testColumn}, '.k');
 
 junk = 99;
