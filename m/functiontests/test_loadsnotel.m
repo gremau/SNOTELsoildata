@@ -1,10 +1,15 @@
 function [m,fileheaders]=test_loadsnotel(interval, siteID)
 % test_loadsnotel.m
 %
-% this tests the loadsnotel function to assure that unneccesary data are 
-% not removed
+% Generates a loadsnotel-type matrix without any modification of original
+% data. This can be used to compare to datasets from the same site.interval
+% that have undergone some data cleaning or filtering (using
+% plot_snoteltests.m for example)
+%
+% FIXME - needs methods to add testing data (dummy values in rows/files)
 
-fignum=0; close all;
+%fignum=0; close all;
+
 % ------------------------------------------------------------------------
 % select daily files (all sensors) or hourly soil sensor data
 if strcmp(interval, 'daily')
@@ -153,111 +158,20 @@ for i = 1:length(files)
     clear orderedcell;
 end
 
-%--------------------------------------------------------------------------
-%[m_test, fileheaders_test] = loadsnotel(interval, siteID);
-
-% PLOT the original and cleaned data series (including dummysite)
-%
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - SWE, Precip & Snow Depth']);
-
-subplot(3, 1, 1)
-plot(m{4});
-title('SWE');
-subplot(3, 1, 2)
-plot(m{5});
-title('Precip');
-subplot(3, 1, 3)
-plot(m{10});
-title('Snow depth');
 
 
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Tobs, Tmax, Tmin, Tavg']);
-
-subplot(4, 1, 1)
-plot(m{6});
-title('Tobs');
-subplot(4, 1, 2)
-plot(m{7});
-title('Tmax');
-subplot(4, 1, 3)
-plot(m{8});
-title('Tmin');
-subplot(4, 1, 4)
-plot(m{9});
-title('Tavg');
-
-
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Soil VWC @ 3 depths']);
-
-subplot(3, 1, 1)
-plot(m{11});
-title('VWC -2in');
-subplot(3, 1, 2)
-plot(m{12});
-title('VWC -8in');
-subplot(3, 1, 3)
-plot(m{13});
-title('VWC -20in');
-
-
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Soil temp @ 3 depths']);
-
-subplot(3, 1, 1)
-plot(m{14});
-title('Ts -2in');
-subplot(3, 1, 2)
-plot(m{15});
-title('Ts -8in');
-subplot(3, 1, 3)
-plot(m{16});
-title('Ts -20in');
-
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ...
-    ' - Dielectric const @ 3 depths and battery voltage']);
-
-subplot(4, 1, 1)
-plot(m{17});
-title('RDC -2in');
-subplot(4, 1, 2)
-plot(m{18});
-title('RDC -8in');
-subplot(4, 1, 3)
-plot(m{19});
-title('RDC -20in');
-subplot(4, 1, 4)
-plot(m{20});
-title('BattVolt');
-%--------------------------------------------------------------------------
-% CREATE DUMMYSITE if called for -  for QA testing of code
-%
-if strcmp(interval, 'hourly') && dummysite == 1;
-    % find all July time periods
-    test = tvec(:,2) == 7;
-    % get the actual T data for this site (2 in)
-    tmp = m{7};
-    % modify the July periods to be exactly 4 degress
-    tmp(test,:) = 4;
-    % replace T data in m with dummy data
-    m{7} = tmp;
-end
-
-%--------------------------------------------------------------------------
-% PLOT the original and cleaned data series (including dummysite)
-%
-% h = figure;
-% set(h, 'Name', ['Site ' num2str(siteID) ' - Bad data removed by loadsnotel.m']);
-% plot(datenumUnfiltered, unfilteredData, '.r');
-% hold on
-% plot(datenum(tvec), m{testColumn}, '.k');
+% %--------------------------------------------------------------------------
+% % CREATE DUMMYSITE if called for -  for QA testing of code
+% %
+% if strcmp(interval, 'hourly') && dummysite == 1;
+%     % find all July time periods
+%     test = tvec(:,2) == 7;
+%     % get the actual T data for this site (2 in)
+%     tmp = m{7};
+%     % modify the July periods to be exactly 4 degress
+%     tmp(test,:) = 4;
+%     % replace T data in m with dummy data
+%     m{7} = tmp;
+% end
 
 junk = 99;
