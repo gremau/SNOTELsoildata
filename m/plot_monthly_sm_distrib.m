@@ -8,18 +8,22 @@
 
 close all; clear all;   % clear figures and variables in the workspace
 fignum = 0;     % used to increment figure number for plots
-%addpath('../m/');
 addpath('/home/greg/data/programming/m_common/');
 
 % Ask user for site number
 siteID = str2num(input('Which SNOTEL station?: ', 's'));
 
 % load hourly data from site  w/ loadsnotel:
-[siteHourly, headers] = loadsnotel('hourly', siteID);
+siteHourly = loadsnotel('hourly', siteID);
 
-% parse out the date, soil moisture, and soil temperature sensors
+% parse out the date and soil moisture sensors and set normalizing/axes
 datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}), 'yyyy-mm-ddHH:MM');
-sm = siteHourly{4}; % 5cm depth
+%sm = siteHourly{4}; % 5cm depth no norm
+%xax = 75
+sm = smnormalize(siteHourly{4}, 1).*100; % 5cm depth nomalized
+xax = 100; % these axes are good for normalized data
+yax = 0.2;
+disp('*** Running in normalized soil moisture data mode');
 %sm = siteHourly{5};  % 20cm depth
 %sm = siteHourly{6};  % 60cm depth
 
@@ -29,11 +33,16 @@ wytest = (datevec_h(:,2)==10 | datevec_h(:,2)==11 | datevec_h(:,2)==12);
 wyearvec(wytest) = wyearvec(wytest) + 1;
 
 % list of water years in the dataset
-wyears = unique(wyearvec);
+wyears = [unique(wyearvec); 0]; % 0 sets the all years option in loop
 
 % Loop through each water year in dataset and select data, then plot
 for i = 1:length(wyears)
-    yeartest = wyearvec(:) == wyears(i); % Use water years to select data
+    if wyears(i) > 0
+        yeartest = wyearvec(:) == wyears(i); % Use water years to select data
+    elseif wyears(i)==0
+        yeartest = wyearvec(:) > 0;
+        yax = 0.1;
+    end
     datevec_sel = datevec_h(yeartest, :);
     sm_sel = sm(yeartest, :);
 
@@ -86,10 +95,10 @@ for i = 1:length(wyears)
     n = histc(sm_OND, xedges);
     % normalize
     nnorm = n./sum(n);
-    bar (xedges, nnorm, 'k');
+    bar (xedges, nnorm, 'y');
     hold on
     plot([sm_ONDm sm_ONDm], [0 1], ':k');
-    axis([0 75 0 0.35]);
+    axis([0 xax 0 yax]);
     ylabel('Frequency');
     title('Oct 1-Dec 31');
     
@@ -101,7 +110,7 @@ for i = 1:length(wyears)
     bar (xedges, nnorm, 'b');
     hold on
     plot([sm_JFMm sm_JFMm], [0 1], ':k');
-    axis([0 75 0 0.35]);
+    axis([0 xax 0 yax]);
     ylabel('Frequency');
     title('Jan 1 -Mar 31');
     
@@ -110,10 +119,10 @@ for i = 1:length(wyears)
     n = histc(sm_AMJ, xedges);
     % normalize
     nnorm = n./sum(n);
-    bar (xedges, nnorm, 'r');
+    bar (xedges, nnorm, 'y');
     hold on
     plot([sm_AMJm sm_AMJm], [0 1], ':k');
-    axis([0 75 0 0.35]);
+    axis([0 xax 0 yax]);
     ylabel('Frequency');
     title('April 1 - June 30');
     
@@ -125,7 +134,7 @@ for i = 1:length(wyears)
     bar (xedges, nnorm, 'r');
     hold on
     plot([sm_JASm sm_JASm], [0 1], ':k');
-    axis([0 75 0 0.35]);
+    axis([0 xax 0 yax]);
     ylabel('Frequency');
     title('July 1 - Sept 30');
     
@@ -133,15 +142,15 @@ for i = 1:length(wyears)
     % Plot the month distributions in 3 rows 
     plotorder = [6 7 8 10 11 12 14 15 16 2 3 4];
     
-    for i = 1:length(plotorder)
-        subplot(4, 4, plotorder(i));
+    for j = 1:length(plotorder)
+        subplot(4, 4, plotorder(j));
         xedges = 0:1:100;
-        eval(['n = histc(sm_' months{i} ', xedges);']);
+        eval(['n = histc(sm_' months{j} ', xedges);']);
         % normalize
         nnorm = n./sum(n);
         bar (xedges, nnorm, 'g');
-        axis([0 75 0 0.35]);
-        title(months{i});
+        axis([0 xax 0 0.25]);
+        title(months{j});
     end
 end
 

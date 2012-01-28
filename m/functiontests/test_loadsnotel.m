@@ -1,14 +1,17 @@
-function [m,fileheaders]=test_loadsnotel(interval, siteID)
+function m = test_loadsnotel(interval, siteID, varargin)
 % test_loadsnotel.m
 %
-% Generates a loadsnotel-type matrix without any modification of original
-% data. This can be used to compare to datasets from the same site.interval
+% Generates a loadsnotel-type matrix with no modification of original
+% data. This can be used to compare to datasets from the same site/interval
 % that have undergone some data cleaning or filtering (using
-% plot_snoteltests.m for example)
+% plot_snoteltests.m for example).
 %
-% FIXME - needs methods to add testing data (dummy values in rows/files)
-
-%fignum=0; close all;
+% If varargin is used, columns can be deleted or dummy values introduced
+%
+% arguments:
+% interval and siteID are the same as in loadsnotel.m
+% varargin = cell array containing a test type ('delete' or 'dummyvalues')
+% and a column number referring to the desired header/column number (1-20)
 
 % ------------------------------------------------------------------------
 % select daily files (all sensors) or hourly soil sensor data
@@ -27,7 +30,7 @@ if strcmp(interval, 'daily')
 
 elseif strcmp(interval, 'hourly')
     datapath = '../datafiles/soilsensors_hourly/';
-    %datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
+    % datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
     
     % A complete datafile has this many sensors
     completesensorset = 9;
@@ -38,13 +41,12 @@ else
     error('Not a valid data type (daily or hourly)')
 end
 
-% Set dummy flag on if siteID = 0
-% This will trigger dummy generator at end of file
-if siteID == 0
-    siteID = 828;
-    dummysite = 1;
-else
-    dummysite = 0;
+testtype = 'null';
+% TEST - Set testing values if varargin is present - TEST
+% This will trigger deletions or a dummy value generator in file
+if size(varargin,2) > 0
+    testtype = varargin{1};
+    testcolumn = varargin{2};
 end
 
 %--------------------------------------------------------------------------
@@ -64,9 +66,9 @@ files = sort(filelist{1});
 
 % Preallocate sensor/column sorting cellarrays
 t = cell(length(files), 1);
-templates = {t t t t t t};
+templates = {t t t t t t t};
 [fileheaders collectindices desiredcols headerspresent fillcolumnorder ...
-    missingdatacols] = templates{:};
+    missingdatacols testindices] = templates{:}; %TEST-add deleteindices
 
 % First, we will loop through each file and identify what sensors are
 % present (and in which columns), and which are missing(and in which col)
@@ -77,6 +79,17 @@ for i = 1:length(files)
     fgetl(fid); % skip the first line
     fileheaders(i) = textscan(fgetl(fid), '%s', 'Delimiter', ',');
     fclose(fid);
+    
+    % TEST - mark test columns and remove header if delete test - TEST
+    if strcmp(testtype, 'delete')
+        testindices{i} = strncmpi(desiredheaders{testcolumn}, ...
+            fileheaders{i}', length(desiredheaders{testcolumn}));
+        fileheaders{i}(testindices{i}) = [];
+    elseif strcmp(testtype, 'dummyvalues')
+        testindices{i} = strncmpi(desiredheaders{testcolumn}, ...
+            fileheaders{i}', length(desiredheaders{testcolumn}));
+    end
+
     % Now we have the headers from file(i) - next loop through each desired
     % header, compare to file headers, and make arrays to identify the
     % presence/absence and location of each
@@ -125,11 +138,32 @@ for i = 1:length(files)
     % Create format string to read in original file
     form = num2str(ones(1, length(fileheaders{i})));
     forma = regexprep(form, '  1', '%f');
-    format = ['%d%s%s' forma(6:end)];
+    
+    % TEST - if delete test called add in the removed column (keeps the
+    % columns in the correct order, but will be removed later)
+    if strcmp(testtype, 'delete')
+        format = ['%d%s%s' forma(6:end) '%f'];
+    else
+        format = ['%d%s%s' forma(6:end)]; % normal format string (no TEST)
+    end
     
     % Load data file into raw cell array
     readfilecell = textscan(fid, format, 'Headerlines', 2, 'Delimiter', ',');
     fclose(fid);
+    
+    % TEST - delete or set dummy values in test column - TEST
+    if strcmp(testtype, 'delete')
+        readfilecell(testindices{i}) = [];
+    elseif strcmp(testtype, 'dummyvalues')
+        if strcmp(interval, 'hourly')
+            tvec = datevec(strcat(readfilecell{2}, readfilecell{3}), ...
+                'yyyy-mm-ddHH:MM');
+        elseif strcmp(interval, 'daily')
+            tvec = datevec(readfilecell{2}, 'yyyy-mm-dd');
+        end
+        dummytest = tvec(:,2)==7; % select all july values
+        readfilecell{testindices{i}}(dummytest, :) = 1.00; % set to 1
+    end
     
     % Read data from readfilecell to correct columns in orderedcell...
     loopindex = 1;
@@ -158,20 +192,5 @@ for i = 1:length(files)
     clear orderedcell;
 end
 
-
-
-% %--------------------------------------------------------------------------
-% % CREATE DUMMYSITE if called for -  for QA testing of code
-% %
-% if strcmp(interval, 'hourly') && dummysite == 1;
-%     % find all July time periods
-%     test = tvec(:,2) == 7;
-%     % get the actual T data for this site (2 in)
-%     tmp = m{7};
-%     % modify the July periods to be exactly 4 degress
-%     tmp(test,:) = 4;
-%     % replace T data in m with dummy data
-%     m{7} = tmp;
-% end
 
 junk = 99;

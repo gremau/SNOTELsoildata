@@ -1,14 +1,15 @@
-function [m,fileheaders]=loadsnotel(interval, siteID)
+function m = loadsnotel(interval, siteID)
 % loadsnotel.m
+%
+% if headers are needed use:
+% function [m,fileheaders]=loadsnotel(interval, siteID)
 %
 % Parses headers and loads desired fields from NWCC (SNOTEL/SCAN) yearly 
 % datafiles into one array, removes bad data, returns array + headers.
 %
-% arg 1 = 'hourly' or 'daily' ... load hourly or daily data files
-% arg 2 = 3-4 digit int ... site identifier (0 is dummy site)
-%
-% v2: 2/22/2011 Greg Maurer (changed to loadsnotel.m)
-% added dummy site generator and plot of original/removed datapoints
+% arguments:
+% interval = 'hourly' or 'daily' ... load hourly or daily data files
+% siteID = 3-4 digit int ... site identifier
 % ------------------------------------------------------------------------
 % select daily files (all sensors) or hourly soil sensor data
 if strcmp(interval, 'daily')
@@ -26,7 +27,7 @@ if strcmp(interval, 'daily')
 
 elseif strcmp(interval, 'hourly')
     datapath = '../datafiles/soilsensors_hourly/';
-    %datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
+    % datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
     
     % A complete datafile has this many sensors
     completesensorset = 9;
@@ -267,8 +268,5 @@ elseif strcmp(interval, 'daily')
         m{i}(qualitycontrol) = nan;
     end
 end
-
-
-
 
 junk = 99;
