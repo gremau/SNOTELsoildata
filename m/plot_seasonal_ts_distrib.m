@@ -16,7 +16,7 @@ addpath('/home/greg/data/programming/m_common/');
 siteID = str2num(input('Which SNOTEL station?: ', 's'));
 
 % load hourly data from 2 sites w/ loadsnotel:
-[siteHourly, headers] = loadsnotel('hourly', siteID);
+siteHourly = loadsnotel('hourly', siteID);
 
 % parse out the date, soil moisture, and soil temperature sensors
 datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}), 'yyyy-mm-ddHH:MM');

@@ -5,34 +5,53 @@
 %
 % started 120119 GM
 
-
 close all; clear all;   % clear figures and variables in the workspace
 fignum = 0;     % used to increment figure number for plots
 addpath('/home/greg/data/programming/m_common/');
 
-% Ask user for site number
+% Ask user for site number and depth
 siteID = str2num(input('Which SNOTEL station?: ', 's'));
+sensordepth = str2num(input(...
+    'What sensor for histograms (1 = 5cm,2 = 20cm, 3 = 50cm)?: ', 's'));
 
-% load hourly data from site  w/ loadsnotel:
+% Load hourly data from site  w/ loadsnotel:
 siteHourly = loadsnotel('hourly', siteID);
 
-% parse out the date and soil moisture sensors and set normalizing/axes
+% Parse out the date and soil moisture sensors and set normalizing/axes
 datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}), 'yyyy-mm-ddHH:MM');
-%sm = siteHourly{4}; % 5cm depth no norm
-%xax = 75
-sm = smnormalize(siteHourly{4}, 1).*100; % 5cm depth nomalized
+datenum_h = datenum(datevec_h);
+
+% Run RAW SENSOR DATA
+% sm = [siteHourly{4}, siteHourly{5}, siteHourly{6}]; % 5cm depth no norm
+% xax = 75
+% Run NORMALIZED data with smnormalize
+sm = [smnormalize(siteHourly{4}, 1), smnormalize(siteHourly{5}, 1), ...
+    smnormalize(siteHourly{6}, 1)].*100;
 xax = 100; % these axes are good for normalized data
 yax = 0.2;
-disp('*** Running in normalized soil moisture data mode');
-%sm = siteHourly{5};  % 20cm depth
-%sm = siteHourly{6};  % 60cm depth
+disp('*** Running in normalized soil moisture data mode ***');
 
-% create a water year vector that matches size of datevec_h year vector
+% PLOT 1 - the entire timeseries - all depths
+titles = {'5cm depth' '20cm depth' '50cm depth'};
+ticklocations = linspace(min(datenum_h), max(datenum_h), 20);
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - SM timeseries - All data']);
+for i = 1:size(sm, 2)
+    subplot (3, 1, i)
+    plot(datenum_h, sm(:, i), 'k');
+    set(gca, 'XTick', ticklocations);
+    set(gca, 'XTickLabel', ticklocations);
+    datetick('x', 12, 'keepticks');
+    ylabel('Normalized soil moisture');
+    title(titles{i});
+end
+
+% Create a water year vector that matches size of datevec_h year vector
 wyearvec = datevec_h(:, 1);
 wytest = (datevec_h(:,2)==10 | datevec_h(:,2)==11 | datevec_h(:,2)==12);
 wyearvec(wytest) = wyearvec(wytest) + 1;
-
-% list of water years in the dataset
+% List of water years in the dataset
 wyears = [unique(wyearvec); 0]; % 0 sets the all years option in loop
 
 % Loop through each water year in dataset and select data, then plot
@@ -44,22 +63,17 @@ for i = 1:length(wyears)
         yax = 0.1;
     end
     datevec_sel = datevec_h(yeartest, :);
-    sm_sel = sm(yeartest, :);
-
-     % this sorta works for wateryear
-%     wyeartest = circshift(yeartest, -92*24);
-%     datevec_sel = datevec_h(wyeartest, :);
-%     sm_sel = sm(wyeartest, :);
+    sm_sel = sm(yeartest, sensordepth);
     
     % Create logical tests and pull desired quarters (3 months intervals)
     testOND = (datevec_sel(:,2)==10 | datevec_sel(:,2)==11 | datevec_sel(:,2)==12);
     testJFM = (datevec_sel(:,2)==1 | datevec_sel(:,2)==2 | datevec_sel(:,2)==3);
     testAMJ = (datevec_sel(:,2)==4 | datevec_sel(:,2)==5 | datevec_sel(:,2)==6);
     testJAS = (datevec_sel(:,2)==7 | datevec_sel(:,2)==8 | datevec_sel(:,2)==9);
-    sm_OND = sm_sel(testOND);
-    sm_JFM = sm_sel(testJFM);
-    sm_AMJ = sm_sel(testAMJ);
-    sm_JAS = sm_sel(testJAS);
+    sm_OND = sm_sel(testOND,:);
+    sm_JFM = sm_sel(testJFM,:);
+    sm_AMJ = sm_sel(testAMJ,:);
+    sm_JAS = sm_sel(testJAS,:);
     
     % Calculate mean and standard deviations of this data
     sm_ONDm = mean(sm_OND(~isnan(sm_OND)));
@@ -83,13 +97,13 @@ for i = 1:length(wyears)
     clear testOND testJFM testAMJ testJAS;
     
     %-------------------------------------------------------------
-    % PLOT the data
+    % PLOTS 2 -> end. One per water year and one for all years
     fignum = fignum+1;
     h = figure(fignum);
     set(h, 'Name', ['Site ' num2str(siteID) ' - SM histograms - WY'...
         num2str(wyears(i))]);
     
-    % Four plots on the left are for quarters
+    % First four subplots on the left are for quarters
     subplot (4, 4, 1)
     xedges = 0:1:100;
     n = histc(sm_OND, xedges);
@@ -139,7 +153,7 @@ for i = 1:length(wyears)
     title('July 1 - Sept 30');
     
     
-    % Plot the month distributions in 3 rows 
+    % Subplots of the monthly distributions in 3 rows 
     plotorder = [6 7 8 10 11 12 14 15 16 2 3 4];
     
     for j = 1:length(plotorder)
