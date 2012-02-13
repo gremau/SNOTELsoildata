@@ -1,19 +1,19 @@
-% plot_monthly_sm_distrib.m
+% plot_soilsensor_distrib.m
 %
-% Plots distributions of soil moisture for individual months and years. 
-% Data for all years (available) is represented.
+% Plots distributions of SNOTEL soil sensor data for individual months 
+% and years. Data for all years (available) is represented.
 %
 % started 120119 GM
 
 close all; clear all;   % clear figures and variables in the workspace
 fignum = 0;     % used to increment figure number for plots
-addpath('/home/greg/data/programming/m_common/');
+addpath('/home/greg/data/programming_resources/m_common/');
 
 % Ask user for site number and depth
-siteID = str2num(input('Which SNOTEL station?: ', 's'));
-sensoroutput = input('Which sensor output (vwc or temp)?: ', 's');
-sensordepth = str2num(input(...
-    'What sensor depth in histograms (1=5cm, 2=20cm, 3=50cm)?: ', 's'));
+siteID = 828;%str2num(input('Which SNOTEL station?: ', 's'));
+sensoroutput ='temp';%input('Which sensor output (vwc or temp)?: ', 's');
+sensordepth = 1;%str2num(input(...
+    %'What sensor depth in histograms (1=5cm, 2=20cm, 3=50cm)?: ', 's'));
 
 % Load hourly data from site  w/ loadsnotel:
 siteHourly = loadsnotel('hourly', siteID);
@@ -74,7 +74,7 @@ for i = 1:length(wyears)
         yeartest = wyearvec(:) == wyears(i); % Use water years to select data
     elseif wyears(i)==0
         yeartest = wyearvec(:) > 0;
-        yax = 0.1;
+        ymax = 0.1;
     end
     datevec_sel = datevec_h(yeartest, :);
     sensors_sel = sensors(yeartest, sensordepth);

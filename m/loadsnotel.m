@@ -13,9 +13,9 @@ function m = loadsnotel(interval, siteID)
 % ------------------------------------------------------------------------
 % select daily files (all sensors) or hourly soil sensor data
 if strcmp(interval, 'daily')
-    datapath = '../datafiles/allsensors_daily/';
-    %datapath = '/home/greg/data/rawdata/SNOTELdata/allsensors_daily/';
-    %datapath = '../datafiles/NiwotSNOTELs_90-2010/';
+    datapath = '../rawdata/allsensors_daily/';
+    %datapath = '/home/greg/data/rawdata/NRCSdata/allsensors_daily/';
+    %datapath = '../rawdata/other/NiwotSNOTELs_90-2010/';
     
     % A complete datafile has this many sensors
     completesensorset = 20;
@@ -26,7 +26,7 @@ if strcmp(interval, 'daily')
     'RDC.I-1:-8' 'RDC.I-1:-20' 'BATT.I-1'};
 
 elseif strcmp(interval, 'hourly')
-    datapath = '../datafiles/soilsensors_hourly/';
+    datapath = '../rawdata/soilsensors_hourly/';
     % datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
     
     % A complete datafile has this many sensors
