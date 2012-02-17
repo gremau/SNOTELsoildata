@@ -17,52 +17,53 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
-addpath('/home/greg/data/programming/m_common/'); % access to nanmean, etc
+addpath('/home/greg/data/programming_resources/m_common/'); % access to nanmean, etc
 
 % Set data path and file name, read in file
-datapath = '../datafiles/';
+rawdatapath = '../rawdata/';
+curateddatapath = '../curated_data/';
 
 % Load list of sites with data in the daily data directory
-havedata = unique(dlmread([datapath 'allsensors_daily/_sitelist.txt']));
+sitelist = dlmread([rawdatapath 'allsensors_daily/sitelist.txt']);
+havedata = uint16(unique(sitelist(:, 1)));
 
-% Generate list site 30yr average data from 7100_avgprecipswe file
-% Create format string (state, siteID, siteName, elev, P_tot, Max_swe)
-formatstr = '%s%f%s%f%f%f';
-fid = fopen([datapath 'longterm_averages/'...
-    '7100_avgprecipswe_ALLsnotel.csv']);
-listcell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
-fclose(fid);
-
-% Put cells containing siteID, elev, P_tot, and Max_SWE together
-sitesarray = [listcell{2}, listcell{4}, listcell{5}, listcell{6}];
-clear listcell;
+% Get 30yr average data
+avgSWE = load7100Avg('swe');
+avgPrecip = load7100Avg('precip');
 
 % Filter out sites for which there is no data in the data folder
-havedatatest = ismember(sitesarray(:,1), havedata);
-sitesarray = sitesarray(havedatatest, :);
+haveSWEavg = ismember(havedata, uint16(avgSWE(:,1)));
+havePrecipavg = ismember(havedata, uint16(avgPrecip(:,1)));
+havedata = havedata((haveSWEavg & havePrecipavg), :);
 
 % Import list of wasatch + uinta sites
 formatstr = '%s%f%s%s';
-fid = fopen([datapath 'wasatchuintasites.csv']);
+fid = fopen([curateddatapath 'was-uint-oq_SNOTELs.csv']);
 wasatchuintacell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
 fclose(fid);
 
-% Creat list of wasatch and uinta sites
+% Create list of wasatch and uinta sites
 test = strcmpi(wasatchuintacell{4}, 'WASATCH') | ...
-    strcmpi(wasatchuintacell{4},'UINTAH');
+    strcmpi(wasatchuintacell{4},'UINTA');
 wasatchuintas = wasatchuintacell{2}(test);
 clear test;
 
 % Create a test to plot a subset of sites in sitesarray (wasatch and uintas)
-wasatchuintatest = ismember(sitesarray(:,1), wasatchuintas);
+wasatchuintatest = ismember(havedata(:,1), wasatchuintas);
 
-% Remove bad sites
-badsitetest = ismember(sitesarray(:,1), [583, 935, 358, 1042]);
-sitesarray(badsitetest, :) = [];
+sitesarray = nan*zeros(length(havedata), 16);
 
 % Load data for each site into a large cellarray
-for i = 1:length(sitesarray);
-    [m, ~] = loadsnotel('daily', sitesarray(i,1));
+for i = 1:length(havedata);
+    m = loadsnotel('daily', havedata(i));
+    sitesarray(i, 1) = havedata(i);
+    % Create tests to select the average data & put in sitesarray
+    avgSWEtest = uint16(avgSWE(:, 1))==havedata(i);
+    avgPreciptest = uint16(avgPrecip(:, 1))==havedata(i);
+    sitesarray(i, 2) = avgSWE(avgSWEtest, 2); % use SWE file elev
+    sitesarray(i, 3) = avgSWE(avgSWEtest, 27);
+    sitesarray(i, 4) = avgPrecip(avgPreciptest, 15);
+    % Create date vector to select averaging timeperiods for sensor data
     dailysite_datevec = datevec(m{2}, 'yyyy-mm-dd');
     % Create logical test for July and February
     julytest = dailysite_datevec(:,2)==7;

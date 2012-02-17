@@ -11,8 +11,11 @@ function m = loadsnotel(interval, siteID)
 % interval = 'hourly' or 'daily' ... load hourly or daily data files
 % siteID = 3-4 digit int ... site identifier
 % ------------------------------------------------------------------------
-% select daily files (all sensors) or hourly soil sensor data
-if strcmp(interval, 'daily')
+
+siteID = uint16(siteID); % Convert input to int just in case
+
+% select daily files (all sensors) or hourly soil sensor data 
+if strcmpi(interval, 'daily')
     datapath = '../rawdata/allsensors_daily/';
     %datapath = '/home/greg/data/rawdata/NRCSdata/allsensors_daily/';
     %datapath = '../rawdata/other/NiwotSNOTELs_90-2010/';
@@ -24,8 +27,12 @@ if strcmp(interval, 'daily')
     'TMAX.D-1' 'TMIN.D-1' 'TAVG.D-1' 'SNWD.I-1' 'SMS.I-1:-2 ' 'SMS.I-1:-8'...
     'SMS.I-1:-20' 'STO.I-1:-2 ' 'STO.I-1:-8' 'STO.I-1:-20' 'RDC.I-1:-2 ' ...
     'RDC.I-1:-8' 'RDC.I-1:-20' 'BATT.I-1'};
+    % Load list of bad data years for all sites
+    badDataList = sortrows(csvread([datapath 'baddata.txt'], 1, 0));
+    badYears = badDataList((badDataList(:, 1)==siteID), 2);
 
-elseif strcmp(interval, 'hourly')
+
+elseif strcmpi(interval, 'hourly')
     datapath = '../rawdata/soilsensors_hourly/';
     % datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
     
@@ -34,6 +41,7 @@ elseif strcmp(interval, 'hourly')
     % Columns to find in hourly files (note spaces after -2 sensors)
     desiredheaders = {'Site Id' 'Date' 'Time' 'SMS.I-1:-2 ' 'SMS.I-1:-8'...
     'SMS.I-1:-20' 'STO.I-1:-2 ' 'STO.I-1:-8' 'STO.I-1:-20'};
+    badYears = [];
 else
     error('Not a valid data type (daily or hourly)')
 end
@@ -151,17 +159,12 @@ end
 
 %--------------------------------------------------------------------------
 % CLEAN OUT BAD DATA
-%
-% But first, extract test column to preserve original data
-testColumn = 7; % m{7} is Ts @ 5cm
-unfilteredData = m{testColumn};
 
 % Start with hourly files-----
-if strcmp(interval, 'hourly')
+if strcmpi(interval, 'hourly')
     
     % Mark and remove sub-hourly rows
     tvec = datevec(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
-    datenumUnfiltered = datenum(tvec); % again, for bad data removal tests
     subhourly = tvec(:, 5) ~= 0;
     tvec(subhourly,:) = [];
     clear test;
@@ -215,20 +218,29 @@ if strcmp(interval, 'hourly')
 %     clear i;
 
 % Filter daily files-----
-elseif strcmp(interval, 'daily')
+elseif strcmpi(interval, 'daily')
     
     % Mark and remove sub-daily rows
     tvec = datevec(m{2}, 'yyyy-mm-dd');
-    datenumUnfiltered = datenum(tvec); % again, for bad data removal tests
     subdaily = ~strcmp(m{3}, '');
     tvec(subdaily,:) = [];
     clear test;
+
     
-    % remove rows marked in subdaily array
+    % Remove rows marked in subdaily array
     for i = 1:completesensorset
         m{i}(subdaily) = [];
     end
+        
+    % Create a water-year vector
+    wyearvec = tvec(:, 1);
+    wytest = (tvec(:,2)==10 | tvec(:,2)==11 | tvec(:,2)==12);
+    wyearvec(wytest) = wyearvec(wytest) + 1;
+    m{3} = wyearvec;
     
+    % Test to remove badyears
+    badyeartest = ismember(wyearvec, badYears);
+
     % Create a qc array that collects errors for all columns
     qualitycontrol = false(length(m{1}), 1);
     
@@ -238,6 +250,9 @@ elseif strcmp(interval, 'daily')
         m{i}(test) = nan;
         qualitycontrol = qualitycontrol | test;
         clear test;
+        
+        % Remove the bad data in badyeartest
+        m{i}(badyeartest) = nan;
         
         % Remove negative WTEQ and PREC values
         if i<6
@@ -264,9 +279,7 @@ elseif strcmp(interval, 'daily')
     clear i;
     
     % change data to nan if flagged in qc array
-    for i = 4:completesensorset
+    for i = 11:completesensorset
         m{i}(qualitycontrol) = nan;
     end
 end
-
-junk = 99;

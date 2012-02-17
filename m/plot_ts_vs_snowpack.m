@@ -12,19 +12,16 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
-addpath('/home/greg/data/programming/m_common/');
+addpath('/home/greg/data/programming_resources/m_common/');
 
 % Ask user for month number
 month = str2double(input('Which month (1-12)?: ', 's'));
 
 % Set data path and file name, read in file
-datapath = '../datafiles/';
+datapath = '../rawdata/';
 
 % Load list of sites with data in the daily data directory
-dailyDataSites = sortrows(csvread([datapath 'allsensors_daily/_sitelist.txt']));
-
-% Load list of bad data years for all sites
-badDataYears = sortrows(csvread([datapath 'allsensors_daily/_baddata.txt'], 1, 0));
+dailyDataSites = sortrows(csvread([datapath 'allsensors_daily/sitelist.txt']));
 
 % Import list of wasatch + uinta sites
 formatstr = '%s%f%s%s';
@@ -45,7 +42,7 @@ monthLabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
 monthMeans = [];
 % Load data and parse out month data
 for i = 1:length(sites);
-    [m, ~] = loadsnotel('daily', sites(i));
+    m = loadsnotel('daily', sites(i));
     %Create datevector for datafile
     siteDateVec = datevec(m{2}, 'yyyy-mm-dd');
     % Columns are site, year, st-5, st-20, st-60, sndepth, swe, airT
@@ -54,9 +51,6 @@ for i = 1:length(sites);
     monthTest = siteDateVec(:,2)==month;
     monthData = siteData(monthTest, :);
     monthYears = unique(monthData(:,2));
-    % Exclude bad years of data
-    badYears = badDataYears(ismember(badDataYears(:,1), sites(i)), 2);
-    monthYears = monthYears(~ismember(monthYears, badYears));
     % Reduce to yearly averages
     for j = 1:length(monthYears)
         yearTest = monthData(:, 2) == monthYears(j);

@@ -26,8 +26,8 @@ addpath('/home/greg/data/programming/m_common/');
 siteID = str2double(input('Which SNOTEL station?: ', 's'));
 
 % load hourly and daily data from site w/ loadsnotel:
-[hourlyData, ~] = loadsnotel('hourly', siteID);
-[dailyData, ~] = loadsnotel('daily', siteID);
+hourlyData = loadsnotel('hourly', siteID);
+dailyData = loadsnotel('daily', siteID);
 
 % UNCOMMENT if hourlyData files are not there yet (and comment line above)
 % t = [1;1;1;1];
