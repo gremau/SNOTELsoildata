@@ -8,10 +8,10 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
-addpath('/home/greg/data/programming/m_common/');
+addpath('/home/greg/data/programming_resources/m_common/');
 
 % Set data path and file name, read in file
-datapath = '../datafiles/';
+datapath = '../rawdata/';
 
 % Ask user for month number
 month = str2double(input('Which month (1-12)?: ', 's'));
@@ -19,17 +19,17 @@ monthLabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
     'Nov' 'Dec'};
 
 %Load list of sites in the daily data directory
-havedata = unique(dlmread([datapath 'allsensors_daily/_sitelist.txt']));
+havedata = unique(dlmread([datapath 'allsensors_daily/sitelist.txt']));
 
 % Load list of sites with data in the daily data directory
-dailyDataSites = sortrows(csvread([datapath 'allsensors_daily/_sitelist.txt']));
+dailyDataSites = sortrows(csvread([datapath 'allsensors_daily/sitelist.txt']));
 
 % Load list of bad data years for all sites
-badDataYears = sortrows(csvread([datapath 'allsensors_daily/_baddata.txt'], 1, 0));
+badDataYears = sortrows(csvread([datapath 'allsensors_daily/baddata.txt'], 1, 0));
 
 % Load 30 year average data
 averages = dlmread([datapath 'longterm_averages/'...
-    '7100_avgprecipswe_UTsnotel.csv'], ',', 1, 0);
+    '7100_avgprecipswe_snotel.csv'], ',', 1, 4);
 
 % Generate list of sites and their elevations from inventory file
 % Create format string (station,elev,cdbs_id only here)
@@ -54,7 +54,7 @@ sitesarray(badsitetest, :) = [];
 % Load data for each site into a large cellarray
 datacell = cell(length(sitesarray), 1);
 for i = 1:length(sitesarray);
-    [m, ~] = loadsnotel('daily', sitesarray(i,1));
+    m = loadsnotel('daily', sitesarray(i,1));
     dailysite_datevec = datevec(m{2}, 'yyyy-mm-dd');
     % Create logical test for July and selected month
     julytest = dailysite_datevec(:,2)==7;
@@ -76,6 +76,8 @@ for i = 1:length(sitesarray);
         sitesarray(i, 10) = NaN; %AVG precip
         sitesarray(i, 11) = nan; %AVG peakswe
     end
+    sitesarray(i, 12) = (nanstd(m{9}(monthtest))./(nanmean(m{9}(monthtest))));% cv avg air temp
+    sitesarray(i, 13) = nanstd(m{15}(monthtest));% cv 20cm soil temp
 end
 
 sitesarray(:,2) = (sitesarray(:,2)*.3048);
@@ -211,11 +213,17 @@ legend('Air', 'Soil(5cm)', 'Moist adiabatic lapse( 5^oC/km)');
 fignum = fignum+1;    
 h = figure(fignum);
 
+badtest = sitesarray(:, 12)>5;
+
 subplot (1,2,1);
-plot(sitesarray(:,2), sitesarray(:,7), 'ok', 'MarkerFaceColor', ...
-    [0.7 0.7 0.7]);
+errorbar(sitesarray(~badtest,2), sitesarray(~badtest,7), sitesarray(~badtest,12), 'ok', ...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
-plot(sitesarray(:,2), sitesarray(:,8), 'ok', 'MarkerFaceColor', 'r');
+%plot(sitesarray(:,2), sitesarray(:,7), 'ok', 'MarkerFaceColor', ...
+%    [0.7 0.7 0.7]);
+errorbar(sitesarray(:,2), sitesarray(:,8), sitesarray(:,13), ...
+    'ok', 'MarkerFaceColor', 'r');
+%plot(sitesarray(:,2), sitesarray(:,8), 'ok', 'MarkerFaceColor', 'r');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');

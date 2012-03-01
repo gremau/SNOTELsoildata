@@ -29,7 +29,7 @@ if strcmp(interval, 'daily')
     'RDC.I-1:-8' 'RDC.I-1:-20' 'BATT.I-1'};
 
 elseif strcmp(interval, 'hourly')
-    datapath = '../datafiles/soilsensors_hourly/';
+    datapath = '../rawdata/soilsensors_hourly/';
     % datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
     
     % A complete datafile has this many sensors
@@ -191,6 +191,4 @@ for i = 1:length(files)
     end
     clear orderedcell;
 end
-
-
-junk = 99;
+% junk = 99

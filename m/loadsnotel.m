@@ -28,8 +28,8 @@ if strcmpi(interval, 'daily')
     'SMS.I-1:-20' 'STO.I-1:-2 ' 'STO.I-1:-8' 'STO.I-1:-20' 'RDC.I-1:-2 ' ...
     'RDC.I-1:-8' 'RDC.I-1:-20' 'BATT.I-1'};
     % Load list of bad data years for all sites
-    badDataList = sortrows(csvread([datapath 'baddata.txt'], 1, 0));
-    badYears = badDataList((badDataList(:, 1)==siteID), 2);
+    % badDataList = sortrows(csvread([datapath 'baddata.txt'], 1, 0));
+    % badYears = badDataList((badDataList(:, 1)==siteID), 2);
 
 
 elseif strcmpi(interval, 'hourly')
@@ -41,10 +41,15 @@ elseif strcmpi(interval, 'hourly')
     % Columns to find in hourly files (note spaces after -2 sensors)
     desiredheaders = {'Site Id' 'Date' 'Time' 'SMS.I-1:-2 ' 'SMS.I-1:-8'...
     'SMS.I-1:-20' 'STO.I-1:-2 ' 'STO.I-1:-8' 'STO.I-1:-20'};
-    badYears = [];
+    % badYears = [];
 else
     error('Not a valid data type (daily or hourly)')
 end
+
+% Until there is better baddata control, use this file:
+badDataList = sortrows(csvread(...
+    '../rawdata/allsensors_daily/baddata.txt', 1, 0));
+badYears = badDataList((badDataList(:, 1)==siteID), 2);
 
 %--------------------------------------------------------------------------
 % create a cellarray of filenames for the site
@@ -174,19 +179,27 @@ if strcmpi(interval, 'hourly')
         m{i}(subhourly) = [];
     end
     
-    % Create a quality control array that collects errors for all columns
-    qualitycontrol = false(length(m{1}), 1);
+    % Create a water-year vector and add to end of matrix
+    wyearvec = tvec(:, 1);
+    wytest = (tvec(:,2)==10 | tvec(:,2)==11 | tvec(:,2)==12);
+    wyearvec(wytest) = wyearvec(wytest) + 1;
+    m{10} = wyearvec;
+    
+    % Test to remove badyears
+    badyeartest = ismember(wyearvec, badYears);
     
     for i = 4:completesensorset
         
         % mark the datalogger error signals (-99.9, -273.2)
         test = m{i} == -99.9 | m{i} == -273.2;
-        qualitycontrol = qualitycontrol | test;
         m{i}(test) = nan;
         clear test;
         
+        % Remove the bad data in badyeartest
+        m{i}(badyeartest) = nan;
+        
         % change unreasonably high and low numbers to nan
-        test = m{i} < -15 | m{i} > 100;
+        test = m{i} < -25 | m{i} > 100;
         m{i}(test) = nan;
         clear test;
         
@@ -196,7 +209,6 @@ if strcmpi(interval, 'hourly')
             test_val = m{i} == 0.0;
             test_winter = tvec(:,2) > 10 | tvec(:, 2) < 4;
             test = test_val & test_winter;
-            %qualitycontrol = qualitycontrol | test;
             m{i}(test) = nan;
             clear test_val test_winter test;
         end
@@ -204,18 +216,25 @@ if strcmpi(interval, 'hourly')
         % Remove bad soil temperature values
         if i>6           
             % Get rid of silly values
-            test = m{i} > 45 | m{i} < -15;
+            test = m{i} > 45 | m{i} < -25;
             m{i}(test) = nan;
             clear test
         end
     end
+    
+    % Ensure that each sensor set to nans in the same places
+    sensor1_nantest = (isnan(m{4}) | isnan(m{7}));
+    m{4}(sensor1_nantest) = nan;
+    m{7}(sensor1_nantest) = nan;
+    sensor2_nantest = (isnan(m{5}) | isnan(m{8}));
+    m{5}(sensor2_nantest) = nan;
+    m{8}(sensor2_nantest) = nan;
+    sensor3_nantest = (isnan(m{6}) | isnan(m{9}));
+    m{6}(sensor3_nantest) = nan;
+    m{9}(sensor3_nantest) = nan;
+    
     clear i;
     
-    % change data to nan if flagged in qc array
-%     for i = 4:completesensorset
-%         m{i}(qualitycontrol) = nan;
-%     end
-%     clear i;
 
 % Filter daily files-----
 elseif strcmpi(interval, 'daily')
@@ -226,51 +245,53 @@ elseif strcmpi(interval, 'daily')
     tvec(subdaily,:) = [];
     clear test;
 
-    
     % Remove rows marked in subdaily array
     for i = 1:completesensorset
         m{i}(subdaily) = [];
     end
         
-    % Create a water-year vector
+    % Create a water-year vector and add to end of matrix
     wyearvec = tvec(:, 1);
     wytest = (tvec(:,2)==10 | tvec(:,2)==11 | tvec(:,2)==12);
     wyearvec(wytest) = wyearvec(wytest) + 1;
-    m{3} = wyearvec;
+    m{21} = wyearvec;
     
     % Test to remove badyears
     badyeartest = ismember(wyearvec, badYears);
-
-    % Create a qc array that collects errors for all columns
-    qualitycontrol = false(length(m{1}), 1);
     
     for i = 4:completesensorset
         % mark the datalogger error signals (-99.9, -273.2)
         test = m{i} == -99.9 | m{i} == -273.2;
         m{i}(test) = nan;
-        qualitycontrol = qualitycontrol | test;
         clear test;
         
         % Remove the bad data in badyeartest
         m{i}(badyeartest) = nan;
         
-        % Remove negative WTEQ and PREC values
+        % Set negative WTEQ and PREC values to 0
         if i<6
             test = m{i} < 0.0;
-            m{i}(test) = nan;
+            m{i}(test) = 0;
             clear test;
         end
         
-        % Remove negative snow depth values
+        % Set negative snow depth values to 0
         if i>9 && i<11
             test = m{i} < 0.0;
+            m{i}(test) = 0.0;
+            clear test;
+        end
+        
+        % Remove high soil moisture values
+        if i>10 && i<14
+            test = m{i} > 100;
             m{i}(test) = nan;
             clear test;
         end
         
         % Remove High temp values for deep soil sensors
         if i>13 && i<17
-            test = m{i} > 30.0;
+            test = m{i} > 35.0;
             m{i}(test) = nan;
             clear test;
         end
@@ -278,8 +299,21 @@ elseif strcmpi(interval, 'daily')
     end
     clear i;
     
-    % change data to nan if flagged in qc array
-    for i = 11:completesensorset
-        m{i}(qualitycontrol) = nan;
-    end
+    sensor1_nantest = (isnan(m{6}) | isnan(m{7}) |isnan(m{8}) |isnan(m{9}));
+    m{6}(sensor1_nantest) = nan;
+    m{7}(sensor1_nantest) = nan;
+    m{8}(sensor1_nantest) = nan;
+    m{9}(sensor1_nantest) = nan;
+    sensor2_nantest = (isnan(m{11}) | isnan(m{14}) | isnan(m{17}));
+    m{11}(sensor2_nantest) = nan;
+    m{14}(sensor2_nantest) = nan;
+    m{17}(sensor2_nantest) = nan;
+    sensor3_nantest = (isnan(m{12}) | isnan(m{15}) | isnan(m{18}));
+    m{12}(sensor3_nantest) = nan;
+    m{15}(sensor3_nantest) = nan;
+    m{18}(sensor3_nantest) = nan;
+    sensor4_nantest = (isnan(m{13}) | isnan(m{16}) | isnan(m{19}));
+    m{13}(sensor4_nantest) = nan;
+    m{16}(sensor4_nantest) = nan;
+    m{19}(sensor4_nantest) = nan;
 end

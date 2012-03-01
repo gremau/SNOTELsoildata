@@ -1,12 +1,13 @@
-function plot_snoteltests(interval, siteID, mraw, mtest)
+function plot_snoteltests(interval, siteID)
 %
-% Takes two matrices from a given site and interval. The columns in these 2
+% Loads 2 datasets from a given site and interval. The columns in these 2
 % matrices are then plotted on top of one another. This allows a view of
 % what values change as a dataset is put through cleaning/filtering
 % functions.
 %
 % args:  interval - 'daily' or 'hourly'
 %        siteID - site identifier integer (only used to title figures)
+%        if using varargin:
 %        mraw - first matrix (plotted first - should be "raw" data)
 %        mtest - second matrix (will contain a subset or transformation of
 %                 data in mraw
@@ -19,9 +20,13 @@ fignum=0; close all;
 
 % Create datetime vector to use in plotting
 if strcmp(interval, 'hourly')
+    mraw = test_loadsnotel('hourly', siteID);
+    mtest = loadsnotel('hourly', siteID);
     tvec = datenum(strcat(mraw{2}, mraw{3}), 'yyyy-mm-ddHH:MM');
     tvec_test = datenum(strcat(mtest{2}, mtest{3}), 'yyyy-mm-ddHH:MM');
 elseif strcmp(interval, 'daily')
+    mraw = test_loadsnotel('daily', siteID);
+    mtest = loadsnotel('daily', siteID);
     tvec = datenum(mraw{2}, 'yyyy-mm-dd');
     tvec_test = datenum(mtest{2}, 'yyyy-mm-dd');
 end

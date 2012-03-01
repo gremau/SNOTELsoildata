@@ -12,7 +12,7 @@ addpath('/home/greg/data/programming/m_common/');
 % Set list of sites, sensor output(vwc or temp), and sensor depth
 siteIDs = [828, 333, 396, 583]; % elev/swe: hi/hi, low/hi, hi/low, low/low
 sensoroutput = 'vwc';
-sensordepth = 1; %(1=5cm, 2=20cm, 3=50cm);
+sensordepth = 2; %(1=5cm, 2=20cm, 3=50cm);
 
 % Select TEMP or VWC data and set distribution bins and plot axes
 if strcmpi(sensoroutput, 'vwc');

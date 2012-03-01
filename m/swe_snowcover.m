@@ -11,27 +11,24 @@ function l = swe_snowcover(site_id, decday_h)
 %fignum = 0;     % used to increment figure number for plots
 
 % load daily data from site w/ loadsnotel:
-[dailyData, ~] = loadsnotel('daily', site_id);
+dailyData = loadsnotel('daily', site_id);
 
-% UNCOMMENT if hourlyData files are not there yet (and comment line above)
-% t = [1;1;1;1];
-% dailydata = {t '2011-03-29' t t };
+% Round hourly datenum down to says
+hourlydays = floor(decday_h);
 
-% parse out the date/times
+% Parse out the daily datenum and swe
 decday_d = datenum(dailyData{2}, 'yyyy-mm-dd');
-
-% Snow water equivalent
 wteq = dailyData{4}; 
 
 % Convert the daily swe data to an hourly value by matching values with 
 % decday_h days and copying to a new array
-wteqHourly = zeros(length(decday_h), 1);
-for i = 1:length(wteqHourly)
-    index = decday_d == floor(decday_h(i));
-    wteqHourly(i) = wteq(index);
+wteqHourly = nan * zeros(length(decday_h), 1);
+for i = 1:length(decday_d)
+    hourlyindex = hourlydays==decday_d(i);
+    wteqHourly(hourlyindex) = wteq(i);
 end
 
 % Logical test for snowcover based on SWE values
-swe_snowcover = wteqHourly > 0.5;
+swe_snowcover = wteqHourly > 0.1;
 
 l = swe_snowcover;

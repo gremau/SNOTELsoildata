@@ -10,10 +10,10 @@ fignum = 0;     % used to increment figure number for plots
 addpath('/home/greg/data/programming_resources/m_common/');
 
 % Ask user for site number and depth
-siteID = 828;%str2num(input('Which SNOTEL station?: ', 's'));
-sensoroutput ='temp';%input('Which sensor output (vwc or temp)?: ', 's');
-sensordepth = 1;%str2num(input(...
-    %'What sensor depth in histograms (1=5cm, 2=20cm, 3=50cm)?: ', 's'));
+siteID = str2num(input('Which SNOTEL station?: ', 's'));
+sensoroutput = input('Which sensor output (vwc or temp)?: ', 's');
+sensordepth = str2num(input(...
+    'What sensor depth in histograms (1=5cm, 2=20cm, 3=50cm)?: ', 's'));
 
 % Load hourly data from site  w/ loadsnotel:
 siteHourly = loadsnotel('hourly', siteID);

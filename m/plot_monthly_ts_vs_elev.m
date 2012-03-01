@@ -9,11 +9,11 @@ close all;      % clear any figures
 fignum = 0;     % used to increment figure number for plots
 
 % Set data path and file name, read in file
-datapath = '../datafiles/';
+datapath = '../rawdata/';
 %datapath = '/home/greg/data/rawdata/SNOTELdata/';
 
 % Generate list of sites from the _sitelist.txt file
-haveData = unique(dlmread([datapath 'soilsensors_hourly/_sitelist.txt']));
+haveData = unique(dlmread([datapath 'soilsensors_hourly/sitelist.txt']));
 
 % Generate list of sites and their elevations from inventory file
 % Create format string (station,elev only here)
@@ -23,12 +23,10 @@ fid = fopen([datapath 'station_inventory/UT_soilstations.csv']);
 listcell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
 fclose(fid);
 
-% Generate list of sites and their precip data from exported datafile
-% Create format string (station,elev only here)
-formatstr = '%f%f%f';
-fid = fopen([datapath 'longterm_averages/7100_avgprecipswe_UTsnotel.csv']);
-precipcell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
-fclose(fid);
+% Get 30yr average data
+avgSWE = load7100Avg('swe');
+avgPrecip = load7100Avg('precip');
+
 
 sitesArray = [listcell{1}, listcell{2}];
 precipArray = [precipcell{1}, precipcell{2}, precipcell{3}];
@@ -41,7 +39,7 @@ testHaveData2 = ismember(precipArray(:, 1), haveData);
 precipArray = precipArray(testHaveData2, :);
 
 % Load list of bad data years for all sites
-badDataYears = sortrows(csvread([datapath 'allsensors_daily/_baddata.txt'], 1, 0));
+badDataYears = sortrows(csvread([datapath 'allsensors_daily/baddata.txt'], 1, 0));
 
 % Change variables to something more useful
 sites = sitesArray(:,1);

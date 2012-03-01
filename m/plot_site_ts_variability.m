@@ -77,8 +77,8 @@ Ts_filled(bad)=interp1(good, Ts(good), find(bad), 'pchip');
 
 
 % Generate other filtered Ts data
- Ts_meandiff = filterseries(Ts, 'mean', 4);
- Ts_shiftdiff = filterseries(Ts, 'shift', 2.5);
+ Ts_meandiff = filtertempseries(Ts, 'mean', 4);
+ Ts_shiftdiff = filtertempseries(Ts, 'shift', 2.5);
 % Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
 
 Ts_filtered = Ts_shiftdiff;

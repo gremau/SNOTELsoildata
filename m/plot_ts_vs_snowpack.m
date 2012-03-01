@@ -201,7 +201,7 @@ title([monthLabels{month} ' 20cm Ts vs AirT']);
 
 % Offsets between AirT and SoilT
 
-offset = (monthMeans(:,8) - monthMeans(:, 3));
+offset = (monthMeans(:, 3) - monthMeans(:, 8));
 
 fignum = fignum+1;    
 h = figure(fignum);
