@@ -19,8 +19,6 @@
 
 close all; clear all;     % clear any figures and variables
 fignum = 0;     % used to increment figure number for plots
-%addpath('../m/');
-addpath('/home/greg/data/programming/m_common/');
 
 % Ask user for site number
 siteID = str2double(input('Which SNOTEL station?: ', 's'));

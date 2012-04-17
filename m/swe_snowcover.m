@@ -1,4 +1,4 @@
-function l = swe_snowcover(site_id, decday_h)
+function returned = swe_snowcover(site_id, decday_h)
 % swe_snowcover.m
 %
 % Takes swe array and returns a logical matrix indicating snowcover
@@ -31,4 +31,4 @@ end
 % Logical test for snowcover based on SWE values
 swe_snowcover = wteqHourly > 0.1;
 
-l = swe_snowcover;
+returned = swe_snowcover;

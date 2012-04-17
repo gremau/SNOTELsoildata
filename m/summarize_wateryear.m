@@ -1,6 +1,12 @@
 % summarize_wateryear.m
 %
+% Takes site filelists (from allsensors_daily, soilsensors_hourly),
+% avgSWE, avgPrecip, and site inventory data and generates a series of
+% files that contain climate or soil metrics that are aggregated for each
+% wateryear present in the dataset (including a breakdown of monthly data
+% and stats like elevation, avgSWE, avgPrecip, etc)
 %
+% Feb 20, 2012
 
 clear;          % clear memory
 close all;      % clear any figures
@@ -10,7 +16,7 @@ addpath('/home/greg/data/programming_resources/m_common/'); % access to nanmean,
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/';
-curateddatapath = '../curated_data/';
+processeddatapath = '../processed_data/';
 
 % Other useful variables
 wymonths = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -26,8 +32,8 @@ avgSWE = load7100Avg('swe');
 avgPrecip = load7100Avg('precip');
 
 % Get SNOTEL inventory data (elevation, coordinates)
-siteinventory = sortrows(dlmread([curateddatapath 'SNOTELinventory.csv'], ...
-    ',', 1, 2));
+siteinventory = sortrows(dlmread([processeddatapath 'SNOTELinventory.csv'], ...
+    ',', 1, 5));
 
 % Create three matrices to fill with climate and soil data
 climatesummary = nan * zeros(length(allsiteslist), 42);
@@ -135,13 +141,11 @@ for i = 1:length(climatesummary)
     climatesummary(i, 42) = avgPrecipvalue;
 end
     
-
 clear dailydata wyear wyeartest monthtest;
 
-% Write the data file
-csvwrite([curateddatapath 'wyear_climatesummary.csv'], climatesummary);
+% Write the climate data file
+csvwrite([processeddatapath 'wyear_climatesummary.csv'], climatesummary);
     
-
 site = 0;
 for i = 1:length(soilsiteslist)
     % Load the daily AND hourly datafiles, plus datevecs and snowcover for
@@ -166,13 +170,13 @@ for i = 1:length(soilsiteslist)
     % Monthly soil moisture
     colindex2 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
     % Get soil moisture for 3 depths
-%     sm5 = dailydata{11}(wyeartest_d);
-%     sm20 = dailydata{12}(wyeartest_d);
-%     sm50 = dailydata{13}(wyeartest_d);
+    sm5 = dailydata{11}(wyeartest_d);
+    sm20 = dailydata{12}(wyeartest_d);
+    sm50 = dailydata{13}(wyeartest_d);
     % NORMALIZE - Get soil moisture for 3 depths
-    sm5 = smnormalize(dailydata{11}(wyeartest_d), 1);
-    sm20 = smnormalize(dailydata{12}(wyeartest_d), 1);
-    sm50 = smnormalize(dailydata{13}(wyeartest_d), 1);
+    % sm5 = smnormalize(dailydata{11}(wyeartest_d), 1);
+    % sm20 = smnormalize(dailydata{12}(wyeartest_d), 1);
+    % sm50 = smnormalize(dailydata{13}(wyeartest_d), 1);
     % Parse out the datevector for year i
     wydatevec_d = dailydatevec(wyeartest_d, :);
     % Loop through 12 months and average soil moisture for each
@@ -366,9 +370,9 @@ for i = 1:length(soilsiteslist)
     
 end
 
-% Write the data files
-%csvwrite([curateddatapath 'wyear_soilwatersummary.csv'], soilwatersummary);
-csvwrite([curateddatapath 'wyear_soilwatersummary_smnorm.csv'], soilwatersummary);
-csvwrite([curateddatapath 'wyear_soiltempsummary.csv'], soiltempsummary);
+% Write the soil data files
+csvwrite([processeddatapath 'wyear_soilwatersummary.csv'], soilwatersummary);
+% csvwrite([processeddatapath 'wyear_soilwatersummary_smnorm.csv'], soilwatersummary);
+csvwrite([processeddatapath 'wyear_soiltempsummary.csv'], soiltempsummary);
 
 junk = 99;

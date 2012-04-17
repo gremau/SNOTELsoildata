@@ -9,64 +9,88 @@ close all;      % clear any figures
 fignum = 0;     % used to increment figure number for plots
 
 % Set data path and file name, read in file
-datapath = '../rawdata/';
-%datapath = '/home/greg/data/rawdata/SNOTELdata/';
+rawdatapath = '../rawdata/';
+processeddatapath = '../processed_data/';
 
-% Generate list of sites from the _sitelist.txt file
-haveData = unique(dlmread([datapath 'soilsensors_hourly/sitelist.txt']));
+% Ask user for month number and state
+% monthsel = str2double(input('Which month (1-12)?: ', 's'));
+statesel = input(...
+    'Which state ("AZ, CO, ID, MT, NM, NV, UT, WY, or all")?: ', 's');
 
-% Generate list of sites and their elevations from inventory file
-% Create format string (station,elev only here)
-formatstr = '%*s%f%*s%*s%*s%*s%f%*s%*s%*s%*s%*s%*s%*s%*s%*u';
-fid = fopen([datapath 'station_inventory/UT_soilstations.csv']);
-%fid = fopen([datapath 'station_invventory/merged_soilstations.csv']);
-listcell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
-fclose(fid);
+% monthlabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
+%     'Nov' 'Dec'};
+% monthlabel = monthlabels{monthsel};
 
-% Get 30yr average data
+%Load list of sites in the daily data directory
+havedata = csvread([rawdatapath 'soilsensors_hourly/sitelist.txt']);
+havedata = unique(havedata(:, 1));
+
+% Load 30 year average data
 avgSWE = load7100Avg('swe');
 avgPrecip = load7100Avg('precip');
 
+% Get an inventory of  sites and their elevations from inventory file
+% Create format string (station,elev,cdbs_id only here)
+formatstr = '%*s%*s%*s%*s%s%f%f%f%f';
+fid = fopen([processeddatapath 'SNOTELinventory.csv']);
+inventorycell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
+fclose(fid);
 
-sitesArray = [listcell{1}, listcell{2}];
-precipArray = [precipcell{1}, precipcell{2}, precipcell{3}];
-clear listcell;
+% Create some useful vectors
+states = inventorycell{1};
+sitesarray = [inventorycell{2}, inventorycell{5}*0.3048];
+precipArray = [avgPrecip(:, 1), avgPrecip(:, 15)];
+SWEarray = [avgSWE(:, 1), avgSWE(:, 27)];
+clear inventorycell;
+
+% Remove site rows that are not part of the selected state
+if strcmpi(statesel, 'all')
+    sitesarray = sitesarray;
+else
+    stateseltest = strcmpi(states, statesel);
+    sitesarray = sitesarray(stateseltest, :);
+end
 
 % Filter out sites for which there is no data in the data folder
-testHaveData = ismember(sitesArray(:, 1), haveData);
-sitesArray = sitesArray(testHaveData, :);
-testHaveData2 = ismember(precipArray(:, 1), haveData);
-precipArray = precipArray(testHaveData2, :);
+testhavedata = ismember(sitesarray(:, 1), havedata);
+sitesarray = sitesarray(testhavedata, :);
 
 % Load list of bad data years for all sites
-badDataYears = sortrows(csvread([datapath 'allsensors_daily/baddata.txt'], 1, 0));
+%badDataYears = sortrows(csvread([rawdatapath 'allsensors_daily/baddata.txt'], 1, 0));
 
 % Change variables to something more useful
-sites = sitesArray(:,1);
-elev = sitesArray(:,2);
-ltprecip = nan * zeros(length(sites), 1);
-ltswe = nan * zeros(length(sites), 1);
+% sites = sitesArray(:,1);
+% elev = sitesArray(:,2);
+% ltprecip = nan * zeros(length(sites), 1);
+% ltswe = nan * zeros(length(sites), 1);
 
-for i = 1:length(sites);
-    test = ismember(precipArray(:,1), sites(i));
-    if sum(test)==1
-        ltprecip(i) = precipArray(test, 2);
-        ltswe(i) = precipArray(test, 3);
+% Add 30-year SWE and Precip for all sites remaining in sitesarray
+for i = 1:length(sitesarray(:,1));
+    avgPreciptest = ismember(avgPrecip(:, 1), sitesarray(i, 1));
+    avgSWEtest = ismember(avgSWE(:,1), sitesarray(i, 1));
+
+    if sum(avgSWEtest)==1
+        sitesarray(i, 3) = avgSWE(avgSWEtest, 27); % AVG peakswe
     else
-        ltprecip(i) = nan;
-        ltswe(i) = nan;
+        sitesarray(i, 3) = nan;
+    end
+    if sum(avgPreciptest)==1
+        sitesarray(i, 4) = avgPrecip(avgPreciptest, 15); % AVG precip
+    else
+        sitesarray(i, 4) = nan;
     end
 end
 
-t = zeros(13, length(sites));
+% Create 6 empty arrays to accumulate calculated values
+t = zeros(13, length(sitesarray));
 template = {t t t t t t};
 [snowmeans freemeans snowsums freesums snowdev freedev] = template{:};
 
-m = cell(1, length(sites));
+%m = cell(1, length(sitesarray));
 
-for i = 1:length(sites);
-    [m, ~] = loadsnotel('hourly', sites(i));
-    Ts = m{7};
+for i = 1:length(sitesarray(:, 1));
+    m = loadsnotel('hourly', sitesarray(i, 1));
+    Ts = m{8}; % Select sensor depth (7=5cm, 8=20cm, 9=50cm)
     
     % INTERPOLATION to fill gaps in Ts (helps with running mean and
     % variance calculations below.
@@ -91,13 +115,13 @@ for i = 1:length(sites);
     % Filter
     %Ts = filterseries(Ts, 'shift', 2.5);
     % FILTER Tsoil data (returns filtered and re-interpolated array) 
-    Ts_meandiff = filterseries(Ts, 'mean', 7);
-    Ts = filterseries(Ts_meandiff, 'shift', 5);
+    Ts_meandiff = filtertempseries(Ts, 'mean', 7);
+    Ts = filtertempseries(Ts_meandiff, 'shift', 5);
     
     % Generate decimal day and snowcover test arrays
     decday_h = datenum(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
     date_vec = datevec(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
-    test_snow = swe_snowcover(sites(i), decday_h);
+    test_snow = swe_snowcover(sitesarray(i, 1), decday_h);
     test_free = ~test_snow;
     %nan_Ts = isnan(Ts); % Could be changed to nanmean
     
@@ -133,15 +157,13 @@ end
 
 clear headers Ts nan_Ts i j;
 
-% convert to m
-elev = elev/3.28;
 
 % % Plot all temperature data
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Mean 5cm Ts, by elevation - All months/years');
 
-errorbar(elev, snowmeans(13,:), snowdev(13,:), 'b.');
+errorbar(sitesarray(:, 2) , snowmeans(13,:), snowdev(13,:), 'b.');
 hold on
 errorbar(elev, freemeans(13,:), freedev(13,:), 'r.');
 plot(elev, snowmeans(13,:), 'b.', elev, freemeans(13,:), 'r.')

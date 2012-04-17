@@ -21,7 +21,7 @@ addpath('/home/greg/data/programming_resources/m_common/'); % access to nanmean,
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/';
-curateddatapath = '../curated_data/';
+processeddatapath = '../processed_data/';
 
 % Load list of sites with data in the daily data directory
 sitelist = dlmread([rawdatapath 'allsensors_daily/sitelist.txt']);
@@ -38,7 +38,7 @@ havedata = havedata((haveSWEavg & havePrecipavg), :);
 
 % Import list of wasatch + uinta sites
 formatstr = '%s%f%s%s';
-fid = fopen([curateddatapath 'SNOTELrangelist.csv']);
+fid = fopen([processeddatapath 'SNOTELrangelist.csv']);
 wasatchuintacell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
 fclose(fid);
 
@@ -87,14 +87,17 @@ for i = 1:length(havedata);
 end
 
 % PLOTS
-%
-% Mean annual air and soil temps vs elevation and SWE
+%-----------------------------------------------------
+% FIG 1 - Mean annual air and soil temps vs elevation and SWE
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name','% Mean Feb soil temp by SWE & snow depth, SNOTEL sites');
 % Mean annual air temp vs elevation
 subplot 221;
 plot(sitesarray(:,2), sitesarray(:,15), 'ok');
+hold on;
+plot(sitesarray(:,2), sitesarray(:,16), 'or');
+legend('AirT', 'SoilT');
 xlabel('Elevation (m)');
 ylabel('Mean annual air temp (Celsius)');
 title('MAT vs elevation');
@@ -120,8 +123,8 @@ xlabel('30yr SWE');
 %ylabel('Mean annual soil temp (20cm)');
 title('Mean soil temp vs SWE');
 
-
-% Feb soil temps vs snowpack in Feb and Dec (aggregated)
+%-------------------------------------------------------------------
+% FIG 2 - Feb soil temps vs snowpack in Feb and Dec (aggregated)
 % The december test checks if soil temp is dependent on antecedent snowpack
 % Note that each datapoint integrates ALL years, not individual years of
 % data
@@ -156,8 +159,8 @@ xlabel('Mean Dec snow depth');
 %ylabel('Mean Feb soil temp (Celsius)');
 title('vs Dec snow depth');
 
-
-% July soil and air T vs elevation and SWE
+%-------------------------------------------------
+% FIG 3 - July soil and air T vs elevation and SWE
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name','July and Feb temps vs elevation');
@@ -196,7 +199,8 @@ ylabel('Mean Feb SoilT');
 title('Feb soil vs air temp');
 
 
-% Mean July Soil Temperature vs 30 yr Peak SWE
+% --------------------------------------------------------------------
+% FIG 4 - Mean July Soil Temperature vs 30 yr Peak SWE
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name','Mean July Temps vs 30yr Peak SWE');

@@ -1,6 +1,10 @@
-% summarizeWY.m
+% plot_snotel_summary.m
 %
+% Reads the outputs from summarize_wateryear.m and makes a number of plots
+% characterizing variability in soil moisture and soil temperature in the
+% SNOTEL network.
 %
+% Feb 20, 2012 - Greg Maurer
 
 clear;          % clear memory
 close all;      % clear any figures
@@ -10,13 +14,13 @@ addpath('/home/greg/data/programming_resources/m_common/'); % access to hist2, e
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
-curateddatapath = '../curated_data/';
+processeddatapath = '../processed_data/';
 
-climatedata = csvread([curateddatapath 'wyear_climatesummary.csv']);
-soilwaterdata = csvread([curateddatapath 'wyear_soilwatersummary.csv']);
-normsoilwaterdata = csvread([curateddatapath ...
+climatedata = csvread([processeddatapath 'wyear_climatesummary.csv']);
+soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary.csv']);
+normsoilwaterdata = csvread([processeddatapath ...
     'wyear_soilwatersummary_smnorm.csv']);
-soiltempdata = csvread([curateddatapath 'wyear_soiltempsummary.csv']);
+soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary.csv']);
 soilsiteyears = dlmread([rawdatapath 'sitelist.txt'], ',');
 soilsites = unique(soilsiteyears(:, 1));
 
@@ -73,12 +77,12 @@ oct20cmSMsd = soilwaterdata(:, 6);
 oct50cmSMmean = soilwaterdata(:, 7);
 oct50cmSMsd = soilwaterdata(:, 8);
 
-feb5cmSTmean = soilwaterdata(:, 27);
-feb5cmSTsd = soilwaterdata(:, 28);
-feb20cmSTmean = soilwaterdata(:, 29);
-feb20cmSTsd = soilwaterdata(:, 30);
-feb50cmSTmean = soilwaterdata(:, 31);
-feb50cmSTsd = soilwaterdata(:, 32);
+feb5cmSMmean = soilwaterdata(:, 27);
+feb5cmSMsd = soilwaterdata(:, 28);
+feb20cmSMmean = soilwaterdata(:, 29);
+feb20cmSMsd = soilwaterdata(:, 30);
+feb50cmSMmean = soilwaterdata(:, 31);
+feb50cmSMsd = soilwaterdata(:, 32);
 
 % These repeat through sept (end of wy)
 ond5cmSMmean = soilwaterdata(:, 73);
@@ -469,57 +473,93 @@ ylabel('VWC (%)');
 title(' July, Aug, Sept VWC vs snowmeltday');
 
 %--------------------------------------------------------------
-% FIG 7 - Plot MAST vs SWE, snowcover duration, elevation, MAT
+% FIG 7 - Plot MAST % MAT vs max swe, snowcover duration, elevation
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', 'MAST vs SWE, snowcover duration, elevation, MAT');
-
+set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
 subplot (2, 2, 1)
-plot(maxswe(matchtest), meanAnnAirT(matchtest), 'om', 'MarkerFaceColor', 'm');
+plot(maxswe(matchtest), meanAnnAirT(matchtest), 'ok', ...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on;
-plot(maxswe(matchtest), mast5cm, 'ob', maxswe(matchtest), mast20cm, 'ob',...
-    maxswe(matchtest), mast50cm, 'ob');
+plot(maxswe(matchtest), mast5cm, '.b', ...
+    maxswe(matchtest), mast20cm, '.b', ...
+    maxswe(matchtest), mast50cm, '.b');
 legend('Mean Air T', 'Mean Soil T');
 xlabel('Peak SWE (mm)');
 ylabel('^oC');
-title('Wateryear air & soil T');
+title('Mean wateryear AirT & SoilT vs peak SWE');
 
 subplot (2, 2, 2)
-plot(elev(matchtest), meanAnnAirT(matchtest), 'om', 'MarkerFaceColor', 'm');
+plot(elev(matchtest), meanAnnAirT(matchtest), 'ok', ...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on;
-plot(elev(matchtest), mast5cm, 'ob', elev(matchtest), mast20cm, 'ob',...
-    elev(matchtest), mast50cm, 'ob');
+plot(elev(matchtest), mast5cm, '.b', ...
+    elev(matchtest), mast20cm, '.b',...
+    elev(matchtest), mast50cm, '.b');
 legend('Mean Air T', 'Mean Soil T');
 xlabel('Elevation (m)');
 ylabel('^oC');
-title('Wateryear air & soil T vs elevation');
+title('Mean wateryear AirT & SoilT vs Elevation');
 
 subplot (2, 2, 3)
-plot(snowduration(matchtest), meanAnnAirT(matchtest), 'om', 'MarkerFaceColor', 'm');
-
+plot(snowduration(matchtest), meanAnnAirT(matchtest), 'ok', ...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on;
-plot(snowduration(matchtest), mast5cm, 'ob', ...
-    snowduration(matchtest), mast20cm, 'ob',...
-    snowduration(matchtest), mast50cm, 'ob');
+plot(snowduration(matchtest), mast5cm, '.b', ...
+    snowduration(matchtest), mast20cm, '.b',...
+    snowduration(matchtest), mast50cm, '.b');
 legend('Mean Air T', 'Mean Soil T');
 xlabel('Snowpack duration (days)');
 ylabel('^oC');
-title('... vs snowpack duration');
+title('... vs Snowpack duration');
 
-subplot (2, 2, 4)
+%--------------------------------------------------------------
+% FIG 8 - Plot MAST (3 depths) vs SWE, snowcover duration, elevation, MAT
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'MAST vs SWE, snowduration, MAT, elevation');
+
+subplot (2, 2, 1)
+plot(maxswe(matchtest), mast5cm, '.g', ...
+    maxswe(matchtest), mast20cm, '.b',...
+    maxswe(matchtest), mast50cm, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Peak SWE (mm)');
+ylabel('MWYST (^oC)');
+title('Mean wateryear SoilT vs peak SWE');
+
+subplot (2, 2, 2)
 plot(meanAnnAirT(matchtest), mast5cm, '.g', ...
     meanAnnAirT(matchtest), mast20cm, '.b',...
     meanAnnAirT(matchtest), mast50cm, '.k');
 legend('5cm', '20cm', '50cm');
-xlabel('MAT (^oC)');
-ylabel('Soil T (^oC)');
-title('Mean wateryear soil temp');
+xlabel('Mean wyr AirT (^oC)');
+ylabel('MWYST(^oC)');
+title('Mean wateryear SoilT vs Mean wateryear AirT');
+
+subplot (2, 2, 3)
+plot(snowduration(matchtest), mast5cm, '.g', ...
+    snowduration(matchtest), mast20cm, '.b',...
+    snowduration(matchtest), mast50cm, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Snowpack duration (days)');
+ylabel('MWYST (^oC)');
+title('... vs snowpack duration');
+
+subplot (2, 2, 4)
+plot(elev(matchtest), mast5cm, '.g', ...
+    elev(matchtest), mast20cm, '.b',...
+    elev(matchtest), mast50cm, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Elevation (m)');
+ylabel('MWYST (^oC)');
+title('... vs Elevation');
 
 %--------------------------------------------------------------
-% FIG 8 - Plot MAST vs SWE, snowcover duration, in elevation bins
+% FIG 9 - Plot MAST vs SWE, snowcover duration, MAT in elevation bins
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', ' MAST vs SWE, snowcover duration, in elevation bins');
+set(h, 'Name', ' MAST (50cm) vs SWE, MAT, snowcover duration, in elevation bins');
 
 testhi = elev(matchtest) > 3000;
 testmid = elev(matchtest) > 2500 & elev(matchtest) < 3000;
@@ -530,77 +570,78 @@ matchdur = snowduration(matchtest);
 matchMAT = meanAnnAirT(matchtest);
 
 subplot (2, 2, 1)
-plot(matchswe(testhi), mast20cm(testhi), '.g', matchswe(testmid), mast20cm(testmid), '.b', ...
-    matchswe(testlo), mast20cm(testlo), '.k');
+plot(matchswe(testhi), mast50cm(testhi), '.b', ...
+    matchswe(testmid), mast50cm(testmid), '.g', ...
+    matchswe(testlo), mast50cm(testlo), '.r');
 legend('3000+', '2500-3000', '2000-2500cm');
 xlabel('Peak SWE (mm)');
-ylabel('Soil T (^oC)');
-title('Wateryear soil T vs peak SWE');
+ylabel('MWYST (^oC)');
+title('Mean wateryear SoilT vs peak SWE');
 
 subplot (2, 2, 2)
-plot(matchMAT(testhi), mast20cm(testhi), '.g', ...
-    matchMAT(testmid), mast20cm(testmid), '.b',...
-    matchMAT(testlo), mast20cm(testlo), '.k');
+plot(matchMAT(testhi), mast50cm(testhi), '.b', ...
+    matchMAT(testmid), mast50cm(testmid), '.g',...
+    matchMAT(testlo), mast50cm(testlo), '.r');
 legend('3000+', '2500-3000', '2000-2500cm');
-xlabel('Mean wateryear temp (^oC)');
-ylabel('Soil T (^oC)');
-title('... vs. mean air T');
+xlabel('Mean wateryear AirT (^oC)');
+ylabel('MWYST (^oC)');
+title('Mean wateryear SoilT vs. Mean wateryear AirT');
 
 subplot (2, 2, 3)
-plot(matchdur(testhi), mast20cm(testhi), '.g', ...
-    matchdur(testmid), mast20cm(testmid), '.b',...
-    matchdur(testlo), mast20cm(testlo), '.k');
+plot(matchdur(testhi), mast50cm(testhi), '.b', ...
+    matchdur(testmid), mast50cm(testmid), '.g',...
+    matchdur(testlo), mast50cm(testlo), '.r');
 legend('3000+', '2500-3000', '2000-2500cm');
 xlabel('Snowpack duration (days)');
-ylabel('Soil T (^oC)');
-title('Wateryear soil T vs wateryear air T');
+ylabel('MWYST(^oC)');
+title('... vs Mean wateryear Air T');
 
 
 
 %----------------------------------------------------
-% FIG 9 - Plot snowcovered temp vs onset temps
+% FIG 10 - Plot snowcovered temp vs onset temps
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', 'all sites');
+set(h, 'Name', 'Winter SoilT vs pre-snowpack temps');
 
 subplot (2, 2, 1)
 plot(preonsetAirT, snowcovMeanST5cm, '.g', ...
     preonsetAirT, snowcovMeanST20cm, '.b', ...
     preonsetAirT, snowcovMeanST50cm, '.k');
 legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack Air temp');
-ylabel('Mean wateryear belowsnow temp');
-title('Mean wateryear belowsnow soiltemp vs. pre-snowpack Air T');
+xlabel('Wateryear pre-snowpack AirT (^oC)');
+ylabel('Mean wateryear belowsnow SoilT (^oC)');
+title('Mean wateryear belowsnow SoilT vs. pre-snowpack Air T');
 
 subplot (2, 2, 2)
 plot(preonset5cmST, snowcovMeanST5cm, '.g', ...
     preonset20cmST, snowcovMeanST20cm, '.b', ...
     preonset50cmST, snowcovMeanST50cm, '.k');
 legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soil temp');
-ylabel('Mean wateryear belowsnow temp');
-title('Mean wateryear belowsnow soiltemp vs. pre-snowpack soil T');
+xlabel('Wateryear pre-snowpack SoilT (^oC)');
+ylabel('Mean wateryear belowsnow SoilT (^oC)');
+title('Mean wateryear belowsnow SoilT vs. pre-snowpack SoilT');
 
 subplot (2, 2, 3)
 plot(preonset5cmST, ond5cmSTmean, '.g', ...
     preonset20cmST, ond20cmSTmean, '.b', ...
     preonset50cmST, ond50cmSTmean, '.k');
 legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soil temp');
-ylabel('Mean OND temp');
-title('Mean Oct, Nov, Dec soiltemp vs. pre-snowpack soil T');
+xlabel('Wateryear pre-snowpack SoilT (^oC)');
+ylabel('Mean OND temp (^oC)');
+title('Mean Oct, Nov, Dec SoilT vs. pre-snowpack SoilT');
 
 subplot (2, 2, 4)
 plot(preonset5cmST, jfm5cmSTmean, '.g', ...
     preonset20cmST, jfm20cmSTmean, '.b', ...
     preonset50cmST, jfm50cmSTmean, '.k');
 legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soil temp');
-ylabel('Mean JFM temp');
-title('Mean Jan, Feb, Mar soiltemp vs. pre-snowpack soil T');
+xlabel('Wateryear pre-snowpack SoilT (^oC)');
+ylabel('Mean JFM temp (^oC)');
+title('Mean Jan, Feb, Mar SoilT vs. pre-snowpack SoilT');
 
 %----------------------------------------------------
-% FIG 10 - Plot winter soil moisture vs onset soil moisture
+% FIG 11 - Plot winter soil moisture vs onset soil moisture
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
@@ -610,27 +651,20 @@ plot(preonset5cmSM, ond5cmSMmean, '.g', ...
     preonset20cmSM, ond20cmSMmean, '.b', ...
     preonset50cmSM, ond50cmSMmean, '.k');
 legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soil VWC (%)');
+xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
 title('Oct, Nov, Dec VWC vs pre-snowpack VWC');
 
 subplot (2, 2, 2)
-plot(preonset5cmSM, feb5cmSTmean, '.g', ...
-    preonset20cmSM, feb20cmSTmean, '.b', ...
-    preonset50cmSM, feb50cmSTmean, '.k');
+plot(preonset5cmSM, feb5cmSMmean, '.g', ...
+    preonset20cmSM, feb20cmSMmean, '.b', ...
+    preonset50cmSM, feb50cmSMmean, '.k');
 legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soil VWC (%)');
+xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
 title('February VWC vs pre-snowpack VWC');
 
 % subplot (2, 2, 3)
-% plot(preonset5cmST, jfm5cmSTmean, '.g', ...
-%     preonset20cmST, jfm20cmSTmean, '.b', ...
-%     preonset50cmST, jfm50cmSTmean, '.k');
-% legend('5cm', '20cm', '50cm');
-% xlabel('Wateryear pre-snowpack soil temp');
-% ylabel('Mean JFM temp');
-% title('Mean Jan, Feb, Mar soiltemp vs. pre-snowpack soil T');
 
-subplot (2, 2, 4)
+
 
