@@ -9,7 +9,7 @@ function m = load7100Avg(desiredAvg)
 
 % ------------------------------------------------------------------------
 % Set data path and file name, read in file
-datapath = '../processed_data/';
+datapath = '~/data/current/SNOTELsoil-climate/data_analysis/processed_data/';
 
 if strcmpi(desiredAvg, 'swe')
     datafile = '7100Avg_SWEmm.csv';

@@ -36,6 +36,18 @@ haveSWEavg = ismember(havedata, uint16(avgSWE(:,1)));
 havePrecipavg = ismember(havedata, uint16(avgPrecip(:,1)));
 havedata = havedata((haveSWEavg & havePrecipavg), :);
 
+% Get an inventory of  sites and their elevations from inventory file
+% Create format string (station,elev,cdbs_id only here)
+formatstr = '%*s%*s%*s%*s%s%f%f%f%f';
+fid = fopen([processeddatapath 'SNOTELinventory.csv']);
+inventorycell = textscan(fid, formatstr,'Headerlines', 1, 'Delimiter', ',');
+fclose(fid);
+
+states = inventorycell{1};
+test = strcmpi(states, 'UT');
+utahsites = inventorycell{2}(test);
+clear test;
+
 % Import list of wasatch + uinta sites
 formatstr = '%s%f%s%s';
 fid = fopen([processeddatapath 'SNOTELrangelist.csv']);
@@ -48,7 +60,8 @@ test = strcmpi(wasatchuintacell{4}, 'WASATCH') | ...
 wasatchuintas = wasatchuintacell{2}(test);
 clear test;
 
-% Create a test to plot a subset of sites in sitesarray (wasatch and uintas)
+% Create a test to plot a subsets of sites(utah, wasatch and uintas)
+utahtest = ismember(havedata(:,1), utahsites);
 wasatchuintatest = ismember(havedata(:,1), wasatchuintas);
 
 sitesarray = nan*zeros(length(havedata), 16);
@@ -104,7 +117,7 @@ title('MAT vs elevation');
 
 % Mean annual air temp vs 30yr SWE
 subplot 222;
-plot(sitesarray(:,4), sitesarray(:,15), 'ob');
+plot(sitesarray(:,3), sitesarray(:,15), 'ob');
 xlabel('30yr SWE');
 %ylabel('Mean annual air temp (20cm)');
 title('MAT vs SWE');
@@ -118,7 +131,7 @@ title('Mean soil temp vs elevation');
 
 % Mean annual soil temp vs 30yr SWE
 subplot 224;
-plot(sitesarray(:,4), sitesarray(:,16), 'om');
+plot(sitesarray(:,3), sitesarray(:,16), 'om');
 xlabel('30yr SWE');
 %ylabel('Mean annual soil temp (20cm)');
 title('Mean soil temp vs SWE');
@@ -210,23 +223,100 @@ niwottest = sitesarray(:,1) == 663;
 sitesarray(niwottest, 7) = 10.05;
 
 subplot 221;
-plot(sitesarray(:,4), sitesarray(:,7), 'ob');
+plot(sitesarray(:,3), sitesarray(:,7), 'ob');
 hold on
-plot(sitesarray(wasatchuintatest,4), sitesarray(wasatchuintatest,7), 'ob', 'MarkerFaceColor', 'b');
-plot(sitesarray(niwottest,4), sitesarray(niwottest, 7), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
+plot(sitesarray(wasatchuintatest,3), sitesarray(wasatchuintatest,7), 'ob', 'MarkerFaceColor', 'b');
+plot(sitesarray(niwottest,3), sitesarray(niwottest, 7), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
 ylabel('Mean July soil T (Celsius)');
 xlabel('Mean Peak SWE (mm)');
 ylim([5, 25]);
 legend('AZ, CO, ID, MT, NM, NV, UT, WY SNOTEL sites', 'Wasatch and Uinta SNOTEL sites', 'Niwot Ridge SNOTEL');
 
 subplot 222;
-plot(sitesarray(:,4), sitesarray(:,6), 'ob');
+plot(sitesarray(:,3), sitesarray(:,6), 'ob');
 hold on
-plot(sitesarray(wasatchuintatest,4), sitesarray(wasatchuintatest,6), 'ob', 'MarkerFaceColor', 'b');
-plot(sitesarray(niwottest,4), sitesarray(niwottest, 6), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
+plot(sitesarray(wasatchuintatest,3), sitesarray(wasatchuintatest,6), 'ob', 'MarkerFaceColor', 'b');
+plot(sitesarray(niwottest,3), sitesarray(niwottest, 6), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
 ylabel('Mean July air T (Celsius)');
 xlabel('Mean Peak SWE (mm)');
 ylim([5, 25]);
 
+% --------------------------------------------------------------------
+% FIG 5 - Elevation vs 30 yr Peak SWE
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name','30yr Peak SWE vs. elevation');
 
+%select and add data for visited SNOTEL sites
+fid = fopen('~/data/rawdata/visited_SNOTELs.csv');
+visited = textscan(fid, '%*s%*s%u%*s%*f%*f%*f%*f%*s%*f%*f%*f%*f%*f%*f%*f%*f%*f%*f%*f%*f','Headerlines', 1, 'Delimiter', ',');
+fclose(fid);
+
+visitedtest = ismember(sitesarray(:,1), visited{1});
+%sitesarray(visitedtest, 7) = 10.05;
+
+% subplot 221;
+% plot(sitesarray(:,3), sitesarray(:,7), 'ob');
+% hold on
+% plot(sitesarray(wasatchuintatest,3), sitesarray(wasatchuintatest,7), 'ob', 'MarkerFaceColor', 'b');
+% plot(sitesarray(visitedtest,3), sitesarray(visitedtest, 7), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
+% ylabel('Mean July soil T (Celsius)');
+% xlabel('Mean Peak SWE (mm)');
+% ylim([5, 25]);
+% legend('AZ, CO, ID, MT, NM, NV, UT, WY SNOTEL sites', 'Wasatch and Uinta SNOTEL sites', 'Visited sites');
+% 
+% subplot 222;
+% plot(sitesarray(:,3), sitesarray(:,6), 'ob');
+% hold on
+% plot(sitesarray(wasatchuintatest,3), sitesarray(wasatchuintatest,6), 'ob', 'MarkerFaceColor', 'b');
+% plot(sitesarray(visitedtest,3), sitesarray(visitedtest, 6), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
+% ylabel('Mean July air T (Celsius)');
+% xlabel('Mean Peak SWE (mm)');
+% ylim([5, 25]);
+
+%subplot 223;
+plot(sitesarray(:,2), sitesarray(:,3), 'ob');
+hold on
+plot(sitesarray(wasatchuintatest,2), sitesarray(wasatchuintatest,3), 'ob', 'MarkerFaceColor', 'b');
+plot(sitesarray(visitedtest,2), sitesarray(visitedtest, 3), 'pk', 'MarkerFaceColor', 'y', 'MarkerSize', 12);
+ylabel('Mean Peak SWE (mm)');
+xlabel('Elevation (m)');
+legend('AZ, CO, ID, MT, NM, NV, UT, WY SNOTEL sites', 'Wasatch and Uinta SNOTEL sites', 'Visited sites');
+ylim([0, 1600]);
+
+
+% --------------------------------------------------------------------
+% FIG 6 - Elevation vs 30 yr Peak SWE
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name','30yr Peak SWE vs. elevation');
+
+% subplot 221;
+% plot(sitesarray(:,3), sitesarray(:,7), 'ob');
+% hold on
+% plot(sitesarray(wasatchuintatest,3), sitesarray(wasatchuintatest,7), 'ob', 'MarkerFaceColor', 'b');
+% plot(sitesarray(visitedtest,3), sitesarray(visitedtest, 7), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
+% ylabel('Mean July soil T (Celsius)');
+% xlabel('Mean Peak SWE (mm)');
+% ylim([5, 25]);
+% legend('AZ, CO, ID, MT, NM, NV, UT, WY SNOTEL sites', 'Wasatch and Uinta SNOTEL sites', 'Visited sites');
+% 
+% subplot 222;
+% plot(sitesarray(:,3), sitesarray(:,6), 'ob');
+% hold on
+% plot(sitesarray(wasatchuintatest,3), sitesarray(wasatchuintatest,6), 'ob', 'MarkerFaceColor', 'b');
+% plot(sitesarray(visitedtest,3), sitesarray(visitedtest, 6), 'pk', 'MarkerFaceColor', 'w', 'MarkerSize', 12);
+% ylabel('Mean July air T (Celsius)');
+% xlabel('Mean Peak SWE (mm)');
+% ylim([5, 25]);
+
+%subplot 223;
+plot(sitesarray(:,2), sitesarray(:,3), 'ob');
+hold on
+plot(sitesarray(utahtest,2), sitesarray(utahtest,3), 'ob', 'MarkerFaceColor', 'b');
+plot(sitesarray(visitedtest,2), sitesarray(visitedtest, 3), 'pk', 'MarkerFaceColor', 'y', 'MarkerSize', 12);
+ylabel('Mean Peak SWE (mm)');
+xlabel('Elevation (m)');
+legend('AZ, CO, ID, MT, NM, NV, UT, WY SNOTEL sites', 'Utah SNOTEL sites', 'Visited sites');
+ylim([0, 1600]);
 junk = 99;
