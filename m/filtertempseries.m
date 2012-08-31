@@ -11,6 +11,8 @@ function array = filtertempseries(series, type, threshold)
 %
 % v1: 4/27/2011 Greg Maurer     
 
+addpath('~/data/programming_resources/m_common/');
+
 % Filter by difference from the mean
 if strcmp(type, 'mean')
     % First calculate a running mean

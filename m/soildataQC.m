@@ -1,29 +1,29 @@
-% plot_site_ts_variability.m
+% soildataQC.m
 %
-% Plots data and 24hr standard deviations for 5cm soil temperature.
-% Performs statistics on these data and 2 filter types. Useful for
-% checking data filtering/filling procedures, determining snowpack 
-% presence thresholds, and filtering thresholds.
+% Plots raw data and filtered soil temperature and moisture data 
+% for a chosen SNOTEL site. 
+% Performs statistics on these data and checks the filtering methods. 
+% Useful for checking data loading and filtering procedures, determining 
+% snowpack presence, and various filtering thresholds.
 %
 % Data for all years (available) is represented.
 %
-% ver 2: 110407 GM
-% removed discrete 24hr averaging
-% added interpolation checks, mean difference tests, and shift difference 
-% tests (for snowpack), and histograms of these 2 tests
-%
-% ver 3: 111116 GM
-% changed to script with user input
-%
-% was sitesoiltempvariability_scr
+% This script was taken from (and should replace) site_ts_variability.m
+
 
 close all; clear all;     % clear any figures and variables
 fignum = 0;     % used to increment figure number for plots
+
+% add path to test_loadsnotel.m
+addpath('functiontests/');
+
 
 % Ask user for site number
 siteID = str2double(input('Which SNOTEL station?: ', 's'));
 
 % load hourly and daily data from site w/ loadsnotel:
+hourlyRaw = test_loadsnotel('hourly', siteID);
+dailyRaw = test_loadsnotel('daily', siteID);
 hourlyData = loadsnotel('hourly', siteID);
 dailyData = loadsnotel('daily', siteID);
 

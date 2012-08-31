@@ -170,13 +170,13 @@ for i = 1:length(soilsiteslist)
     % Monthly soil moisture
     colindex2 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
     % Get soil moisture for 3 depths
-    sm5 = dailydata{11}(wyeartest_d);
-    sm20 = dailydata{12}(wyeartest_d);
-    sm50 = dailydata{13}(wyeartest_d);
+%     sm5 = dailydata{11}(wyeartest_d);
+%     sm20 = dailydata{12}(wyeartest_d);
+%     sm50 = dailydata{13}(wyeartest_d);
     % NORMALIZE - Get soil moisture for 3 depths
-    % sm5 = smnormalize(dailydata{11}(wyeartest_d), 1);
-    % sm20 = smnormalize(dailydata{12}(wyeartest_d), 1);
-    % sm50 = smnormalize(dailydata{13}(wyeartest_d), 1);
+    sm5 = smnormalize(dailydata{11}(wyeartest_d), 1);
+    sm20 = smnormalize(dailydata{12}(wyeartest_d), 1);
+    sm50 = smnormalize(dailydata{13}(wyeartest_d), 1);
     % Parse out the datevector for year i
     wydatevec_d = dailydatevec(wyeartest_d, :);
     % Loop through 12 months and average soil moisture for each
@@ -371,8 +371,8 @@ for i = 1:length(soilsiteslist)
 end
 
 % Write the soil data files
-csvwrite([processeddatapath 'wyear_soilwatersummary.csv'], soilwatersummary);
-% csvwrite([processeddatapath 'wyear_soilwatersummary_smnorm.csv'], soilwatersummary);
+% csvwrite([processeddatapath 'wyear_soilwatersummary.csv'], soilwatersummary);
+csvwrite([processeddatapath 'wyear_soilwatersummary_smnorm.csv'], soilwatersummary);
 csvwrite([processeddatapath 'wyear_soiltempsummary.csv'], soiltempsummary);
 
 junk = 99;
