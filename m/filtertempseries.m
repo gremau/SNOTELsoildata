@@ -11,7 +11,7 @@ function array = filtertempseries(series, type, threshold)
 %
 % v1: 4/27/2011 Greg Maurer     
 
-addpath('~/data/programming_resources/m_common/');
+addpath('~/data/code_resources/m_common/');
 
 % Filter by difference from the mean
 if strcmp(type, 'mean')
@@ -63,9 +63,10 @@ filteredFilledSeries(bad)=interp1(good, filteredSeries(good), find(bad), 'pchip'
 
 % PLOT original data over interpolated data to view differences
 % h = figure;
-% set(h, 'Name', ['Site ' num2str(site_id) ' - filterseries.m data interpolation']);
+% set(h, 'Name', ['Filterseries.m data interpolation']);
 % plot(series, '.r');
 % hold on
+% plot(runningMean, '-g');
 % plot(filteredFilledSeries, '.b');
 % plot(filteredSeries, '.k');
 % title('Filtered points in red, interpolated data in blue')

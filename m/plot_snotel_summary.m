@@ -10,7 +10,7 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 
-addpath('/home/greg/data/programming_resources/m_common/'); % access to hist2, etc
+addpath('/home/greg/data/code_resources/m_common/'); % access to hist2, etc
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
@@ -83,6 +83,14 @@ feb20cmSMmean = soilwaterdata(:, 29);
 feb20cmSMsd = soilwaterdata(:, 30);
 feb50cmSMmean = soilwaterdata(:, 31);
 feb50cmSMsd = soilwaterdata(:, 32);
+
+apr5cmSMmean = soilwaterdata(:, 45);
+apr5cmSMsd = soilwaterdata(:, 46);
+apr20cmSMmean = soilwaterdata(:, 47);
+apr20cmSMsd = soilwaterdata(:, 48);
+apr50cmSMmean = soilwaterdata(:, 49);
+apr50cmSMsd = soilwaterdata(:, 50);
+
 
 % These repeat through sept (end of wy)
 ond5cmSMmean = soilwaterdata(:, 73);
@@ -514,7 +522,88 @@ ylabel('^oC');
 title('... vs Snowpack duration');
 
 %--------------------------------------------------------------
-% FIG 8 - Plot MAST (3 depths) vs SWE, snowcover duration, elevation, MAT
+% FIG 8 - Plot MAST % MAT vs max swe, snowcover duration, elevation
+% SAME as above but binned using only 20cm data
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
+
+subplot (2, 2, 1)
+% Set binning parameters
+topEdge = 2000; % define limits
+botEdge = 0; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1)) + 66;
+
+x = maxswe(matchtest); %split into x and y
+y = meanAnnAirT(matchtest);
+y2 = mast20cm;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
+plot(xax(1:numBins), binMeanAir, 'ok', ...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
+hold on;
+y = mast20cm;
+y2 = sdast20cm;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanSoil, binSdSoil] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanSoil, binSdSoil, '.b');
+legend('Mean Air T', 'Mean Soil T');
+xlabel('Peak SWE (mm)');
+ylabel('^oC');
+title('Mean wateryear AirT & SoilT vs peak SWE');
+
+subplot (2, 2, 2)
+% Set binning parameters
+topEdge = 3500; % define limits
+botEdge = 920; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1)) + 85;
+
+x = elev(matchtest);
+y = meanAnnAirT(matchtest);
+[binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
+plot(xax(1:numBins), binMeanAir, 'ok', ...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
+hold on;
+y = mast20cm;
+y2 = sdast20cm;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanSoil, binSdSoil] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanSoil, binSdSoil, '.b');
+legend('Mean Air T', 'Mean Soil T');
+xlabel('Elevation (m)');
+ylabel('^oC');
+title('Mean wateryear AirT & SoilT vs Elevation');
+
+subplot (2, 2, 3)
+% Set binning parameters
+topEdge = 300; % define limits
+botEdge = 0; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1)) + 10;
+
+x = snowduration(matchtest);
+y = meanAnnAirT(matchtest);
+[binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
+plot(xax(1:numBins), binMeanAir, 'ok', ...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
+hold on;
+y = mast20cm;
+y2 = sdast20cm;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanSoil, binSdSoil] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanSoil, binSdSoil, '.b');
+legend('Mean Air T', 'Mean Soil T');
+xlabel('Snowpack duration (days)');
+ylabel('^oC');
+title('... vs Snowpack duration');
+
+%--------------------------------------------------------------
+% FIG 9 - Plot MAST (3 depths) vs SWE, snowcover duration, elevation, MAT
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'MAST vs SWE, snowduration, MAT, elevation');
@@ -556,7 +645,7 @@ ylabel('MWYST (^oC)');
 title('... vs Elevation');
 
 %--------------------------------------------------------------
-% FIG 9 - Plot MAST vs SWE, snowcover duration, MAT in elevation bins
+% FIG 10 - Plot MAST vs SWE, snowcover duration, MAT in elevation bins
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', ' MAST (50cm) vs SWE, MAT, snowcover duration, in elevation bins');
@@ -599,7 +688,7 @@ title('... vs Mean wateryear Air T');
 
 
 %----------------------------------------------------
-% FIG 10 - Plot snowcovered temp vs onset temps
+% FIG 11 - Plot snowcovered temp vs onset temps
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter SoilT vs pre-snowpack temps');
@@ -641,7 +730,7 @@ ylabel('Mean JFM temp (^oC)');
 title('Mean Jan, Feb, Mar SoilT vs. pre-snowpack SoilT');
 
 %----------------------------------------------------
-% FIG 11 - Plot winter soil moisture vs onset soil moisture
+% FIG 12 - Plot winter soil moisture vs onset soil moisture
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
@@ -664,7 +753,109 @@ xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
 title('February VWC vs pre-snowpack VWC');
 
-% subplot (2, 2, 3)
+%----------------------------------------------------
+% FIG 13 - Plot winter soil moisture vs onset soil moisture
+% Same as above, but binned, using only 20cm data
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
+
+subplot (2, 2, 1)
+% Set binning parameters
+topEdge = 45; % define limits
+botEdge = 0; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1)) + 1.5;
+
+x = preonset5cmSM; %split into x and y
+y = ond5cmSMmean;
+y2 = ond5cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanOND, binSdOND, '.g');
+hold on;
+x = preonset20cmSM; %split into x and y
+y = ond20cmSMmean;
+y2 = ond20cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanOND, binSdOND, '.b');
+x = preonset50cmSM; %split into x and y
+y = ond50cmSMmean;
+y2 = ond50cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanOND, binSdOND, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Wateryear pre-snowpack soilVWC (%)');
+ylabel('Mean VWC (%)');
+title('Oct, Nov, Dec VWC vs pre-snowpack VWC');
+
+subplot (2, 2, 2)
+% Set binning parameters
+topEdge = 45; % define limits
+botEdge = 0; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1)) + 1.5;
+
+x = preonset5cmSM; %split into x and y
+y = feb5cmSMmean;
+y2 = feb5cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanFeb,binSdFeb] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.g');
+hold on;
+x = preonset20cmSM; %split into x and y
+y = feb20cmSMmean;
+y2 = feb20cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanFeb,binSdFeb] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.b');
+x = preonset50cmSM; %split into x and y
+y = feb50cmSMmean;
+y2 = feb50cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanFeb,binSdFeb] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Wateryear pre-snowpack soilVWC (%)');
+ylabel('Mean VWC (%)');
+title('February VWC vs pre-snowpack VWC');
+
+subplot (2, 2, 3)
+% Set binning parameters
+topEdge = 45; % define limits
+botEdge = 0; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1)) + 1.5;
+
+x = preonset5cmSM; %split into x and y
+y = apr5cmSMmean;
+y2 = apr5cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanApr,binSdApr] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanApr, binSdApr, '.g');
+hold on;
+x = preonset20cmSM; %split into x and y
+y = apr20cmSMmean;
+y2 = apr20cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanApr,binSdApr] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanApr, binSdApr, '.b');
+x = preonset50cmSM; %split into x and y
+y = apr50cmSMmean;
+y2 = apr50cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanApr,binSdApr] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanApr, binSdApr, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Wateryear pre-snowpack soilVWC (%)');
+ylabel('Mean VWC (%)');
+ylim([0, 45]);
+title('April VWC vs pre-snowpack VWC');
 
 
 

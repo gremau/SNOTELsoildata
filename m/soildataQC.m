@@ -1,4 +1,4 @@
-% soildataQC.m
+ % soildataQC.m
 %
 % Plots raw data and filtered soil temperature and moisture data 
 % for a chosen SNOTEL site. 
@@ -10,51 +10,233 @@
 %
 % This script was taken from (and should replace) site_ts_variability.m
 
-
 close all; clear all;     % clear any figures and variables
 fignum = 0;     % used to increment figure number for plots
 
 % add path to test_loadsnotel.m
 addpath('functiontests/');
 
-
 % Ask user for site number
 siteID = str2double(input('Which SNOTEL station?: ', 's'));
 
-% load hourly and daily data from site w/ loadsnotel:
-hourlyRaw = test_loadsnotel('hourly', siteID);
-dailyRaw = test_loadsnotel('daily', siteID);
+% Some data must be removed from the datasets provided by NRCS. These data
+% fall into two categories:
+%     1: Data that is clearly an instrument or human-caused error, perhaps
+%        related to power supply, site maintenance, sensor failures, or 
+%        data loss. These are usually identifiable by error code values,
+%        level shifts, or other unusual patterns in the data.
+%     2: Measurements that are outliers to the statistical distribution of 
+%        the data. These are less frequent and reasons for them are hard to
+%        pinpoint. Some could be power or instrument related, but they are
+%        not always localized in time and are thus harder to identify and
+%        remove.
+% 
+% The loadsnotel.m script is designed to catch the first category of error.
+% There are a number of filtering functions that are designed to catch the
+% other category. They are tested in the following blocks.
+
+% First load hourly and daily data using both loadsnotel.m and a raw data
+% loading function (test_loadsnotel.m).
 hourlyData = loadsnotel('hourly', siteID);
 dailyData = loadsnotel('daily', siteID);
+hourlyRaw = test_loadsnotel('hourly', siteID);
+dailyRaw = test_loadsnotel('daily', siteID);
 
-% UNCOMMENT if hourlyData files are not there yet (and comment line above)
-% t = [1;1;1;1];
-% dailydata = {t '2011-03-29' t t };
-
-% parse out the date/times and soil temperature sensors
+% Parse out the date/times
 decday_h = datenum(strcat(hourlyData{2}, hourlyData{3}), 'yyyy-mm-ddHH:MM');
 years_h = floor(length(decday_h)/8760);
 decday_d = datenum(dailyData{2}, 'yyyy-mm-dd');
+decday_hRaw = datenum(strcat(hourlyRaw{2}, hourlyRaw{3}), 'yyyy-mm-ddHH:MM');
+years_hRaw = floor(length(decday_hRaw)/8760);
+decday_dRaw = datenum(dailyRaw{2}, 'yyyy-mm-dd');
 
 % Snow water equivalent and airT
 wteq = dailyData{4}; %nan*zeros(length(dailyData{4}), 23)];
 airT = dailyData{9};
+wteqRaw = dailyRaw{4}; %nan*zeros(length(dailyData{4}), 23)];
+airTRaw = dailyRaw{9};
 %wteq24hour = reshape(wteq', [], 1);
 
-% Convert the daily swe data to an hourly value by matching values with 
-% decday_h days and copying to a new array
+% Expand the daily swe data to hourly values by copying to a new array
+% FIXME - Beware that time vectors don't match between raw and other 
+% datasets, so a few numbers may be copied incorrectly (sub-daily in .csv
+% files)
 wteqHourly = zeros(length(decday_h), 1);
-for i = 1:length(wteqHourly)
-    index = decday_d == floor(decday_h(i));
-    wteqHourly(i) = wteq(index);
+for i = 1:length(wteq)
+%     index = decday_d == floor(decday_h(i));
+%     wteqHourly(i) = wteq(index);
+    wteqHourly(floor(decday_h)==decday_d(i)) = wteq(i);
+end
+wteqHourlyRaw = zeros(length(decday_hRaw), 1);
+for i = 1:length(wteqRaw)
+    index = decday_dRaw == floor(decday_hRaw(i));
+    % Only use the first value because any second values are from
+    % sub-daily rows.
+%     values = wteqRaw(index);
+%     wteqHourlyRaw(i) = values(1);
+    wteqHourlyRaw(floor(decday_hRaw)==decday_dRaw(i)) = wteqRaw(i);
 end
 
 % Logical test for snowcover based on SWE values
 swe_snowcover = wteqHourly > 0.5;
+swe_snowcoverRaw = wteqHourlyRaw > 0.5;
 
-% Tsoil
-Ts = hourlyData{7}; % column 7 is at -2 in (5cm depth)
+% Assign some arrays for plotting
+Ts5 = hourlyData{7}; % column 7 is at -2 in (5cm depth)
+Ts20 = hourlyData{8}; % column 8 is at -8 in (20cm depth)
+Ts50 = hourlyData{9}; % column 9 is at -20 in (50cm depth)
+Ts5Raw = hourlyRaw{7}; % column 7 is at -2 in (5cm depth)
+Ts20Raw = hourlyRaw{8}; % column 8 is at -8 in (20cm depth)
+Ts50Raw = hourlyRaw{9}; % column 9 is at -20 in (50cm depth)
+WC5 = hourlyData{4}; % column 4 is at -2 in (5cm depth)
+WC20 = hourlyData{5}; % column 5 is at -8 in (20cm depth)
+WC50 = hourlyData{6}; % column 6 is at -20 in (50cm depth)
+WC5Raw = hourlyRaw{4}; % column 4 is at -2 in (5cm depth)
+WC20Raw = hourlyRaw{5}; % column 5 is at -8 in (20cm depth)
+WC50Raw = hourlyRaw{6}; % column 6 is at -20 in (50cm depth)
 
+% TEST LOADDATA.M
+% Plot raw data and data removed by loaddata.m (in red).
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_hRaw, Ts5Raw, '.r', decday_h, Ts5, '.k');
+title('Ts -5cm'); datetick();
+subplot(3, 1, 2)
+plot(decday_hRaw, Ts20Raw, '.r', decday_h, Ts20, '.k');
+title('Ts -20cm'); datetick();
+subplot(3, 1, 3)
+plot(decday_hRaw, Ts50Raw, '.r', decday_h, Ts50, '.k');
+title('Ts - 50cm'); datetick()
+legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_hRaw, WC5Raw, '.r', decday_h, WC5, '.k');
+title('VWC -5cm'); datetick();
+subplot(3, 1, 2)
+plot(decday_hRaw, WC20Raw, '.r', decday_h, WC20, '.k');
+title('VWC -20cm'); datetick();
+subplot(3, 1, 3);
+plot(decday_hRaw, WC50Raw, '.r', decday_h, WC50, '.k');
+title('VWC -50cm'); datetick();
+legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
+
+% TEST Ts FILTERING
+% Generate filtered Ts data
+ Ts5_meandiff = filtertempseries(Ts5, 'mean', 4);
+ Ts20_meandiff = filtertempseries(Ts20, 'mean', 4);
+ Ts50_meandiff = filtertempseries(Ts50, 'mean', 4);
+ Ts5_shiftdiff = filtertempseries(Ts5, 'shift', 2.5);
+ Ts20_shiftdiff = filtertempseries(Ts20, 'shift', 2.5);
+ Ts50_shiftdiff = filtertempseries(Ts50, 'shift', 2.5);
+% Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
+
+% PLOT unfiltered and MEAN-DIFF filtered timeseries
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_h, Ts5, '.r', decday_h, Ts5_meandiff, '.k');
+title('Ts -5cm'); datetick();
+subplot(3, 1, 2)
+plot(decday_h, Ts20, '.r', decday_h, Ts20_meandiff, '.k');
+title('Ts -20cm'); datetick();
+subplot(3, 1, 3)
+plot(decday_h, Ts50, '.r', decday_h, Ts50_meandiff, '.k');
+title('Ts - 50cm'); datetick();
+legend('Raw data', 'Filtered using mean', 'Location', 'NorthWest');
+
+% PLOT histograms of unfiltered and MEAN-DIFF filtered data
+fignum = fignum + 1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
+    ' Histogram of mean difference filter values']);
+% Number of bins
+xedges = linspace(-5, 5, 51);
+%subplot(1,2,1);
+n1 = histc(Ts5, xedges); % sort unfiltered values into bins
+bar(xedges, n1, 'r'); % plot in barchart
+hold on;
+n2 = histc(Ts5_meandiff, xedges);% sort mean diff values into bins
+bar(xedges, n2, 'k');
+ylabel({'number of','occurences'});
+xlabel('Ts - 24hr mean Ts');
+
+% PLOT unfiltered and SHIFT-DIFF filtered timeseries
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_h, Ts5, '.r', decday_h, Ts5_shiftdiff, '.k');
+title('Ts -5cm'); datetick();
+subplot(3, 1, 2)
+plot(decday_h, Ts20, '.r', decday_h, Ts20_shiftdiff, '.k');
+title('Ts -20cm'); datetick();
+subplot(3, 1, 3)
+plot(decday_h, Ts50, '.r', decday_h, Ts50_shiftdiff, '.k');
+title('Ts - 50cm'); datetick();
+legend('Raw data', 'Filtered using shift', 'Location', 'NorthWest');
+
+% PLOT histograms of unfiltered and SHIFT-DIFF filtered data
+fignum = fignum + 1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
+    ' Histogram of shifted-difference filter values']);
+% Number of bins
+xedges = linspace(-5, 5, 51);
+%subplot(1,2,1);
+n1 = histc(Ts5, xedges); % sort unfiltered values into bins
+bar(xedges, n1, 'r'); % plot in barchart
+hold on;
+n2 = histc(Ts5_shiftdiff, xedges);% sort mean diff values into bins
+bar(xedges, n2, 'k');
+ylabel({'number of','occurences'});
+xlabel('Ts - shifted difference Ts');
+
+% TEST VWC FILTERING
+% Generate filtered VWC data
+ WC5_meandiff = filtertempseries(WC5, 'mean', 4);
+ WC20_meandiff = filtertempseries(WC20, 'mean', 4);
+ WC50_meandiff = filtertempseries(WC50, 'mean', 4);
+ WC5_shiftdiff = filtertempseries(WC5, 'shift', 2.5);
+ WC20_shiftdiff = filtertempseries(WC20, 'shift', 2.5);
+ WC50_shiftdiff = filtertempseries(WC50, 'shift', 2.5);
+% Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
+
+% PLOT unfiltered and filtered data
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_h, WC5, '.r', decday_h, WC5_meandiff, '.k');
+title('VWC -5cm'); datetick();
+subplot(3, 1, 2)
+plot(decday_h, WC20, '.r', decday_h, WC20_meandiff, '.k');
+title('VWC -20cm'); datetick();
+subplot(3, 1, 3)
+plot(decday_h, WC50, '.r', decday_h, WC50_meandiff, '.k');
+title('VWC - 50cm'); datetick();
+legend('Raw data', 'Filtered using mean', 'Location', 'NorthWest');
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_h, WC5, '.r', decday_h, WC5_shiftdiff, '.k');
+title('VWC -5cm'); datetick();
+subplot(3, 1, 2)
+plot(decday_h, WC20, '.r', decday_h, WC20_shiftdiff, '.k');
+title('VWC -20cm'); datetick();
+subplot(3, 1, 3)
+plot(decday_h, WC50, '.r', decday_h, WC50_shiftdiff, '.k');
+title('VWC - 50cm'); datetick();
+legend('Raw data', 'Filtered using shift', 'Location', 'NorthWest');
+
+% FIXME - this may no longer be necessary
 % INTERPOLATION to fill gaps in Ts (helps with running mean and
 % variance calculations below.
 %
@@ -64,22 +246,16 @@ Ts = hourlyData{7}; % column 7 is at -2 in (5cm depth)
 % from FIXGAPS routine on Matlab Central file exchange,
 % by R. Pawlowicz 6/Nov/99
 
-Ts_filled = Ts;
+Ts_filled = Ts5;
 
-bad = isnan(Ts);
+bad = isnan(Ts5);
 good = find(~bad);
 
 bad([1:(min(good)-1) (max(good)+1):end]) = 0;
 
-Ts_filled(bad)=interp1(good, Ts(good), find(bad), 'pchip');
+Ts_filled(bad)=interp1(good, Ts5(good), find(bad), 'pchip');
 
-
-% Generate other filtered Ts data
- Ts_meandiff = filtertempseries(Ts, 'mean', 4);
- Ts_shiftdiff = filtertempseries(Ts, 'shift', 2.5);
-% Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
-
-Ts_filtered = Ts_shiftdiff;
+Ts_filtered = Ts5_shiftdiff;
 
 % PLOT original data over filled/filtered data to view differences
 % fignum = fignum + 1;

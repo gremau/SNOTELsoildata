@@ -17,7 +17,7 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
-addpath('/home/greg/data/programming_resources/m_common/'); % access to nanmean, etc
+addpath('/home/greg/data/code_resources/m_common/'); % access to nanmean, etc
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/';

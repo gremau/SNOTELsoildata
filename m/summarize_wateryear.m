@@ -8,6 +8,10 @@
 %
 % Feb 20, 2012
 
+%
+% FIXME - add some standard deviations to climate data - like MAAT
+%
+
 clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots

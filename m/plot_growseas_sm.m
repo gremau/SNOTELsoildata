@@ -158,24 +158,6 @@ matchsets = climatedata(matchtest, :);
 %     pcolor(xedges, yedges, histmat');
 % end
 
-% Binning function
-% Bin the vwc datapoints and then generate a mean for each bin
-% First set binning parameters
-topEdge = 300; % define limits
-botEdge = 90; % define limits
-numBins = 15; % define number of bins
-
-function [binMean1, binMean2] = bin(x, y, y2)
-    binEdges = linspace(botEdge, topEdge, numBins+1);
-    [h,whichBin] = histc(x, binEdges);
-    for i = 1:numBins
-        flagBinMembers = (whichBin == i);
-        binMembers1     = y(flagBinMembers);
-        binMembers2     = y2(flagBinMembers);
-        binMean1(i)     = nanmean(binMembers1);
-        binMean2(i)     = nanmean(binMembers2);
-    end
-end
 
 
 %----------------------------------------------------
@@ -268,16 +250,22 @@ title(' July, Aug, Sept VWC vs snowmeltday');
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'JAS soil moisture vs snowmelt date');
+% Set binning parameters
+topEdge = 300; % define limits
+botEdge = 90; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1))+5.25;
 
 % 5cm
 x = meltdoy(matchtest); %split into x and y
 y = jas5cmSMmean;
 y2 = jas5cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
-xax = (binEdges + 5.25);
 subplot(221);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 %ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -286,10 +274,10 @@ title('5cm VWC');
 % 20cm
 y = jas20cmSMmean;
 y2 = jas20cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(222);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 %ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -298,10 +286,10 @@ title('20cm VWC');
 % 50cm
 y = jas50cmSMmean;
 y2 = jas50cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(223);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 %ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -317,11 +305,10 @@ set(h, 'Name', 'NORMALIZED JAS soil moisture vs snowmelt date');
 x = meltdoy(matchtest); %split into x and y
 y = normjas5cmSMmean;
 y2 = normjas5cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
-xax = (binEdges + 5.25);
 subplot(221);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -330,10 +317,10 @@ title('5cm VWC');
 % 20cm
 y = normjas20cmSMmean;
 y2 = normjas20cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(222);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -342,10 +329,10 @@ title('20cm VWC');
 % 50cm
 y = normjas50cmSMmean;
 y2 = normjas50cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(223);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -357,43 +344,45 @@ fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'NORMALIZED JAS soil moisture vs max swe');
 
-% 5cm
+% First change some binning/plotting parameters
 topEdge=1000;
+xax = (linspace(botEdge, topEdge, numBins+1))+20;
+
+% 5cm
 x = maxswe(matchtest); %split into x and y
 y = normjas5cmSMmean;
 y2 = normjas5cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
-xax = (binEdges + 5.25);
 subplot(221);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 1000]);
 ylim([0 1]);
-xlabel('Snowmelt dowy');
+xlabel('Peak SWE');
 title('5cm VWC');
 
 % 20cm
 y = normjas20cmSMmean;
 y2 = normjas20cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(222);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 1000]);
 ylim([0 1]);
-xlabel('Snowmelt dowy');
+xlabel('Peak SWE');
 title('20cm VWC');
 
 % 50cm
 y = normjas50cmSMmean;
 y2 = normjas50cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(223);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 1000]);
 ylim([0 1]);
-xlabel('Snowmelt dowy');
+xlabel('Peak SWE');
 title('50cm VWC');
 
 %----------------------------------------------------
@@ -402,16 +391,20 @@ fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Aug soil moisture vs snomelt date');
 
-% 5cm
+% First change some binning/plotting parameters
 topEdge=300;
+xax = (linspace(botEdge, topEdge, numBins+1))+5.25;
+
+% 5cm
+
 x = meltdoy(matchtest); %split into x and y
 y = aug5cmSMmean;
 y2 = aug5cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
-xax = (binEdges + 5.25);
+
 subplot(221);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 %ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -420,10 +413,10 @@ title('5cm VWC');
 % 20cm
 y = aug20cmSMmean;
 y2 = aug20cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(222);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 %ylim([0 1]);
 xlabel('Snowmelt dowy');
@@ -432,10 +425,10 @@ title('20cm VWC');
 % 50cm
 y = aug50cmSMmean;
 y2 = aug50cmSMsd;
-[binMean1, binMean2] = bin(x, y, y2);
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins)
 
 subplot(223);
-errorbar(xax(1:numBins), binMean1, binMean2, 'ok');
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([80 310]);
 %ylim([0 1]);
 xlabel('Snowmelt dowy');
