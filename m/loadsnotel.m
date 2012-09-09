@@ -186,7 +186,7 @@ if strcmpi(interval, 'hourly')
     m{10} = wyearvec;
     
     % Test to remove badyears
-    badyeartest = ismember(wyearvec, badYears);
+%     badyeartest = ismember(wyearvec, badYears);
     
     for i = 4:completesensorset
         
@@ -196,42 +196,41 @@ if strcmpi(interval, 'hourly')
         clear test;
         
         % Remove the bad data in badyeartest
-        m{i}(badyeartest) = nan;
+%         m{i}(badyeartest) = nan;
         
-        % change unreasonably high and low numbers to nan
-        test = m{i} < -25 | m{i} > 100;
-        m{i}(test) = nan;
-        clear test;
+%         % change unreasonably high and low numbers to nan
+%         test = m{i} < -25 | m{i} > 100;
+%         m{i}(test) = nan;
+%         clear test;
         
-        % Dont let soil moisture values go down to 0.0 in winter 
-        % (its usually an error)
+        % Remove bad soil moisture values
         if i<7
-            test_val = m{i} == 0.0;
-            test_winter = tvec(:,2) > 10 | tvec(:, 2) < 4;
-            test = test_val & test_winter;
+            % Not lower than 0, not greater than 45 - set by calibration 
+            % equation for Hydraprobes (see Seyfried et al 2010)
+            test = m{i} > 45.0 | m{i} < 0.0;
             m{i}(test) = nan;
-            clear test_val test_winter test;
+            clear test;
         end
         
         % Remove bad soil temperature values
         if i>6           
             % Get rid of silly values
-            test = m{i} > 45 | m{i} < -25;
+            test = m{i} > 50 | m{i} < -25;
             m{i}(test) = nan;
             clear test
         end
     end
     
-    % Ensure that each sensor set to nans in the same places
-    sensor1_nantest = (isnan(m{4}) | isnan(m{7}));
-    m{4}(sensor1_nantest) = nan;
-    m{7}(sensor1_nantest) = nan;
-    sensor2_nantest = (isnan(m{5}) | isnan(m{8}));
-    m{5}(sensor2_nantest) = nan;
-    m{8}(sensor2_nantest) = nan;
-    sensor3_nantest = (isnan(m{6}) | isnan(m{9}));
-    m{6}(sensor3_nantest) = nan;
-    m{9}(sensor3_nantest) = nan;
+%     % Ensure that each sensor set to nans in the same places
+%     sensor1_nantest = (isnan(m{4}) | isnan(m{7}));
+%     m{4}(sensor1_nantest) = nan;
+%     m{7}(sensor1_nantest) = nan;
+%     sensor2_nantest = (isnan(m{5}) | isnan(m{8}));
+%     m{5}(sensor2_nantest) = nan;
+%     m{8}(sensor2_nantest) = nan;
+%     sensor3_nantest = (isnan(m{6}) | isnan(m{9}));
+%     m{6}(sensor3_nantest) = nan;
+%     m{9}(sensor3_nantest) = nan;
     
     clear i;
     

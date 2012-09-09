@@ -13,8 +13,16 @@
 close all; clear all;     % clear any figures and variables
 fignum = 0;     % used to increment figure number for plots
 
+% Add path to nanmean, etc.
+addpath('~/data/code_resources/m_common/stat_tbx/');
 % add path to test_loadsnotel.m
 addpath('functiontests/');
+
+% What filters to use?
+filter1 = 'sigma';
+threshold1 = 3;
+filter2 = 'hampel';
+threshold2 = 3;
 
 % Ask user for site number
 siteID = str2double(input('Which SNOTEL station?: ', 's'));
@@ -102,13 +110,13 @@ h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
 subplot(3, 1, 1)
 plot(decday_hRaw, Ts5Raw, '.r', decday_h, Ts5, '.k');
-title('Ts -5cm'); datetick();
+title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 2)
 plot(decday_hRaw, Ts20Raw, '.r', decday_h, Ts20, '.k');
-title('Ts -20cm'); datetick();
+title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 3)
 plot(decday_hRaw, Ts50Raw, '.r', decday_h, Ts50, '.k');
-title('Ts - 50cm'); datetick()
+title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits')
 legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
 
 fignum = fignum+1;
@@ -116,95 +124,95 @@ h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
 subplot(3, 1, 1)
 plot(decday_hRaw, WC5Raw, '.r', decday_h, WC5, '.k');
-title('VWC -5cm'); datetick();
+title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 2)
 plot(decday_hRaw, WC20Raw, '.r', decday_h, WC20, '.k');
-title('VWC -20cm'); datetick();
+title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 3);
 plot(decday_hRaw, WC50Raw, '.r', decday_h, WC50, '.k');
-title('VWC -50cm'); datetick();
+title('VWC -50cm'); datetick('x', 'mmm-yy', 'keeplimits');
 legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
 
 % TEST Ts FILTERING
 % Generate filtered Ts data
- Ts5_meandiff = filtertempseries(Ts5, 'mean', 4);
- Ts20_meandiff = filtertempseries(Ts20, 'mean', 4);
- Ts50_meandiff = filtertempseries(Ts50, 'mean', 4);
- Ts5_shiftdiff = filtertempseries(Ts5, 'shift', 2.5);
- Ts20_shiftdiff = filtertempseries(Ts20, 'shift', 2.5);
- Ts50_shiftdiff = filtertempseries(Ts50, 'shift', 2.5);
+ Ts5_filt1 = filtertempseries(Ts5, filter1, threshold1);
+ Ts20_filt1 = filtertempseries(Ts20, filter1, threshold1);
+ Ts50_filt1 = filtertempseries(Ts50, filter1, threshold1);
+ Ts5_filt2 = filtertempseries(Ts5, filter2, threshold2);
+ Ts20_filt2 = filtertempseries(Ts20, filter2, threshold2);
+ Ts50_filt2 = filtertempseries(Ts50, filter2, threshold2);
 % Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
 
-% PLOT unfiltered and MEAN-DIFF filtered timeseries
+% PLOT unfiltered and FILTER 1 timeseries
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
 subplot(3, 1, 1)
-plot(decday_h, Ts5, '.r', decday_h, Ts5_meandiff, '.k');
-title('Ts -5cm'); datetick();
+plot(decday_h, Ts5, '.r', decday_h, Ts5_filt1, '.k');
+title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 2)
-plot(decday_h, Ts20, '.r', decday_h, Ts20_meandiff, '.k');
-title('Ts -20cm'); datetick();
+plot(decday_h, Ts20, '.r', decday_h, Ts20_filt1, '.k');
+title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 3)
-plot(decday_h, Ts50, '.r', decday_h, Ts50_meandiff, '.k');
-title('Ts - 50cm'); datetick();
-legend('Raw data', 'Filtered using mean', 'Location', 'NorthWest');
+plot(decday_h, Ts50, '.r', decday_h, Ts50_filt1, '.k');
+title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
 
-% PLOT histograms of unfiltered and MEAN-DIFF filtered data
+% PLOT histograms of unfiltered and FILTER 1 filtered data
 fignum = fignum + 1;
 h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
-    ' Histogram of mean difference filter values']);
+    ' Histogram of ' filter1 ' filter values']);
 % Number of bins
 xedges = linspace(-5, 5, 51);
 %subplot(1,2,1);
 n1 = histc(Ts5, xedges); % sort unfiltered values into bins
 bar(xedges, n1, 'r'); % plot in barchart
 hold on;
-n2 = histc(Ts5_meandiff, xedges);% sort mean diff values into bins
+n2 = histc(Ts5_filt1, xedges);% sort mean diff values into bins
 bar(xedges, n2, 'k');
 ylabel({'number of','occurences'});
 xlabel('Ts - 24hr mean Ts');
 
-% PLOT unfiltered and SHIFT-DIFF filtered timeseries
+% PLOT unfiltered and FILTER 2 timeseries
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
 subplot(3, 1, 1)
-plot(decday_h, Ts5, '.r', decday_h, Ts5_shiftdiff, '.k');
-title('Ts -5cm'); datetick();
+plot(decday_h, Ts5, '.r', decday_h, Ts5_filt2, '.k');
+title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 2)
-plot(decday_h, Ts20, '.r', decday_h, Ts20_shiftdiff, '.k');
-title('Ts -20cm'); datetick();
+plot(decday_h, Ts20, '.r', decday_h, Ts20_filt2, '.k');
+title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 3)
-plot(decday_h, Ts50, '.r', decday_h, Ts50_shiftdiff, '.k');
-title('Ts - 50cm'); datetick();
-legend('Raw data', 'Filtered using shift', 'Location', 'NorthWest');
+plot(decday_h, Ts50, '.r', decday_h, Ts50_filt2, '.k');
+title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
 
-% PLOT histograms of unfiltered and SHIFT-DIFF filtered data
+% PLOT histograms of unfiltered and FILTER 2 data
 fignum = fignum + 1;
 h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
-    ' Histogram of shifted-difference filter values']);
+    ' Histogram of ' filter2 ' filter values']);
 % Number of bins
 xedges = linspace(-5, 5, 51);
 %subplot(1,2,1);
 n1 = histc(Ts5, xedges); % sort unfiltered values into bins
 bar(xedges, n1, 'r'); % plot in barchart
 hold on;
-n2 = histc(Ts5_shiftdiff, xedges);% sort mean diff values into bins
+n2 = histc(Ts5_filt2, xedges);% sort mean diff values into bins
 bar(xedges, n2, 'k');
 ylabel({'number of','occurences'});
 xlabel('Ts - shifted difference Ts');
 
 % TEST VWC FILTERING
 % Generate filtered VWC data
- WC5_meandiff = filtertempseries(WC5, 'mean', 4);
- WC20_meandiff = filtertempseries(WC20, 'mean', 4);
- WC50_meandiff = filtertempseries(WC50, 'mean', 4);
- WC5_shiftdiff = filtertempseries(WC5, 'shift', 2.5);
- WC20_shiftdiff = filtertempseries(WC20, 'shift', 2.5);
- WC50_shiftdiff = filtertempseries(WC50, 'shift', 2.5);
+ WC5_filt1 = filtertempseries(WC5, filter1, threshold1);
+ WC20_filt1 = filtertempseries(WC20, filter1, threshold1);
+ WC50_filt1 = filtertempseries(WC50, filter1, threshold1);
+ WC5_filt2 = filtertempseries(WC5, filter2, threshold2);
+ WC20_filt2 = filtertempseries(WC20, filter2, threshold2);
+ WC50_filt2 = filtertempseries(WC50, filter2, threshold2);
 % Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
 
 % PLOT unfiltered and filtered data
@@ -212,29 +220,29 @@ fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
 subplot(3, 1, 1)
-plot(decday_h, WC5, '.r', decday_h, WC5_meandiff, '.k');
-title('VWC -5cm'); datetick();
+plot(decday_h, WC5, '.r', decday_h, WC5_filt1, '.k');
+title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 2)
-plot(decday_h, WC20, '.r', decday_h, WC20_meandiff, '.k');
-title('VWC -20cm'); datetick();
+plot(decday_h, WC20, '.r', decday_h, WC20_filt1, '.k');
+title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 3)
-plot(decday_h, WC50, '.r', decday_h, WC50_meandiff, '.k');
-title('VWC - 50cm'); datetick();
-legend('Raw data', 'Filtered using mean', 'Location', 'NorthWest');
+plot(decday_h, WC50, '.r', decday_h, WC50_filt1, '.k');
+title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
 
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
 subplot(3, 1, 1)
-plot(decday_h, WC5, '.r', decday_h, WC5_shiftdiff, '.k');
-title('VWC -5cm'); datetick();
+plot(decday_h, WC5, '.r', decday_h, WC5_filt2, '.k');
+title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 2)
-plot(decday_h, WC20, '.r', decday_h, WC20_shiftdiff, '.k');
-title('VWC -20cm'); datetick();
+plot(decday_h, WC20, '.r', decday_h, WC20_filt2, '.k');
+title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 3)
-plot(decday_h, WC50, '.r', decday_h, WC50_shiftdiff, '.k');
-title('VWC - 50cm'); datetick();
-legend('Raw data', 'Filtered using shift', 'Location', 'NorthWest');
+plot(decday_h, WC50, '.r', decday_h, WC50_filt2, '.k');
+title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
 
 % FIXME - this may no longer be necessary
 % INTERPOLATION to fill gaps in Ts (helps with running mean and

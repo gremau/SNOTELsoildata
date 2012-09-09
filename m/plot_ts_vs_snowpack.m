@@ -12,7 +12,7 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
-addpath('/home/greg/data/programming_resources/m_common/');
+addpath('~/data/code_resources/m_common/stat_tbx/');
 
 % Ask user for month number
 monthsel = str2double(input('Which month (1-12)?: ', 's'));

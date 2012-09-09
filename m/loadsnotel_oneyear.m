@@ -186,7 +186,7 @@ if strcmpi(interval, 'hourly')
     wyearvec(wytest) = wyearvec(wytest) + 1;
     m{10} = wyearvec;
     
-%     % Test to remove badyears
+    % Test to remove badyears
 %     badyeartest = ismember(wyearvec, badYears);
     
     for i = 4:completesensorset
@@ -196,22 +196,21 @@ if strcmpi(interval, 'hourly')
         m{i}(test) = nan;
         clear test;
         
-%         % Remove the bad data in badyeartest
+        % Remove the bad data in badyeartest
 %         m{i}(badyeartest) = nan;
         
-        % change unreasonably high and low numbers to nan
-        test = m{i} < -25 | m{i} > 100;
-        m{i}(test) = nan;
-        clear test;
+%         % change unreasonably high and low numbers to nan
+%         test = m{i} < -25 | m{i} > 100;
+%         m{i}(test) = nan;
+%         clear test;
         
-        % Dont let soil moisture values go down to 0.0 in winter 
-        % (its usually an error)
+        % Remove bad soil moisture values
         if i<7
-            test_val = m{i} == 0.0;
-            test_winter = tvec(:,2) > 10 | tvec(:, 2) < 4;
-            test = test_val & test_winter;
+            % Not lower than 0, not greater than 45 - set by calibration 
+            % equation for Hydraprobes (see Seyfried et al 2010)
+            test = m{i} > 45.0 | m{i} < 0.0;
             m{i}(test) = nan;
-            clear test_val test_winter test;
+            clear test;
         end
         
         % Remove bad soil temperature values
@@ -222,7 +221,7 @@ if strcmpi(interval, 'hourly')
             clear test
         end
     end
-%     
+    
 %     % Ensure that each sensor set to nans in the same places
 %     sensor1_nantest = (isnan(m{4}) | isnan(m{7}));
 %     m{4}(sensor1_nantest) = nan;
@@ -233,10 +232,10 @@ if strcmpi(interval, 'hourly')
 %     sensor3_nantest = (isnan(m{6}) | isnan(m{9}));
 %     m{6}(sensor3_nantest) = nan;
 %     m{9}(sensor3_nantest) = nan;
-%     
+    
     clear i;
-%     
-% 
+    
+
 % % Filter daily files-----
 elseif strcmpi(interval, 'daily')
     
