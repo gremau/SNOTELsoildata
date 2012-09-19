@@ -135,12 +135,12 @@ legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
 
 % TEST Ts FILTERING
 % Generate filtered Ts data
- Ts5_filt1 = filtertempseries(Ts5, filter1, threshold1);
- Ts20_filt1 = filtertempseries(Ts20, filter1, threshold1);
- Ts50_filt1 = filtertempseries(Ts50, filter1, threshold1);
- Ts5_filt2 = filtertempseries(Ts5, filter2, threshold2);
- Ts20_filt2 = filtertempseries(Ts20, filter2, threshold2);
- Ts50_filt2 = filtertempseries(Ts50, filter2, threshold2);
+ Ts5_filt1 = filterseries(Ts5, filter1, threshold1);
+ Ts20_filt1 = filterseries(Ts20, filter1, threshold1);
+ Ts50_filt1 = filterseries(Ts50, filter1, threshold1);
+ Ts5_filt2 = filterseries(Ts5, filter2, threshold2);
+ Ts20_filt2 = filterseries(Ts20, filter2, threshold2);
+ Ts50_filt2 = filterseries(Ts50, filter2, threshold2);
 % Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
 
 % PLOT unfiltered and FILTER 1 timeseries
@@ -207,12 +207,12 @@ xlabel('Ts - shifted difference Ts');
 
 % TEST VWC FILTERING
 % Generate filtered VWC data
- WC5_filt1 = filtertempseries(WC5, filter1, threshold1);
- WC20_filt1 = filtertempseries(WC20, filter1, threshold1);
- WC50_filt1 = filtertempseries(WC50, filter1, threshold1);
- WC5_filt2 = filtertempseries(WC5, filter2, threshold2);
- WC20_filt2 = filtertempseries(WC20, filter2, threshold2);
- WC50_filt2 = filtertempseries(WC50, filter2, threshold2);
+ WC5_filt1 = filterseries(WC5, filter1, threshold1);
+ WC20_filt1 = filterseries(WC20, filter1, threshold1);
+ WC50_filt1 = filterseries(WC50, filter1, threshold1);
+ WC5_filt2 = filterseries(WC5, filter2, threshold2);
+ WC20_filt2 = filterseries(WC20, filter2, threshold2);
+ WC50_filt2 = filterseries(WC50, filter2, threshold2);
 % Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
 
 % PLOT unfiltered and filtered data

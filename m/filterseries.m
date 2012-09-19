@@ -1,4 +1,4 @@
-function array = filtertempseries(series, type, threshold)
+function array = filterseries(series, type, threshold)
 % filtertemprseries.m
 %
 % Filters soil temperature data series using a difference from the mean, or 

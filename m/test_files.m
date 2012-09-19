@@ -85,12 +85,12 @@ end
         WC5 = m{4}; % column 4 is at -2 in (5cm depth)
         WC20 = m{5}; % column 5 is at -8 in (20cm depth)
         WC50 = m{6}; % column 6 is at -20 in (50cm depth)
-        Ts5filt = filtertempseries(m{7}, 'sigma', 2.5);
-        Ts20filt = filtertempseries(m{8}, 'sigma', 2.5);
-        Ts50filt = filtertempseries(m{9}, 'sigma', 2.5);
-        WC5filt = filtertempseries(m{4}, 'sigma', 2.5);
-        WC20filt = filtertempseries(m{5}, 'sigma', 2.5);
-        WC50filt = filtertempseries(m{6}, 'sigma', 2.5);
+        Ts5filt = filterseries(m{7}, 'sigma', 2.5);
+        Ts20filt = filterseries(m{8}, 'sigma', 2.5);
+        Ts50filt = filterseries(m{9}, 'sigma', 2.5);
+        WC5filt = filterseries(m{4}, 'sigma', 2.5);
+        WC20filt = filterseries(m{5}, 'sigma', 2.5);
+        WC50filt = filterseries(m{6}, 'sigma', 2.5);
         
         fignum = fignum+1;
         h = figure(fignum);
