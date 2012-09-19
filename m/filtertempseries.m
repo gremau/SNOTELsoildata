@@ -69,16 +69,26 @@ elseif strcmp(type, 'shift')
 
 % SIGMA - Filter that removes data using standard deviation of the data.
 % Use movingstd.m from MATLAB FEx to calculate StdDev of series
-% FIXME - Seems to remove a ton of winter Ts data for some reason - 
-% investigate. Also - consider using a running median rather than mean 
-% here, see Ron Pearson's ideas about this.
+% FIXME - Consider using a running median rather than mean here, see Ron 
+% Pearson's ideas about this.
 elseif strcmp(type, 'sigma')
     % First interpolate over the missing data in the input series
     series_filled = interpseries(series);
     % Then calculate a running std based on the window size.
     runningStd = movingstd(series_filled, window);
+    % This calculation creates complex numbers when the temperature is
+    % near zero for extended periods (due to negative numbers in
+    % the variance). Give them their real number value (should be 0).
+    runningStd = real(runningStd);
+    % However, when StDev = 0, which occurs when variability is very low 
+    % (in winter), this filter fails because there is a small difference
+    % between runningMean and the original data. Give the StDev a very
+    % small value in this case (but larger than the difference above).
+    testzero = runningStd==0;
+    runningStd(testzero) = 0.005;
     % Also calculate a running mean and a sigmas vector
     runningMean = filter(ones(window,1)/window, 1, series_filled);
+    %runningMean = slidefun(@median, window, series_filled);
     sigmas = threshold * runningStd;
     % Resulting mean is shifted forward in phase by window/2, shift it back
     runningMean = circshift(runningMean, -floor(window/2));
@@ -94,7 +104,7 @@ elseif strcmp(type, 'sigma')
 % Use hampel.m from MATLAB FEx to filter outliers. This is a complicated
 % algorithm, so look at the documentation before changing parameters.
 elseif strcmp(type, 'hampel')
-    x = 1:length(series)';
+    x = (1:length(series))';
     % Hampel filter - parameters are default here, including a window size
     % that is based on the size of the input array, and a threshold value
     % of 3 (for removing outliers).

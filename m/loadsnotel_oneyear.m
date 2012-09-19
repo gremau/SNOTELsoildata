@@ -1,5 +1,5 @@
-function m = loadsnotel_oneyear(file, interval)
-%function m = loadsnotel_oneyear(interval, siteID, year)
+
+function m = loadsnotel_oneyear(interval, siteID, year)
 % loadsnotel_oneyear.m
 %
 %
@@ -16,9 +16,7 @@ function m = loadsnotel_oneyear(file, interval)
 % select daily files (all sensors) or hourly soil sensor data 
 if strcmpi(interval, 'daily')
     datapath = '../rawdata/allsensors_daily/';
-    %datapath = '/home/greg/data/rawdata/NRCSdata/allsensors_daily/';
-    %datapath = '../rawdata/other/NiwotSNOTELs_90-2010/';
-    
+    file = [datapath siteID '_ALL_WATERYEAR=' year '.csv'];
     % A complete datafile has this many sensors
     completesensorset = 20;
     % Columns to find in daily files (note spaces after -2 sensors)
@@ -26,40 +24,19 @@ if strcmpi(interval, 'daily')
     'TMAX.D-1' 'TMIN.D-1' 'TAVG.D-1' 'SNWD.I-1' 'SMS.I-1:-2 ' 'SMS.I-1:-8'...
     'SMS.I-1:-20' 'STO.I-1:-2 ' 'STO.I-1:-8' 'STO.I-1:-20' 'RDC.I-1:-2 ' ...
     'RDC.I-1:-8' 'RDC.I-1:-20' 'BATT.I-1'};
-    % Load list of bad data years for all sites
-    % badDataList = sortrows(csvread([datapath 'baddata.txt'], 1, 0));
-    % badYears = badDataList((badDataList(:, 1)==siteID), 2);
-
 
 elseif strcmpi(interval, 'hourly')
     datapath = '../rawdata/soilsensors_hourly/';
-    % datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
-    
+    file = [datapath num2str(siteID) '_SOIL_WATERYEAR=' ...
+        num2str(year) '.csv'];
     % A complete datafile has this many sensors
     completesensorset = 9;
     % Columns to find in hourly files (note spaces after -2 sensors)
     desiredheaders = {'Site Id' 'Date' 'Time' 'SMS.I-1:-2 ' 'SMS.I-1:-8'...
     'SMS.I-1:-20' 'STO.I-1:-2 ' 'STO.I-1:-8' 'STO.I-1:-20'};
-    % badYears = [];
 else
     error('Not a valid data type (daily or hourly)')
 end
-
-% Until there is better baddata control, use this file:
-% badDataList = sortrows(csvread(...
-%     '../rawdata/allsensors_daily/baddata.txt', 1, 0));
-% badYears = badDataList((badDataList(:, 1)==siteID), 2);
-
-%--------------------------------------------------------------------------
-% Find the filenames for the site/year
-% try
-%     filelist = textscan(ls([datapath num2str(siteID) '*']), '%s'); 
-% catch exception
-%     error('missing:SiteData', ['no data found for site ' num2str(siteID)]); 
-% end
-%# Extract the matches
-% matches = regexp(filelist{1},['^.*' num2str(year) '.*$'],'match');
-% file = [matches{:}];
 
 %--------------------------------------------------------------------------
 % Sensors, and therefore columns vary from year to year, site to site,
@@ -76,7 +53,6 @@ templates = {t t t t t};
 
 % First, we open the file and identify what sensors are
 % present (and in which columns), and which are missing(and in which col)
-%for i = 1:length(files)
 % read file headers to cell of strings - (1 per year of data)
 fid = fopen(file);
 % use fgetl(fid) to get the second line of the file

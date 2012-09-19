@@ -21,7 +21,7 @@ addpath('functiontests/');
 % What filters to use?
 filter1 = 'sigma';
 threshold1 = 3;
-filter2 = 'hampel';
+filter2 = 'mean';
 threshold2 = 3;
 
 % Ask user for site number
@@ -164,7 +164,7 @@ h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
     ' Histogram of ' filter1 ' filter values']);
 % Number of bins
-xedges = linspace(-5, 5, 51);
+xedges = linspace(-10, 35, 51);
 %subplot(1,2,1);
 n1 = histc(Ts5, xedges); % sort unfiltered values into bins
 bar(xedges, n1, 'r'); % plot in barchart

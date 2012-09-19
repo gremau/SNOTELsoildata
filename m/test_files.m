@@ -1,39 +1,83 @@
-function m = test_files(interval)
+function test_files()
 % test_file.m
 %
 %
 % arguments:
 % interval = 'hourly' or 'daily' ... load hourly or daily data files
 % ------------------------------------------------------------------------
-fignum = 0;
+interval = input('Hourly or daily files? ', 's');
 
+fignum = 0;
 % Load a list of daily files (all sensors) or hourly soil sensor data 
 if strcmpi(interval, 'daily')
     datapath = '../rawdata/allsensors_daily/';
-    
 
 elseif strcmpi(interval, 'hourly')
     datapath = '../rawdata/soilsensors_hourly/';
     
 end
 
-filelist = textscan(ls([datapath '*.csv']), '%s');
-filelist = sortrows(filelist{:});
-sitelist = sortrows(csvread([datapath 'sitelist.txt'], 1, 0));
+% Create a list of files in the datapath
+sitelist = sortrows(csvread([datapath 'sitelist.txt']));
+
+% Add columns that can be used to exclude sensors
+sitelist = [sitelist, zeros(length(sitelist), 6)];
     
-for i = 1:size(filelist)
-    m = loadsnotel_oneyear(filelist{i}, interval);
+for i = 1:length(sitelist)
+    siteID = sitelist(i,1);
+    year = sitelist(i,2);
+    m = loadsnotel_oneyear(interval, siteID, year);
+    
+    % Mark and remove sub-hourly rows
+%     tvec = datevec(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
+%     subhourly = tvec(:, 5) ~= 0;
+%     tvec(subhourly,:) = [];
+%     clear test;
+    
     if strcmpi(interval, 'hourly')
+        disp(['Hourly data, site = ' num2str(siteID) ...
+            ', year = ' num2str(year)]);
+        % Check that the data period is not truncated in any way
+        sampletvec = datevec(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
+        sampletnum = datenum(sampletvec);
+        % Create a full hourly time vector for the water year
+        tstart = datenum(year-1,10,1);
+        tend = datenum(year,9,30,23,0,0);
+        fulltvec = datevec(tstart:(1/24):tend);
+        % Look at how frequent measurements are
+        measHours = unique(sampletvec(:,4));
+        if length(measHours) < 24
+            disp(['Only '  num2str(length(measHours)) ...
+                ' hours are measured!']);
+        end
+        % Find missing measurement times 
+        missingRows = find(~ismember(fulltvec, sampletvec, 'rows'));
+        missingTimes = fulltvec(missingRows,:);
+        if size(missingTimes,1) > (0.1*length(fulltvec))
+            disp([num2str(100*(size(missingTimes, 1)/length(fulltvec))) ...
+                '% of measurement times are missing!']);
+        end
+        % Create plots to check data
         plothourly();
-        %pause();
+        % Add bad sensors to exclude matrix
+        badsensors = [badtemp badvwc];
+        sitelist(i,3:end) = badsensors;
+
     elseif strcmpi(interval, 'daily')
+        disp(['Daily data, site = ' num2str(siteID) ...
+            ', year = ' num2str(year)]);
+        % Check that the data period is not truncated 
+        tvec = datevec(m{2}, 'yyyy-mm-dd');
+        tstart = datenum(year,1,1);
+        tend = datenum(year,12,31);
+        fulltvec = datevec(tstart:tend)
+        % Create plots to check data
         plotdaily();
-        pause()
     end
-    
+    disp('OK!');
 end
 
-    function null = plothourly()
+    function plothourly()
         decday_h = datenum(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
         Ts5 = m{7}; % column 7 is at -2 in (5cm depth)
         Ts20 = m{8}; % column 8 is at -8 in (20cm depth)
@@ -41,16 +85,16 @@ end
         WC5 = m{4}; % column 4 is at -2 in (5cm depth)
         WC20 = m{5}; % column 5 is at -8 in (20cm depth)
         WC50 = m{6}; % column 6 is at -20 in (50cm depth)
-        Ts5filt = filtertempseries(m{7}, 'shift', 2.5);
-        Ts20filt = filtertempseries(m{8}, 'shift', 2.5);
-        Ts50filt = filtertempseries(m{9}, 'shift', 2.5);
-        WC5filt = filtertempseries(m{4}, 'shift', 2.5);
-        WC20filt = filtertempseries(m{5}, 'shift', 2.5);
-        WC50filt = filtertempseries(m{6}, 'shift', 2.5);
+        Ts5filt = filtertempseries(m{7}, 'sigma', 2.5);
+        Ts20filt = filtertempseries(m{8}, 'sigma', 2.5);
+        Ts50filt = filtertempseries(m{9}, 'sigma', 2.5);
+        WC5filt = filtertempseries(m{4}, 'sigma', 2.5);
+        WC20filt = filtertempseries(m{5}, 'sigma', 2.5);
+        WC50filt = filtertempseries(m{6}, 'sigma', 2.5);
         
         fignum = fignum+1;
         h = figure(fignum);
-        set(h, 'Name', [filelist{i} ' - Hourly Ts']);
+        set(h, 'Name', ['Ts at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(3, 1, 1)
         plot(decday_h, Ts5, '.r', decday_h, Ts5filt, '.k');
         title('Ts -5cm'); datetick();
@@ -61,11 +105,15 @@ end
         plot(decday_h, Ts50, '.r', decday_h, Ts50filt, '.k');
         title('Ts - 50cm'); datetick();
         %legend('Raw data', 'Filtered using shift', 'Location', 'NorthWest');
-        pause();
+        tempinput = input('Bad temp sensors?  [1, 2, or 3]: ');
+        badtemp = zeros(1, 3);
+        badtemp(tempinput) = 1;
+        
+        %pause();
         
         fignum = fignum+1;
         h = figure(fignum);
-        set(h, 'Name', [filelist{i} ' - Hourly VWC']);
+        set(h, 'Name', ['VWC at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(3, 1, 1)
         plot(decday_h, WC5, '.r', decday_h, WC5filt, '.k');
         title('VWC -5cm'); datetick();
@@ -76,7 +124,9 @@ end
         plot(decday_h, WC50, '.r', decday_h, WC50filt, '.k');
         title('VWC - 50cm'); datetick();
         %legend('Raw data', 'Filtered using shift', 'Location', 'NorthWest');
-        pause();
+        vwcinput = input('Bad vwc sensors?  [1, 2, or 3]: ');
+        badvwc = zeros(1, 3);
+        badvwc(vwcinput) = 1;
         close all;
         
     end

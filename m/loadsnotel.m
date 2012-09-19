@@ -17,8 +17,6 @@ siteID = uint16(siteID); % Convert input to int just in case
 % select daily files (all sensors) or hourly soil sensor data 
 if strcmpi(interval, 'daily')
     datapath = '../rawdata/allsensors_daily/';
-    %datapath = '/home/greg/data/rawdata/NRCSdata/allsensors_daily/';
-    %datapath = '../rawdata/other/NiwotSNOTELs_90-2010/';
     
     % A complete datafile has this many sensors
     completesensorset = 20;
@@ -34,7 +32,6 @@ if strcmpi(interval, 'daily')
 
 elseif strcmpi(interval, 'hourly')
     datapath = '../rawdata/soilsensors_hourly/';
-    % datapath = '/home/greg/data/rawdata/SNOTELdata/soilsensors_hourly/';
     
     % A complete datafile has this many sensors
     completesensorset = 9;
@@ -190,18 +187,13 @@ if strcmpi(interval, 'hourly')
     
     for i = 4:completesensorset
         
-        % mark the datalogger error signals (-99.9, -273.2)
+        % Remove datalogger error signals (-99.9, -273.2)
         test = m{i} == -99.9 | m{i} == -273.2;
         m{i}(test) = nan;
         clear test;
         
         % Remove the bad data in badyeartest
 %         m{i}(badyeartest) = nan;
-        
-%         % change unreasonably high and low numbers to nan
-%         test = m{i} < -25 | m{i} > 100;
-%         m{i}(test) = nan;
-%         clear test;
         
         % Remove bad soil moisture values
         if i<7
@@ -215,7 +207,7 @@ if strcmpi(interval, 'hourly')
         % Remove bad soil temperature values
         if i>6           
             % Get rid of silly values
-            test = m{i} > 50 | m{i} < -25;
+            test = m{i} > 55 | m{i} < -25;
             m{i}(test) = nan;
             clear test
         end

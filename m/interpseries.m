@@ -4,7 +4,8 @@ function filled_array = interpseries(array)
 % variance calculations.
 %
 % Interpolates over NaNs (data gaps) in the input time series (may be
-% complex), but ignores trailing and leading NaN.
+% complex), but ignores trailing and leading NaN. 
+% WARNING: If array contains only NaN's, interp1 throws an error.
 %
 % Adapted from FIXGAPS routine on Matlab Central file exchange,
 % by R. Pawlowicz 6/Nov/99
