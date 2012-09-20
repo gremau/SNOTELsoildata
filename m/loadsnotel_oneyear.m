@@ -16,7 +16,8 @@ function m = loadsnotel_oneyear(interval, siteID, year)
 % select daily files (all sensors) or hourly soil sensor data 
 if strcmpi(interval, 'daily')
     datapath = '../rawdata/allsensors_daily/';
-    file = [datapath siteID '_ALL_WATERYEAR=' year '.csv'];
+    file = [datapath num2str(siteID) '_ALL_WATERYEAR=' ...
+        num2str(year) '.csv'];
     % A complete datafile has this many sensors
     completesensorset = 20;
     % Columns to find in daily files (note spaces after -2 sensors)

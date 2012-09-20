@@ -18,7 +18,7 @@ elseif strcmpi(interval, 'hourly')
 end
 
 % Create a list of files in the datapath
-sitelist = sortrows(csvread([datapath 'sitelist.txt']));
+sitelist = sortrows(csvread([datapath 'filelist.txt']));
 
 % Add columns that can be used to exclude sensors
 sensorchecklist = [sitelist, zeros(length(sitelist), 6)];
@@ -128,5 +128,6 @@ end
         close all;
         
     end
-    
+
 end
+%csvwrite([processeddatapath 'wyear_soilwatersummary_smnorm.csv'], soilwatersummary);
