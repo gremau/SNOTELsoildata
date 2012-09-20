@@ -1,5 +1,5 @@
-function test_files()
-% test_file.m
+function testsensors()
+% testsensors.m
 %
 %
 % arguments:
@@ -21,18 +21,12 @@ end
 sitelist = sortrows(csvread([datapath 'sitelist.txt']));
 
 % Add columns that can be used to exclude sensors
-sitelist = [sitelist, zeros(length(sitelist), 6)];
+sensorchecklist = [sitelist, zeros(length(sitelist), 6)];
     
-for i = 1:length(sitelist)
-    siteID = sitelist(i,1);
-    year = sitelist(i,2);
+for i = 1:length(sensorchecklist)
+    siteID = sensorchecklist(i,1);
+    year = sensorchecklist(i,2);
     m = loadsnotel_oneyear(interval, siteID, year);
-    
-    % Mark and remove sub-hourly rows
-%     tvec = datevec(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
-%     subhourly = tvec(:, 5) ~= 0;
-%     tvec(subhourly,:) = [];
-%     clear test;
     
     if strcmpi(interval, 'hourly')
         disp(['Hourly data, site = ' num2str(siteID) ...
@@ -40,6 +34,10 @@ for i = 1:length(sitelist)
         % Check that the data period is not truncated in any way
         sampletvec = datevec(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
         sampletnum = datenum(sampletvec);
+        measDays = length(unique(floor(sampletnum)));
+        if measDays < 350
+            disp(['Only ' num2str(measDays) ' days measured']);
+        end
         % Create a full hourly time vector for the water year
         tstart = datenum(year-1,10,1);
         tend = datenum(year,9,30,23,0,0);
@@ -61,7 +59,7 @@ for i = 1:length(sitelist)
         plothourly();
         % Add bad sensors to exclude matrix
         badsensors = [badtemp badvwc];
-        sitelist(i,3:end) = badsensors;
+        sensorchecklist(i,3:end) = badsensors;
 
     elseif strcmpi(interval, 'daily')
         disp(['Daily data, site = ' num2str(siteID) ...

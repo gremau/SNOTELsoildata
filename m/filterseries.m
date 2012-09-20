@@ -5,9 +5,10 @@ function array = filterseries(series, type, threshold)
 % difference from neighbor, then fills in generated nans with interpolation
 % routine.
 %
-% arg 1 = input data series
-% arg 2 = 'mean', 'median', 'shift', 'sigma', or 'hampel' filter type
-% arg 3 = threshold difference above which datapoint is set to nan
+% **Arguments**
+%   1 = input data series
+%   2 = 'mean', 'median', 'shift', 'sigma', or 'hampel' filter type
+%   3 = threshold difference above which datapoint is set to nan
 %
 % Note that if NaN's are present in the input series, most filters will
 % them by the window size. Therefore, these calculate statistics based on
