@@ -89,13 +89,15 @@ elseif strcmp(type, 'sigma')
     runningStd(testzero) = 0.005;
     % Also calculate a running mean and a sigmas vector
     runningMean = filter(ones(window,1)/window, 1, series_filled);
-    %runningMean = slidefun(@median, window, series_filled);
+    %runningMedian = slidefun(@median, window, series_filled);
     sigmas = threshold * runningStd;
     % Resulting mean is shifted forward in phase by window/2, shift it back
     runningMean = circshift(runningMean, -floor(window/2));
     % Set a hi and low value (# of sigmas from mean) to filter outliers.
     hi = runningMean + sigmas;
     lo = runningMean - sigmas;
+    %hi = runningMedian + sigmas;
+    %lo = runningMedian - sigmas;
     % Change datapoints beyond the hi/lo thresholds to nan
     filteredSeries = series;
     testDiff = filteredSeries > hi | filteredSeries < lo;

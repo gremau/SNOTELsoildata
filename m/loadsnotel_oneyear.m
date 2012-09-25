@@ -164,22 +164,17 @@ if strcmpi(interval, 'hourly')
     m{10} = wyearvec;
     
     % Test to remove badyears
-%     badyeartest = ismember(wyearvec, badYears);
+    %badyeartest = ismember(wyearvec, badYears);
     
     for i = 4:completesensorset
         
-        % mark the datalogger error signals (-99.9, -273.2)
+        % Remove datalogger error signals (-99.9, -273.2)
         test = m{i} == -99.9 | m{i} == -273.2;
         m{i}(test) = nan;
         clear test;
         
         % Remove the bad data in badyeartest
-%         m{i}(badyeartest) = nan;
-        
-%         % change unreasonably high and low numbers to nan
-%         test = m{i} < -25 | m{i} > 100;
-%         m{i}(test) = nan;
-%         clear test;
+        %m{i}(badyeartest) = nan;
         
         % Remove bad soil moisture values
         if i<7
@@ -193,27 +188,15 @@ if strcmpi(interval, 'hourly')
         % Remove bad soil temperature values
         if i>6           
             % Get rid of silly values
-            test = m{i} > 50 | m{i} < -25;
+            test = m{i} > 47.5 | m{i} < -20;
             m{i}(test) = nan;
             clear test
         end
     end
     
-%     % Ensure that each sensor set to nans in the same places
-%     sensor1_nantest = (isnan(m{4}) | isnan(m{7}));
-%     m{4}(sensor1_nantest) = nan;
-%     m{7}(sensor1_nantest) = nan;
-%     sensor2_nantest = (isnan(m{5}) | isnan(m{8}));
-%     m{5}(sensor2_nantest) = nan;
-%     m{8}(sensor2_nantest) = nan;
-%     sensor3_nantest = (isnan(m{6}) | isnan(m{9}));
-%     m{6}(sensor3_nantest) = nan;
-%     m{9}(sensor3_nantest) = nan;
-    
     clear i;
-    
 
-% % Filter daily files-----
+% Filter daily files-----
 elseif strcmpi(interval, 'daily')
     
     % Mark and remove sub-daily rows
@@ -233,8 +216,8 @@ elseif strcmpi(interval, 'daily')
     wyearvec(wytest) = wyearvec(wytest) + 1;
     m{21} = wyearvec;
     
-%     % Test to remove badyears
-%     badyeartest = ismember(wyearvec, badYears);
+    % Test to remove badyears
+    %badyeartest = ismember(wyearvec, badYears);
     
     for i = 4:completesensorset
         % mark the datalogger error signals (-99.9, -273.2)
@@ -242,8 +225,8 @@ elseif strcmpi(interval, 'daily')
         m{i}(test) = nan;
         clear test;
         
-%         % Remove the bad data in badyeartest
-%         m{i}(badyeartest) = nan;
+        % Remove the bad data in badyeartest
+        %m{i}(badyeartest) = nan;
         
         % Set negative WTEQ and PREC values to 0
         if i<6
@@ -259,38 +242,21 @@ elseif strcmpi(interval, 'daily')
             clear test;
         end
         
-        % Remove high soil moisture values
+        % Remove bad soil moisture values
         if i>10 && i<14
-            test = m{i} > 100;
+            test = m{i} > 45.0 | m{i} < 0.0;
             m{i}(test) = nan;
             clear test;
         end
         
         % Remove High temp values for deep soil sensors
         if i>13 && i<17
-            test = m{i} > 35.0;
+            % Get rid of silly values
+            test = m{i} > 47.5 | m{i} < -20;
             m{i}(test) = nan;
             clear test;
         end
         
     end
     clear i;
-%     
-%     sensor1_nantest = (isnan(m{6}) | isnan(m{7}) |isnan(m{8}) |isnan(m{9}));
-%     m{6}(sensor1_nantest) = nan;
-%     m{7}(sensor1_nantest) = nan;
-%     m{8}(sensor1_nantest) = nan;
-%     m{9}(sensor1_nantest) = nan;
-%     sensor2_nantest = (isnan(m{11}) | isnan(m{14}) | isnan(m{17}));
-%     m{11}(sensor2_nantest) = nan;
-%     m{14}(sensor2_nantest) = nan;
-%     m{17}(sensor2_nantest) = nan;
-%     sensor3_nantest = (isnan(m{12}) | isnan(m{15}) | isnan(m{18}));
-%     m{12}(sensor3_nantest) = nan;
-%     m{15}(sensor3_nantest) = nan;
-%     m{18}(sensor3_nantest) = nan;
-%     sensor4_nantest = (isnan(m{13}) | isnan(m{16}) | isnan(m{19}));
-%     m{13}(sensor4_nantest) = nan;
-%     m{16}(sensor4_nantest) = nan;
-%     m{19}(sensor4_nantest) = nan;
 end
