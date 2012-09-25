@@ -16,7 +16,7 @@ fignum = 0;     % used to increment figure number for plots
 % Add path to nanmean, etc.
 addpath('~/data/code_resources/m_common/stat_tbx/');
 % add path to test_loadsnotel.m
-addpath('functiontests/');
+addpath('testing/');
 
 % What filters to use?
 filter1 = 'sigma';

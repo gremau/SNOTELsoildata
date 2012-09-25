@@ -1,5 +1,5 @@
-function m = test_loadsnotel(interval, siteID, varargin)
-% test_loadsnotel.m
+function m = loadsnotel_raw(interval, siteID, varargin)
+% loadsnotel_raw.m
 %
 % Generates a loadsnotel-type matrix with no modification of original
 % data. This can be used to compare to datasets from the same site/interval
