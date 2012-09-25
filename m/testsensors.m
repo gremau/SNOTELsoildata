@@ -105,32 +105,36 @@ end
         
         fignum = fignum+1;
         h = figure(fignum);
+        ymin = -15;
+        ymax = 50;
         set(h, 'Name', ['Ts at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(3, 1, 1)
         plot(decday_h, ts5, '.r', decday_h, ts5F, '.k');
-        title('1) Ts -5cm'); datetick();
+        title('1) Ts -5cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 2)
         plot(decday_h, ts20, '.r', decday_h, ts20F, '.k');
-        title('2) Ts -20cm'); datetick();
+        title('2) Ts -20cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 3)
         plot(decday_h, ts50, '.r', decday_h, ts50F, '.k');
-        title('3) Ts -50cm'); datetick();
+        title('3) Ts -50cm'); datetick(); ylim([ymin, ymax]);
         tsinput = input('Bad Tsoil sensors?  [1, 2, or 3]: ');
         badts = zeros(1, 3);
         badts(tsinput) = 1;
         
         fignum = fignum+1;
         h = figure(fignum);
+        ymin = -5;
+        ymax = 45;
         set(h, 'Name', ['VWC at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(3, 1, 1)
         plot(decday_h, vwc5, '.r', decday_h, vwc5F, '.k');
-        title('1) VWC -5cm'); datetick();
+        title('1) VWC -5cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 2)
         plot(decday_h, vwc20, '.r', decday_h, vwc20F, '.k');
-        title('2) VWC -20cm'); datetick();
+        title('2) VWC -20cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 3)
         plot(decday_h, vwc50, '.r', decday_h, vwc50F, '.k');
-        title('3) VWC -50cm'); datetick();
+        title('3) VWC -50cm'); datetick(); ylim([ymin, ymax]);
         vwcinput = input('Bad VWC sensors?  [1, 2, or 3]: ');
         badvwc = zeros(1, 3);
         badvwc(vwcinput) = 1;
@@ -171,67 +175,75 @@ end
         
         fignum = fignum+1;
         h = figure(fignum);
+        ymin = 0;
+        ymax = 80;
         set(h, 'Name', ['Precip at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(3, 1, 1)
         plot(decday_d, wteq, '.r', decday_d, wteqF, '.k');
-        title('1) SWE (snow pillow)'); datetick();
+        title('1) SWE (snow pillow)'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 2)
         plot(decday_d, prec, '.r', decday_d, precF, '.k');
-        title('2) Precip gauge'); datetick();
+        title('2) Precip gauge'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 3)
         plot(decday_d, snwd, '.r', decday_d, snwdF, '.k');
-        title('3) Snow Depth'); datetick();
+        title('3) Snow Depth'); datetick(); ylim([ymin, 150]);
         precinput = input('Bad precip sensors?  [1, 2, or 3]: ');
         badprec = zeros(1, 3);
         badprec(precinput) = 1;
         
         fignum = fignum+1;
         h = figure(fignum);
+        ymin = -25;
+        ymax = 50;
         set(h, 'Name', ['AirT at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(4, 1, 1)
         plot(decday_d, tobs, '.r', decday_d, tobsF, '.k');
-        title('1) Air T obs'); datetick();
+        title('1) Air T obs'); datetick(); ylim([ymin, ymax]);
         subplot(4, 1, 2)
         plot(decday_d, tmax, '.r', decday_d, tmaxF, '.k');
-        title('2) MAX Air T'); datetick();
+        title('2) MAX Air T'); datetick(); ylim([ymin, ymax]);
         subplot(4, 1, 3)
         plot(decday_d, tmin, '.r', decday_d, tminF, '.k');
-        title('3) MIN Air T'); datetick();
+        title('3) MIN Air T'); datetick(); ylim([ymin, ymax]);
         subplot(4, 1, 4)
         plot(decday_d, tavg, '.r', decday_d, tavgF, '.k');
-        title('4) AVG Air T'); datetick();
+        title('4) AVG Air T'); datetick(); ylim([ymin, ymax]);
         airtinput = input('Bad air T sensors?  [1, 2, 3, or 4]: ');
         badairt = zeros(1, 4);
         badairt(airtinput) = 1;
         
         fignum = fignum+1;
         h = figure(fignum);
+        ymin = -15;
+        ymax = 50;
         set(h, 'Name', ['Ts at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(3, 1, 1)
         plot(decday_d, ts5, '.r', decday_d, ts5F, '.k');
-        title('1) Ts -5cm'); datetick();
+        title('1) Ts -5cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 2)
         plot(decday_d, ts20, '.r', decday_d, ts20F, '.k');
-        title('2) Ts -20cm'); datetick();
+        title('2) Ts -20cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 3)
         plot(decday_d, ts50, '.r', decday_d, ts50F, '.k');
-        title('3) Ts -50cm'); datetick();
+        title('3) Ts -50cm'); datetick(); ylim([ymin, ymax]);
         tsinput = input('Bad Tsoil sensors?  [1, 2, or 3]: ');
         badts = zeros(1, 3);
         badts(tsinput) = 1;
         
         fignum = fignum+1;
         h = figure(fignum);
+        ymin = -5;
+        ymax = 45;
         set(h, 'Name', ['VWC at site ' num2str(siteID) ' - ' num2str(year)]);
         subplot(3, 1, 1)
         plot(decday_d, vwc5, '.r', decday_d, vwc5F, '.k');
-        title('1) VWC -5cm'); datetick();
+        title('1) VWC -5cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 2)
         plot(decday_d, vwc20, '.r', decday_d, vwc20F, '.k');
-        title('2) VWC -20cm'); datetick();
+        title('2) VWC -20cm'); datetick(); ylim([ymin, ymax]);
         subplot(3, 1, 3)
         plot(decday_d, vwc50, '.r', decday_d, vwc50F, '.k');
-        title('3) VWC -50cm'); datetick();
+        title('3) VWC -50cm'); datetick(); ylim([ymin, ymax]);
         vwcinput = input('Bad VWC sensors?  [1, 2, or 3]: ');
         badvwc = zeros(1, 3);
         badvwc(vwcinput) = 1;

@@ -193,7 +193,7 @@ if strcmpi(interval, 'hourly')
         % Remove bad soil temperature values
         if i>6           
             % Get rid of silly values
-            test = m{i} > 45 | m{i} < -25;
+            test = m{i} > 50 | m{i} < -25;
             m{i}(test) = nan;
             clear test
         end
