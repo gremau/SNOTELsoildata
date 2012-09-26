@@ -22,7 +22,7 @@ rawdatapath = '../rawdata/';
 processeddatapath = '../processed_data/';
 
 % Load list of sites with data in the daily data directory
-dailyDataSites = sortrows(csvread([rawdatapath 'allsensors_daily/sitelist.txt']));
+dailyDataSites = sortrows(csvread([rawdatapath 'allsensors_daily/filelist.txt']));
 
 % Import list of wasatch + uinta sites
 formatstr = '%s%f%s%s';

@@ -13,7 +13,7 @@ function m = loadsnotel_raw(interval, siteID, varargin)
 % varargin = cell array containing a test type ('delete' or 'dummyvalues')
 % and a column number referring to the desired header/column number (1-20)
 
-% ------------------------------------------------------------------------
+% -----------------------------------------------------------------------
 % select daily files (all sensors) or hourly soil sensor data
 if strcmp(interval, 'daily')
     datapath = '../rawdata/allsensors_daily/';

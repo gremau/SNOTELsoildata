@@ -1,4 +1,4 @@
- % soildataQC.m
+% soildataQC.m
 %
 % Plots raw data and filtered soil temperature and moisture data 
 % for a chosen SNOTEL site. 
@@ -15,7 +15,7 @@ fignum = 0;     % used to increment figure number for plots
 
 % Add path to nanmean, etc.
 addpath('~/data/code_resources/m_common/stat_tbx/');
-% add path to test_loadsnotel.m
+% add path to loadsnotel_raw.m
 addpath('testing/');
 
 % What filters to use?
@@ -26,6 +26,10 @@ threshold2 = 3;
 
 % Ask user for site number
 siteID = str2double(input('Which SNOTEL station?: ', 's'));
+
+% Ask user whether to run loadsnotel() in 'exclude mode', removing bad data
+% in the exclude files.
+exclude = input('Exclude bad data with loadsnotel.m?  (y/n) : ', 's');
 
 % Some data must be removed from the datasets provided by NRCS. These data
 % fall into two categories:
@@ -44,11 +48,16 @@ siteID = str2double(input('Which SNOTEL station?: ', 's'));
 % other category. All are tested in the following blocks.
 
 % First load hourly and daily data using both loadsnotel.m and a raw data
-% loading function (test_loadsnotel.m).
-hourlyData = loadsnotel('hourly', siteID);
-dailyData = loadsnotel('daily', siteID);
-hourlyRaw = test_loadsnotel('hourly', siteID);
-dailyRaw = test_loadsnotel('daily', siteID);
+% loading function (loadsnotel_raw.m).
+if strcmpi(exclude, 'y')
+    hourlyData = loadsnotel(siteID, 'hourly', 'exclude');
+    dailyData = loadsnotel(siteID, 'daily', 'exclude');
+else
+    hourlyData = loadsnotel(siteID, 'hourly');
+    dailyData = loadsnotel(siteID, 'daily');
+end;
+hourlyRaw = loadsnotel_raw('hourly', siteID);
+dailyRaw = loadsnotel_raw('daily', siteID);
 
 % Parse out the date/times
 decday_h = datenum(strcat(hourlyData{2}, hourlyData{3}), 'yyyy-mm-ddHH:MM');

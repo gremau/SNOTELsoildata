@@ -1,5 +1,5 @@
 
-function m = loadsnotel_oneyear(interval, siteID, year)
+function m = loadsnotel_oneyear(siteID, year, interval)
 % loadsnotel_oneyear.m
 %
 %
@@ -9,6 +9,9 @@ function m = loadsnotel_oneyear(interval, siteID, year)
 % arguments:
 % interval = 'hourly' or 'daily' ... load hourly or daily data files
 % siteID = 3-4 digit int ... site identifier
+%
+% !! NOTE !!
+% This does not exclude data from the exclude files in the datapath
 % ------------------------------------------------------------------------
 
 %siteID = uint16(siteID); % Convert input to int just in case
@@ -102,21 +105,20 @@ m = cell(1, completesensorset);
 
 % Read in data one file at a time
 %for i = 1:length(files)
-fid = fopen(file);
-
 % Create format string to read in original file
 form = num2str(ones(1, length(fileheaders{:})));
 forma = regexprep(form, '  1', '%f');
 format = ['%d%s%s' forma(6:end)];
 
 % Load data file into raw cell array
+fid = fopen(file);
 readfilecell = textscan(fid, format, 'Headerlines', 2, 'Delimiter', ',');
 fclose(fid);
 
 % Read data from readfilecell to correct columns in orderedcell...
 loopindex = 1;
 for i = fillcolumnorder(1:end)
-    % i iterates over which NEW columns to add data to
+    % i iterates over which NEW columns in orderedcell to add data to
     % desiredcols iterates over which INPUTFILE columns to use
     % remember to index desiredcols by loop iteration (with loopindex)
     orderedcell{i} = readfilecell{desiredcols(loopindex)};

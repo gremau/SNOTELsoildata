@@ -31,10 +31,6 @@ end
 % Create a list of files in the datapath
 filelist = sortrows(csvread([datapath 'filelist.txt']));
 
-% This script should operate on all files in datapath, so do not use the
-% exclude list for now
-%exclude = sortrows(csvread([datapath 'excludefiles.txt'], 2, 0));
-
 % If there is no excludesensors.txt file, it should be created. If it
 % exists, files that have already been checked should be subtracted
 % from the total in filelist.
@@ -62,7 +58,7 @@ checklist = [filelist, zeros(length(filelist), addcols)];
 for i = 1:length(checklist)
     siteID = checklist(i,1);
     year = checklist(i,2);
-    m = loadsnotel_oneyear(interval, siteID, year);
+    m = loadsnotel_oneyear(siteID, year, interval);
     
     if strcmpi(interval, 'hourly')
         disp(['Hourly data, site = ' num2str(siteID) ...
