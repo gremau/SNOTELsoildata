@@ -45,7 +45,7 @@ means = zeros(16, 1);
 
 for i = 1:length(siteIDs);
     % Load hourly data from site  w/ loadsnotel:
-    siteHourly = loadsnotel('hourly', siteIDs(i));
+    siteHourly = loadsnotel(siteIDs(i), 'hourly', 'exclude');
     % Parse out the desired sensor depth, normalize if plotting vwc
     if strcmpi(sensoroutput, 'vwc')
         sensordata = smnormalize(siteHourly{sensorcolumn}, 1);

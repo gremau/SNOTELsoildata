@@ -18,18 +18,19 @@ addpath('~/data/code_resources/m_common/stat_tbx/');
 % add path to loadsnotel_raw.m
 addpath('testing/');
 
-% What filters to use?
-filter1 = 'sigma';
-threshold1 = 3;
-filter2 = 'mean';
-threshold2 = 3;
-
 % Ask user for site number
 siteID = str2double(input('Which SNOTEL station?: ', 's'));
 
 % Ask user whether to run loadsnotel() in 'exclude mode', removing bad data
 % in the exclude files.
 exclude = input('Exclude bad data with loadsnotel.m?  (y/n) : ', 's');
+
+% What filter parameters to use?
+filter1 = 'sigma';
+threshold1 = 3;
+filter2 = 'mean';
+threshold2 = 3;
+
 
 % Some data must be removed from the datasets provided by NRCS. These data
 % fall into two categories:
@@ -50,13 +51,28 @@ exclude = input('Exclude bad data with loadsnotel.m?  (y/n) : ', 's');
 % First load hourly and daily data using both loadsnotel.m and a raw data
 % loading function (loadsnotel_raw.m).
 if strcmpi(exclude, 'y')
-    hourlyData = loadsnotel(siteID, 'hourly', 'exclude');
+    try
+        hourlyData = loadsnotel(siteID, 'hourly', 'exclude');
+    catch
+        disp('Hourly file not found');
+        hourlyData = cell(1, 10);
+    end
     dailyData = loadsnotel(siteID, 'daily', 'exclude');
 else
-    hourlyData = loadsnotel(siteID, 'hourly');
+    try
+        hourlyData = loadsnotel(siteID, 'hourly');
+    catch
+        disp('Hourly file not found');
+        hourlyData = cell(1, 10);
+    end
     dailyData = loadsnotel(siteID, 'daily');
 end;
-hourlyRaw = loadsnotel_raw('hourly', siteID);
+try
+    hourlyRaw = loadsnotel_raw('hourly', siteID);
+catch
+    disp('Hourly file not found');
+    hourlyRaw = cell(1, 10);
+end
 dailyRaw = loadsnotel_raw('daily', siteID);
 
 % Parse out the date/times
@@ -67,38 +83,22 @@ decday_hRaw = datenum(strcat(hourlyRaw{2}, hourlyRaw{3}), 'yyyy-mm-ddHH:MM');
 years_hRaw = floor(length(decday_hRaw)/8760);
 decday_dRaw = datenum(dailyRaw{2}, 'yyyy-mm-dd');
 
-% Snow water equivalent and airT
-wteq = dailyData{4}; %nan*zeros(length(dailyData{4}), 23)];
-airT = dailyData{9};
-wteqRaw = dailyRaw{4}; %nan*zeros(length(dailyData{4}), 23)];
-airTRaw = dailyRaw{9};
-%wteq24hour = reshape(wteq', [], 1);
-
-% Expand the daily swe data to hourly values by copying to a new array
-% FIXME - Beware that time vectors don't match between raw and other 
-% datasets, so a few numbers may be copied incorrectly (sub-daily in .csv
-% files)
-wteqHourly = zeros(length(decday_h), 1);
-for i = 1:length(wteq)
-%     index = decday_d == floor(decday_h(i));
-%     wteqHourly(i) = wteq(index);
-    wteqHourly(floor(decday_h)==decday_d(i)) = wteq(i);
-end
-wteqHourlyRaw = zeros(length(decday_hRaw), 1);
-for i = 1:length(wteqRaw)
-    index = decday_dRaw == floor(decday_hRaw(i));
-    % Only use the first value because any second values are from
-    % sub-daily rows.
-%     values = wteqRaw(index);
-%     wteqHourlyRaw(i) = values(1);
-    wteqHourlyRaw(floor(decday_hRaw)==decday_dRaw(i)) = wteqRaw(i);
-end
-
-% Logical test for snowcover based on SWE values
-swe_snowcover = wteqHourly > 0.5;
-swe_snowcoverRaw = wteqHourlyRaw > 0.5;
-
 % Assign some arrays for plotting
+wteq = dailyData{4}; % SWE;
+precip = dailyData{5}; % Precip
+snowd = dailyData{10}; % Snow depth
+airTobs = dailyData{6}; % Air temps
+airTmax = dailyData{7};
+airTmin = dailyData{8};
+airTavg = dailyData{9};  
+wteqRaw = dailyRaw{4}; % SWE;
+precipRaw = dailyRaw{5}; % Precip
+snowdRaw = dailyRaw{10}; % Snow depth
+airTobsRaw = dailyRaw{6}; % Air temps
+airTmaxRaw = dailyRaw{7};
+airTminRaw = dailyRaw{8};
+airTavgRaw = dailyRaw{9};
+
 ts5 = hourlyData{7}; % column 7 is at -2 in (5cm depth)
 ts20 = hourlyData{8}; % column 8 is at -8 in (20cm depth)
 ts50 = hourlyData{9}; % column 9 is at -20 in (50cm depth)
@@ -112,20 +112,75 @@ vwc5Raw = hourlyRaw{4}; % column 4 is at -2 in (5cm depth)
 vwc20Raw = hourlyRaw{5}; % column 5 is at -8 in (20cm depth)
 vwc50Raw = hourlyRaw{6}; % column 6 is at -20 in (50cm depth)
 
+% Expand the daily swe data to hourly values by copying to a new array
+% FIXME - Beware that time vectors don't match between raw and other 
+% datasets, so a few numbers may be copied incorrectly (sub-daily in .csv
+% files)
+% wteqHourly = zeros(length(decday_h), 1);
+% for i = 1:length(wteq)
+% %     index = decday_d == floor(decday_h(i));
+% %     wteqHourly(i) = wteq(index);
+%     wteqHourly(floor(decday_h)==decday_d(i)) = wteq(i);
+% end
+% wteqHourlyRaw = zeros(length(decday_hRaw), 1);
+% for i = 1:length(wteqRaw)
+%     index = decday_dRaw == floor(decday_hRaw(i));
+%     % Only use the first value because any second values are from
+%     % sub-daily rows.
+% %     values = wteqRaw(index);
+% %     wteqHourlyRaw(i) = values(1);
+%     wteqHourlyRaw(floor(decday_hRaw)==decday_dRaw(i)) = wteqRaw(i);
+% end
+
+% Logical test for snowcover based on SWE values
+% swe_snowcover = wteqHourly > 0.5;
+% swe_snowcoverRaw = wteqHourlyRaw > 0.5;
+
 % ******* TEST LOADDATA.M *******
 % Plot raw data and data removed by loadsnotel.m (in red).
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Daily PRECIP data']);
+subplot(3, 1, 1)
+plot(decday_dRaw, wteqRaw, '.r', decday_d, wteq, '.k');
+title('SWE (in)'); datetick('x', 'mmm-yy');
+subplot(3, 1, 2)
+plot(decday_dRaw, precipRaw, '.r', decday_d, precip, '.k');
+title('Precip (in)'); datetick('x', 'mmm-yy');
+subplot(3, 1, 3)
+plot(decday_dRaw, snowdRaw, '.r', decday_d, snowd, '.k');
+title('SnowDepth (in)'); datetick('x', 'mmm-yy')
+legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Daily AIR T data']);
+subplot(4, 1, 1)
+plot(decday_dRaw, airTobsRaw, '.r', decday_d, airTobs, '.k');
+title('Observed AirT'); datetick('x', 'mmm-yy');
+subplot(4, 1, 2)
+plot(decday_dRaw, airTmaxRaw, '.r', decday_d, airTmax, '.k');
+title('Max AirT'); datetick('x', 'mmm-yy');
+subplot(4, 1, 3)
+plot(decday_dRaw, airTminRaw, '.r', decday_d, airTmin, '.k');
+title('Min AirT'); datetick('x', 'mmm-yy');
+subplot(4, 1, 4)
+plot(decday_dRaw, airTavgRaw, '.r', decday_d, airTavg, '.k');
+title('Avg AirT'); datetick('x', 'mmm-yy')
+legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
+
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
 subplot(3, 1, 1)
 plot(decday_hRaw, ts5Raw, '.r', decday_h, ts5, '.k');
-title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+title('Ts -5cm'); datetick('x', 'mmm-yy');
 subplot(3, 1, 2)
 plot(decday_hRaw, ts20Raw, '.r', decday_h, ts20, '.k');
-title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+title('Ts -20cm'); datetick('x', 'mmm-yy');
 subplot(3, 1, 3)
 plot(decday_hRaw, ts50Raw, '.r', decday_h, ts50, '.k');
-title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits')
+title('Ts - 50cm'); datetick('x', 'mmm-yy')
 legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
 
 fignum = fignum+1;
@@ -133,23 +188,23 @@ h = figure(fignum);
 set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
 subplot(3, 1, 1)
 plot(decday_hRaw, vwc5Raw, '.r', decday_h, vwc5, '.k');
-title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+title('VWC -5cm'); datetick('x', 'mmm-yy');
 subplot(3, 1, 2)
 plot(decday_hRaw, vwc20Raw, '.r', decday_h, vwc20, '.k');
-title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+title('VWC -20cm'); datetick('x', 'mmm-yy');
 subplot(3, 1, 3);
 plot(decday_hRaw, vwc50Raw, '.r', decday_h, vwc50, '.k');
-title('VWC -50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+title('VWC -50cm'); datetick('x', 'mmm-yy');
 legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
 
 % ******* TEST Ts FILTERING *******
 % Generate filtered Ts data
- ts5_F1 = filterseries(ts5, filter1, threshold1);
- ts20_F1 = filterseries(ts20, filter1, threshold1);
- ts50_F1 = filterseries(ts50, filter1, threshold1);
- ts5_F2 = filterseries(ts5, filter2, threshold2);
- ts20_F2 = filterseries(ts20, filter2, threshold2);
- ts50_F2 = filterseries(ts50, filter2, threshold2);
+ ts5_F1 = filterseries(ts5, filter1, 25, threshold1);
+ ts20_F1 = filterseries(ts20, filter1, 25, threshold1);
+ ts50_F1 = filterseries(ts50, filter1, 25, threshold1);
+ ts5_F2 = filterseries(ts5, filter2, 25, threshold2);
+ ts20_F2 = filterseries(ts20, filter2, 25, threshold2);
+ ts50_F2 = filterseries(ts50, filter2, 25, threshold2);
 
 % PLOT unfiltered and FILTER 1 timeseries
 fignum = fignum+1;
@@ -208,12 +263,12 @@ ylabel('Frequency'); xlabel('Tsoil');
 
 %******* TEST VWC FILTERING *******
 % Generate filtered VWC data
- vwc5_F1 = filterseries(vwc5, filter1, threshold1);
- vwc20_F1 = filterseries(vwc20, filter1, threshold1);
- vwc50_F1 = filterseries(vwc50, filter1, threshold1);
- vwc5_F2 = filterseries(vwc5, filter2, threshold2);
- vwc20_F2 = filterseries(vwc20, filter2, threshold2);
- vwc50_F2 = filterseries(vwc50, filter2, threshold2);
+ vwc5_F1 = filterseries(vwc5, filter1, 25, threshold1);
+ vwc20_F1 = filterseries(vwc20, filter1, 25, threshold1);
+ vwc50_F1 = filterseries(vwc50, filter1, 25, threshold1);
+ vwc5_F2 = filterseries(vwc5, filter2, 25, threshold2);
+ vwc20_F2 = filterseries(vwc20, filter2, 25, threshold2);
+ vwc50_F2 = filterseries(vwc50, filter2, 25, threshold2);
 % Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
 
 % PLOT unfiltered and FILTER 1 timeseries
@@ -271,6 +326,36 @@ hold on;
 bar(xedges, f2, 'k'); % Filtered values in black
 ylabel('Frequency'); xlabel('VWC');
 
+
+% ******* TEST PRECIP FILTERING *******
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_h, ts5, '.r', decday_h, ts5_F1, '.k');
+title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+subplot(3, 1, 2)
+plot(decday_h, ts20, '.r', decday_h, ts20_F1, '.k');
+title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+subplot(3, 1, 3)
+plot(decday_h, ts50, '.r', decday_h, ts50_F1, '.k');
+title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
+
+% PLOT unfiltered and FILTER 2 timeseries
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+subplot(3, 1, 1)
+plot(decday_h, ts5, '.r', decday_h, ts5_F2, '.k');
+title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+subplot(3, 1, 2)
+plot(decday_h, ts20, '.r', decday_h, ts20_F2, '.k');
+title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+subplot(3, 1, 3)
+plot(decday_h, ts50, '.r', decday_h, ts50_F2, '.k');
+title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
 
 for i = 1:length(Ts_cell)
     

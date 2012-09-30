@@ -1,4 +1,4 @@
-function array = filterseries(series, type, threshold)
+function array = filterseries(series, type, windowsize, threshold)
 % filtertemprseries.m
 %
 % Filters soil temperature data series using a difference from the mean, or 
@@ -8,7 +8,8 @@ function array = filterseries(series, type, threshold)
 % **Arguments**
 %   1 = input data series
 %   2 = 'mean', 'median', 'shift', 'sigma', or 'hampel' filter type
-%   3 = threshold difference above which datapoint is set to nan
+%   3 = windowsize , integer number for the moving window size
+%   4 = threshold difference above which datapoint is set to nan
 %
 % Note that if NaN's are present in the input series, most filters will
 % them by the window size. Therefore, these calculate statistics based on
@@ -21,7 +22,7 @@ addpath('~/data/code_resources/m_common/movingstd/');
 addpath('~/data/code_resources/m_common/hampel/');
 
 % Moving window size - best to make this an ODD number.
-window = 25; 
+window = windowsize; 
 
 % MEAN - Filter by difference from the mean
 % WARNING !! This filter propagates NaN's if interpolation is left out.

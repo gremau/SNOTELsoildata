@@ -64,7 +64,7 @@ files = sort(filelist{1});
 %--------------------------------------------------------------------------
 % Create a matrix of sensors to exclude
 if strcmpi(varargin{1}, 'exclude')
-    disp('loadsnotel.m: Excluding data...');
+    %disp('loadsnotel.m: Excluding data...');
     exclude = 1;
     excludeCols = cell(length(checkyears),1);
     % Read in excludefiles.txt and parse out siteID
@@ -80,7 +80,8 @@ if strcmpi(varargin{1}, 'exclude')
             excludeTrans(excludeTest);
     end
     for i = 1:length(excludeWY)
-        excludeCols{ismember(checkyears, excludeWY(i))} = excludeTrans;
+        excludeCols{ismember(checkyears, excludeWY(i))} = ...
+            [4:completesensorset];
     end
 end
 clear excludeWY excludeSens excludeTest;
@@ -135,7 +136,6 @@ end
 
 clear filelist datapath templates collectindices desiredcolidx ...
     headerspresent i j test; 
-
 
 % -------------------------------------------------------------------------
 % Using the information about each file's contents from the arrays above,

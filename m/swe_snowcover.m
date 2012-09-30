@@ -1,8 +1,8 @@
 function returned = swe_snowcover(site_id, decday_h)
 % swe_snowcover.m
 %
-% Takes swe array and returns a logical matrix indicating snowcover
-% for the site
+% Takes a site an hourly decimal day array array and returns a boolean
+% matrix indicating HOURLY snowcover for the site
 % Data for all years (available) is represented.
 %
 % ver 1: 110803 GM
@@ -11,9 +11,9 @@ function returned = swe_snowcover(site_id, decday_h)
 %fignum = 0;     % used to increment figure number for plots
 
 % load daily data from site w/ loadsnotel:
-dailyData = loadsnotel('daily', site_id);
+dailyData = loadsnotel(site_id, 'daily', 'exclude');
 
-% Round hourly datenum down to says
+% Round hourly datenum down to days
 hourlydays = floor(decday_h);
 
 % Parse out the daily datenum and swe

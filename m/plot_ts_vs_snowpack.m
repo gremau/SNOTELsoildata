@@ -12,7 +12,7 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
-addpath('~/data/code_resources/m_common/stat_tbx/');
+addpath('~/data/code_resources/m_common/nanstuff/');
 
 % Ask user for month number
 monthsel = str2double(input('Which month (1-12)?: ', 's'));
@@ -44,7 +44,7 @@ monthlabel = monthLabels{monthsel};
 monthMeans = [];
 % Load data and parse out month data
 for i = 1:length(sites);
-    m = loadsnotel('daily', sites(i));
+    m = loadsnotel(sites(i), 'daily');
     %Create datevector for datafile
     siteDateVec = datevec(m{2}, 'yyyy-mm-dd');
     % Columns are site, year, st-5, st-20, st-60, sndepth, swe, airT

@@ -10,62 +10,80 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 
-addpath('/home/greg/data/code_resources/m_common/'); % access to hist2, etc
+% Access to hist2, etc
+addpath('/home/greg/data/code_resources/m_common/hist2/'); % 
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
 processeddatapath = '../processed_data/';
 
-climatedata = csvread([processeddatapath 'wyear_climatesummary.csv']);
-soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary.csv']);
-normsoilwaterdata = csvread([processeddatapath ...
-    'wyear_soilwatersummary_smnorm.csv']);
-soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary.csv']);
-soilsiteyears = dlmread([rawdatapath 'sitelist.txt'], ',');
+% LOAD the data
+climatedata = csvread([processeddatapath 'wyear_climatesummary.txt']);
+soilsiteyears = dlmread([rawdatapath 'filelist.txt'], ',');
 soilsites = unique(soilsiteyears(:, 1));
+% Daily data
+soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_daily.txt']);
+normsoilwaterdata = csvread([processeddatapath ...
+    'wyear_soilwatersummary_daily_smnorm.txt']);
+soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
+% OR Hourly data
+% soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_hourly.txt']);
+% normsoilwaterdata = csvread([processeddatapath ...
+%     'wyear_soilwatersummary_hourly_smnorm.txt']);
+% soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+
 
 site_cl = climatedata(:, 1);
 year_cl = climatedata(:, 2);
 maxswe = climatedata(:, 3)*25.4;
 maxsweday = climatedata(:, 4);
 maxdepth = climatedata(:, 5);
-onsetdatenum = climatedata(:, 6);
-meltdatenum = climatedata(:, 7);
-onsetdoy = climatedata(:, 8);
-meltdoy = climatedata(:, 9);
-snowduration = climatedata(:, 10);
-accumprecip = climatedata(:, 11);
-JASprecip = climatedata(:, 12);
-octAirTmean = climatedata(:, 13);
-octAirTsd = climatedata(:, 14);
-novAirTmean = climatedata(:, 15);
-novAirTsd = climatedata(:, 16);
-decAirTmean = climatedata(:, 17);
-decAirTsd = climatedata(:, 18);
-janAirTmean = climatedata(:, 19);
-janAirTsd = climatedata(:, 20);
-febAirTmean = climatedata(:, 21);
-febAirTsd = climatedata(:, 22);
-marAirTmean = climatedata(:, 23);
-marAirTsd = climatedata(:, 24);
-aprAirTmean = climatedata(:, 25);
-aprAirTsd = climatedata(:, 26);
-mayAirTmean = climatedata(:, 27);
-mayAirTsd = climatedata(:, 28);
-junAirTmean = climatedata(:, 29);
-junAirTsd = climatedata(:, 30);
-julAirTmean = climatedata(:, 31);
-julAirTsd = climatedata(:, 32);
-augAirTmean = climatedata(:, 33);
-augAirTsd = climatedata(:, 34);
-sepAirTmean = climatedata(:, 35);
-sepAirTsd = climatedata(:, 36);
-meanAnnAirT = climatedata(:, 37);
-elev = climatedata(:, 38);
-lat = climatedata(:, 39);
-lon = climatedata(:, 40);
-ltMeanSWE = climatedata(:, 41);
-ltMeanPrecip = climatedata(:, 42);
+onsetdoy = climatedata(:, 6);
+meltdoy = climatedata(:, 7);
+snowduration = climatedata(:, 8);
+totaldaysSC = climatedata(:, 9); % Total days, may vary from duration above
+maxcontinSC = climatedata(:, 10);% Length of longest continuos snowpack
+numcontinSC = climatedata(:, 11);% # of continuous snowcovered periods
+accumprecip = climatedata(:, 12);
+JASprecip = climatedata(:, 13);
+octAirTmean = climatedata(:, 14);
+octAirTsd = climatedata(:, 15);
+novAirTmean = climatedata(:, 16);
+novAirTsd = climatedata(:, 17);
+decAirTmean = climatedata(:, 18);
+decAirTsd = climatedata(:, 19);
+janAirTmean = climatedata(:, 20);
+janAirTsd = climatedata(:, 21);
+febAirTmean = climatedata(:, 22);
+febAirTsd = climatedata(:, 23);
+marAirTmean = climatedata(:, 24);
+marAirTsd = climatedata(:, 25);
+aprAirTmean = climatedata(:, 26);
+aprAirTsd = climatedata(:, 27);
+mayAirTmean = climatedata(:, 28);
+mayAirTsd = climatedata(:, 29);
+junAirTmean = climatedata(:, 30);
+junAirTsd = climatedata(:, 31);
+julAirTmean = climatedata(:, 32);
+julAirTsd = climatedata(:, 33);
+augAirTmean = climatedata(:, 34);
+augAirTsd = climatedata(:, 35);
+sepAirTmean = climatedata(:, 36);
+sepAirTsd = climatedata(:, 37);
+meanAnnAirT = climatedata(:, 38);
+sdAnnAirT = climatedata(:, 39);
+
+preonsetAirT = climatedata(:, 40);
+preonsetAirTsd = climatedata(:, 41);
+premeltAirT = climatedata(:, 42);
+premeltAirTsd = climatedata(:, 43);
+postmeltAirT = climatedata(:, 44);
+postmeltAirTsd = climatedata(:, 45);
+elev = climatedata(:, 46);
+lat = climatedata(:, 47);
+lon = climatedata(:, 48);
+ltMeanSWE = climatedata(:, 49);
+ltMeanPrecip = climatedata(:, 50);
 
 % Parse soilwatersummary
 site_sw = soilwaterdata(:, 1);
@@ -90,7 +108,6 @@ apr20cmSMmean = soilwaterdata(:, 47);
 apr20cmSMsd = soilwaterdata(:, 48);
 apr50cmSMmean = soilwaterdata(:, 49);
 apr50cmSMsd = soilwaterdata(:, 50);
-
 
 % These repeat through sept (end of wy)
 ond5cmSMmean = soilwaterdata(:, 73);
@@ -118,13 +135,13 @@ jas20cmSMsd = soilwaterdata(:, 94);
 jas50cmSMmean = soilwaterdata(:, 95);
 jas50cmSMsd = soilwaterdata(:, 96);
 
-preonsetAirT = soilwaterdata(:, 97);
-preonset5cmSM = soilwaterdata(:, 98);
-preonset20cmSM = soilwaterdata(:, 99);
-preonset50cmSM = soilwaterdata(:, 100);
-premeltAirT = soilwaterdata(:, 101);
-postmeltAirT = soilwaterdata(:, 102);
 
+preonset5cmSM = soilwaterdata(:, 97);
+preonset5cmSMsd = soilwaterdata(:, 98);
+preonset20cmSM = soilwaterdata(:, 99);
+preonset20cmSMsd = soilwaterdata(:, 100);
+preonset50cmSM = soilwaterdata(:, 101);
+preonset50cmSMsd = soilwaterdata(:, 102);
 
 % Parse NORMALIZED soilwatersummary
 normamj5cmSMmean = normsoilwaterdata(:, 85);
@@ -201,16 +218,20 @@ snowfreeMeanST50cm = soiltempdata(:, 113);
 snowfreeStdST50cm = soiltempdata(:, 114);
 
 preonset5cmST = soiltempdata(:, 115);
-preonset20cmST = soiltempdata(:, 116);
-preonset50cmST = soiltempdata(:, 117);
-premelt5cmST = soiltempdata(:, 118);
-postmelt5cmST = soiltempdata(:, 119);
-
+preonset5cmSTsd = soiltempdata(:, 116);
+preonset20cmST = soiltempdata(:, 117);
+preonset20cmSTsd = soiltempdata(:, 118);
+preonset50cmST = soiltempdata(:, 119);
+preonset50cmSTsd = soiltempdata(:, 120);
+premelt5cmST = soiltempdata(:, 121);
+premelt5cmSTsd = soiltempdata(:, 122);
+postmelt5cmST = soiltempdata(:, 123);
+postmelt5cmSTsd = soiltempdata(:, 124);
 % TEMPORARY outlier repair
-test = mast5cm>15 | mast20cm>15 | mast50cm>15 | mast5cm<-3.5;
-mast5cm(test) = nan; mast20cm(test) = nan; mast50cm(test) = nan;
-test = meanAnnAirT>13 | meanAnnAirT<-2; 
-meanAnnAirT(test) = nan;
+% test = mast5cm>15 | mast20cm>15 | mast50cm>15 | mast5cm<-3.5;
+% mast5cm(test) = nan; mast20cm(test) = nan; mast50cm(test) = nan;
+% test = meanAnnAirT>13 | meanAnnAirT<-2; 
+% meanAnnAirT(test) = nan;
 
 % Get a subset of climatedata that corresponds with available soildata
 matchtest = ismember(climatedata(:, 1:2), soilsiteyears(:, 1:2), 'rows');
@@ -856,6 +877,8 @@ xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
 ylim([0, 45]);
 title('April VWC vs pre-snowpack VWC');
+
+junk = 99;
 
 
 

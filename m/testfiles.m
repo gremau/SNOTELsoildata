@@ -30,7 +30,7 @@ checklist = [filelist, zeros(length(filelist), 2)];
 for i = 1:length(checklist)
     siteID = checklist(i,1);
     year = checklist(i,2);
-    m = loadsnotel_oneyear(interval, siteID, year);
+    m = loadsnotel_oneyear(siteID, year, interval);
     
     if strcmpi(interval, 'hourly')
         % Check that the data period is not truncated in any way

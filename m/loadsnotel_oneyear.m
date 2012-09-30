@@ -89,8 +89,8 @@ fillcolumnorder = find(headerspresent);
 % array (so they can be changed to nan later)
 missingdatacols = find(~headerspresent);
 
-clear filelist templates collectindices headerspresent i j  test;
-
+clear filelist templates collectindices headerspresent desiredcolidx ...
+    i j  datapath test;
 
 % -------------------------------------------------------------------------
 % Using the information about each file's contents from the arrays above,
@@ -131,16 +131,14 @@ for i = fillcolumnorder(1:end)
 end
 clear readfilecell loopindex j test form forma format;
 
-len = length(orderedcell{1});
-
 % Insert nans for missing sensor columns
+len = length(orderedcell{1});
 for i = missingdatacols(1:end)
     orderedcell{i} = nan * zeros(len, 1);
     % ...and then append it to m (output array)
     m{i} = [m{i}; orderedcell{i}];
 end
-clear orderedcell;
-%end
+clear orderedcell len;
 
 %--------------------------------------------------------------------------
 % CLEAN OUT BAD DATA
@@ -164,19 +162,13 @@ if strcmpi(interval, 'hourly')
     wytest = (tvec(:,2)==10 | tvec(:,2)==11 | tvec(:,2)==12);
     wyearvec(wytest) = wyearvec(wytest) + 1;
     m{10} = wyearvec;
-    
-    % Test to remove badyears
-    %badyeartest = ismember(wyearvec, badYears);
-    
+
     for i = 4:completesensorset
         
         % Remove datalogger error signals (-99.9, -273.2)
         test = m{i} == -99.9 | m{i} == -273.2;
         m{i}(test) = nan;
         clear test;
-        
-        % Remove the bad data in badyeartest
-        %m{i}(badyeartest) = nan;
         
         % Remove bad soil moisture values
         if i<7
@@ -218,17 +210,11 @@ elseif strcmpi(interval, 'daily')
     wyearvec(wytest) = wyearvec(wytest) + 1;
     m{21} = wyearvec;
     
-    % Test to remove badyears
-    %badyeartest = ismember(wyearvec, badYears);
-    
     for i = 4:completesensorset
         % mark the datalogger error signals (-99.9, -273.2)
         test = m{i} == -99.9 | m{i} == -273.2;
         m{i}(test) = nan;
         clear test;
-        
-        % Remove the bad data in badyeartest
-        %m{i}(badyeartest) = nan;
         
         % Set negative WTEQ and PREC values to 0
         if i<6

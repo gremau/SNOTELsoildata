@@ -11,7 +11,8 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 
-addpath('/home/greg/data/code_resources/m_common/'); % access to nanmean, etc
+% access to nanmean, etc
+addpath('/home/greg/data/code_resources/m_common/nanstuff/');
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
@@ -22,7 +23,7 @@ soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary.csv']);
 normsoilwaterdata = csvread([processeddatapath ...
     'wyear_soilwatersummary_smnorm.csv']);
 soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary.csv']);
-soilsiteyears = dlmread([rawdatapath 'sitelist.txt'], ',');
+soilsiteyears = dlmread([rawdatapath 'filelist.txt'], ',');
 soilsites = unique(soilsiteyears(:, 1));
 
 site_cl = climatedata(:, 1);
