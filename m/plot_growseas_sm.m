@@ -18,10 +18,10 @@ addpath('/home/greg/data/code_resources/m_common/nanstuff/');
 rawdatapath = '../rawdata/soilsensors_hourly/';
 processeddatapath = '../processed_data/';
 
-climatedata = csvread([processeddatapath 'wyear_climatesummary.csv']);
-soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary.csv']);
+climatedata = csvread([processeddatapath 'wyear_climatesummary.txt']);
+soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_hourly.txt']);
 normsoilwaterdata = csvread([processeddatapath ...
-    'wyear_soilwatersummary_smnorm.csv']);
+    'wyear_soilwatersummary_hourly_smnorm.txt']);
 soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary.csv']);
 soilsiteyears = dlmread([rawdatapath 'filelist.txt'], ',');
 soilsites = unique(soilsiteyears(:, 1));
@@ -119,12 +119,12 @@ jas20cmSMsd = soilwaterdata(:, 94);
 jas50cmSMmean = soilwaterdata(:, 95);
 jas50cmSMsd = soilwaterdata(:, 96);
 
-preonsetAirT = soilwaterdata(:, 97);
-preonset5cmSM = soilwaterdata(:, 98);
-preonset20cmSM = soilwaterdata(:, 99);
-preonset50cmSM = soilwaterdata(:, 100);
-premeltAirT = soilwaterdata(:, 101);
-postmeltAirT = soilwaterdata(:, 102);
+% preonsetAirT = soilwaterdata(:, 97);
+% preonset5cmSM = soilwaterdata(:, 98);
+% preonset20cmSM = soilwaterdata(:, 99);
+% preonset50cmSM = soilwaterdata(:, 100);
+% premeltAirT = soilwaterdata(:, 101);
+% postmeltAirT = soilwaterdata(:, 102);
 
 
 % Parse NORMALIZED soilwatersummary

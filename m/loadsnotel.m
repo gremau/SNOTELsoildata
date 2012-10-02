@@ -63,7 +63,10 @@ files = sort(filelist{1});
 
 %--------------------------------------------------------------------------
 % Create a matrix of sensors to exclude
-if strcmpi(varargin{1}, 'exclude')
+if isempty(varargin)
+    exclude = 0;
+    excludeCols = cell(length(checkyears),1);
+elseif strcmpi(varargin{1}, 'exclude')
     %disp('loadsnotel.m: Excluding data...');
     exclude = 1;
     excludeCols = cell(length(checkyears),1);

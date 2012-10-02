@@ -22,15 +22,15 @@ climatedata = csvread([processeddatapath 'wyear_climatesummary.txt']);
 soilsiteyears = dlmread([rawdatapath 'filelist.txt'], ',');
 soilsites = unique(soilsiteyears(:, 1));
 % Daily data
-soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_daily.txt']);
-normsoilwaterdata = csvread([processeddatapath ...
-    'wyear_soilwatersummary_daily_smnorm.txt']);
-soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
-% OR Hourly data
-% soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_hourly.txt']);
+% soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_daily.txt']);
 % normsoilwaterdata = csvread([processeddatapath ...
-%     'wyear_soilwatersummary_hourly_smnorm.txt']);
-% soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+%     'wyear_soilwatersummary_daily_smnorm.txt']);
+% soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
+% OR Hourly data
+soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_hourly.txt']);
+normsoilwaterdata = csvread([processeddatapath ...
+    'wyear_soilwatersummary_hourly_smnorm.txt']);
+soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
 
 
 site_cl = climatedata(:, 1);
@@ -88,26 +88,33 @@ ltMeanPrecip = climatedata(:, 50);
 % Parse soilwatersummary
 site_sw = soilwaterdata(:, 1);
 year_sw = soilwaterdata(:, 2);
-oct5cmSMmean = soilwaterdata(:, 3);
-oct5cmSMsd = soilwaterdata(:, 4);
-oct20cmSMmean = soilwaterdata(:, 5);
-oct20cmSMsd = soilwaterdata(:, 6);
-oct50cmSMmean = soilwaterdata(:, 7);
-oct50cmSMsd = soilwaterdata(:, 8);
+oct5cmSMmean = normsoilwaterdata(:, 3);
+oct5cmSMsd = normsoilwaterdata(:, 4);
+oct20cmSMmean = normsoilwaterdata(:, 5);
+oct20cmSMsd = normsoilwaterdata(:, 6);
+oct50cmSMmean = normsoilwaterdata(:, 7);
+oct50cmSMsd = normsoilwaterdata(:, 8);
 
-feb5cmSMmean = soilwaterdata(:, 27);
-feb5cmSMsd = soilwaterdata(:, 28);
-feb20cmSMmean = soilwaterdata(:, 29);
-feb20cmSMsd = soilwaterdata(:, 30);
-feb50cmSMmean = soilwaterdata(:, 31);
-feb50cmSMsd = soilwaterdata(:, 32);
+dec5cmSMmean = normsoilwaterdata(:, 15);
+dec5cmSMsd = normsoilwaterdata(:, 16);
+dec20cmSMmean = normsoilwaterdata(:, 17);
+dec20cmSMsd = normsoilwaterdata(:, 18);
+dec50cmSMmean = normsoilwaterdata(:, 19);
+dec50cmSMsd = normsoilwaterdata(:, 20);
 
-apr5cmSMmean = soilwaterdata(:, 45);
-apr5cmSMsd = soilwaterdata(:, 46);
-apr20cmSMmean = soilwaterdata(:, 47);
-apr20cmSMsd = soilwaterdata(:, 48);
-apr50cmSMmean = soilwaterdata(:, 49);
-apr50cmSMsd = soilwaterdata(:, 50);
+feb5cmSMmean = normsoilwaterdata(:, 27);
+feb5cmSMsd = normsoilwaterdata(:, 28);
+feb20cmSMmean = normsoilwaterdata(:, 29);
+feb20cmSMsd = normsoilwaterdata(:, 30);
+feb50cmSMmean = normsoilwaterdata(:, 31);
+feb50cmSMsd = normsoilwaterdata(:, 32);
+
+apr5cmSMmean = normsoilwaterdata(:, 45);
+apr5cmSMsd = normsoilwaterdata(:, 46);
+apr20cmSMmean = normsoilwaterdata(:, 47);
+apr20cmSMsd = normsoilwaterdata(:, 48);
+apr50cmSMmean = normsoilwaterdata(:, 49);
+apr50cmSMsd = normsoilwaterdata(:, 50);
 
 % These repeat through sept (end of wy)
 ond5cmSMmean = soilwaterdata(:, 73);
@@ -136,12 +143,12 @@ jas50cmSMmean = soilwaterdata(:, 95);
 jas50cmSMsd = soilwaterdata(:, 96);
 
 
-preonset5cmSM = soilwaterdata(:, 97);
-preonset5cmSMsd = soilwaterdata(:, 98);
-preonset20cmSM = soilwaterdata(:, 99);
-preonset20cmSMsd = soilwaterdata(:, 100);
-preonset50cmSM = soilwaterdata(:, 101);
-preonset50cmSMsd = soilwaterdata(:, 102);
+preonset5cmSM = normsoilwaterdata(:, 97);
+preonset5cmSMsd = normsoilwaterdata(:, 98);
+preonset20cmSM = normsoilwaterdata(:, 99);
+preonset20cmSMsd = normsoilwaterdata(:, 100);
+preonset50cmSM = normsoilwaterdata(:, 101);
+preonset50cmSMsd = normsoilwaterdata(:, 102);
 
 % Parse NORMALIZED soilwatersummary
 normamj5cmSMmean = normsoilwaterdata(:, 85);
@@ -156,7 +163,12 @@ normjas20cmSMmean = normsoilwaterdata(:, 93);
 normjas20cmSMsd = normsoilwaterdata(:, 94);
 normjas50cmSMmean = normsoilwaterdata(:, 95);
 normjas50cmSMsd = normsoilwaterdata(:, 96);
-
+normond5cmSMmean = normsoilwaterdata(:, 73);
+normond5cmSMsd = normsoilwaterdata(:, 74);
+normond20cmSMmean = normsoilwaterdata(:, 75);
+normond20cmSMsd = normsoilwaterdata(:, 76);
+normond50cmSMmean = normsoilwaterdata(:, 77);
+normond50cmSMsd = normsoilwaterdata(:, 78);
 
 % Parse soiltempsummary
 site_st = soiltempdata(:, 1);
@@ -715,9 +727,9 @@ h = figure(fignum);
 set(h, 'Name', 'Winter SoilT vs pre-snowpack temps');
 
 subplot (2, 2, 1)
-plot(preonsetAirT, snowcovMeanST5cm, '.g', ...
-    preonsetAirT, snowcovMeanST20cm, '.b', ...
-    preonsetAirT, snowcovMeanST50cm, '.k');
+plot(preonsetAirT(matchtest), snowcovMeanST5cm, '.g', ...
+    preonsetAirT(matchtest), snowcovMeanST20cm, '.b', ...
+    preonsetAirT(matchtest), snowcovMeanST50cm, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack AirT (^oC)');
 ylabel('Mean wateryear belowsnow SoilT (^oC)');
@@ -757,9 +769,9 @@ h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
 
 subplot (2, 2, 1)
-plot(preonset5cmSM, ond5cmSMmean, '.g', ...
-    preonset20cmSM, ond20cmSMmean, '.b', ...
-    preonset50cmSM, ond50cmSMmean, '.k');
+plot(preonset5cmSM, dec5cmSMmean, '.g', ...
+    preonset20cmSM, dec20cmSMmean, '.b', ...
+    preonset50cmSM, dec50cmSMmean, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
@@ -783,28 +795,28 @@ set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
 
 subplot (2, 2, 1)
 % Set binning parameters
-topEdge = 45; % define limits
+topEdge = 1; % define limits
 botEdge = 0; % define limits
 numBins = 15; % define number of bins
 % And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1)) + 1.5;
+xax = (linspace(botEdge, topEdge, numBins+1));
 
 x = preonset5cmSM; %split into x and y
-y = ond5cmSMmean;
-y2 = ond5cmSMsd;
+y = dec5cmSMmean;
+y2 = dec5cmSMsd;
 %[binMean1, binMean2] = bin(x, y, y2);
 [binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
 errorbar(xax(1:numBins), binMeanOND, binSdOND, '.g');
 hold on;
 x = preonset20cmSM; %split into x and y
-y = ond20cmSMmean;
-y2 = ond20cmSMsd;
+y = dec20cmSMmean;
+y2 = dec20cmSMsd;
 %[binMean1, binMean2] = bin(x, y, y2);
 [binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
 errorbar(xax(1:numBins), binMeanOND, binSdOND, '.b');
 x = preonset50cmSM; %split into x and y
-y = ond50cmSMmean;
-y2 = ond50cmSMsd;
+y = dec50cmSMmean;
+y2 = dec50cmSMsd;
 %[binMean1, binMean2] = bin(x, y, y2);
 [binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
 errorbar(xax(1:numBins), binMeanOND, binSdOND, '.k');
@@ -815,11 +827,11 @@ title('Oct, Nov, Dec VWC vs pre-snowpack VWC');
 
 subplot (2, 2, 2)
 % Set binning parameters
-topEdge = 45; % define limits
+topEdge = 1; % define limits
 botEdge = 0; % define limits
 numBins = 15; % define number of bins
 % And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1)) + 1.5;
+xax = (linspace(botEdge, topEdge, numBins+1));
 
 x = preonset5cmSM; %split into x and y
 y = feb5cmSMmean;
@@ -847,11 +859,11 @@ title('February VWC vs pre-snowpack VWC');
 
 subplot (2, 2, 3)
 % Set binning parameters
-topEdge = 45; % define limits
+topEdge = 1; % define limits
 botEdge = 0; % define limits
 numBins = 15; % define number of bins
 % And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1)) + 1.5;
+xax = (linspace(botEdge, topEdge, numBins+1));
 
 x = preonset5cmSM; %split into x and y
 y = apr5cmSMmean;
@@ -875,7 +887,7 @@ errorbar(xax(1:numBins), binMeanApr, binSdApr, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
-ylim([0, 45]);
+ylim([0, 1]);
 title('April VWC vs pre-snowpack VWC');
 
 junk = 99;

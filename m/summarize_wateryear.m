@@ -4,12 +4,14 @@
 % avgSWE, avgPrecip, and site inventory data and generates a series of
 % files that contain climate or soil metrics that are aggregated for each
 % wateryear present in the dataset (including a breakdown of monthly data
-% and stats like elevation, avgSWE, avgPrecip, etc)
+% and stats like elevation, avgSWE, avgPrecip, etc). Bad data are removed 
+% and remaining data are filtered with a 3 sigma filter before calculation.
+%
+% Options: 
+% 1: Use daily or hourly soil data (Ts and VWC)
+% 2: Normalize soil moisture data (after filtering)
 %
 % Feb 20, 2012
-
-%
-% FIXME - add some standard deviations to climate data - like MAAT
 %
 
 clear;          % clear memory
@@ -71,8 +73,7 @@ soilwatersummary(:, 1:2) = soilsiteslist;
 soiltempsummary = nan * zeros(length(soilsiteslist), 119);
 soiltempsummary(:, 1:2) = soilsiteslist;
 
-
-% BEGIN CLIMATE CALCULATIONS 
+% *** BEGIN CLIMATE CALCULATIONS ****************************************
 % climatesummary matrix is generated in this loop, with one interation per 
 % site/wateryear.
 
@@ -248,7 +249,7 @@ clear i j dailydata wyear_c wyeartest_c monthtest;
 csvwrite([processeddatapath 'wyear_climatesummary.txt'], climatesummary);
 
 
-% BEGIN SOIL CALCULATIONS 
+% *** BEGIN SOIL CALCULATIONS ******************************************
 % Both soiltempsummary and soilwatersummary are generated in one loop, with
 % one interation per site/wateryear.
 % IF soilinput is 'daily', daily data is loaded, hourly if 'hourly'
@@ -297,9 +298,9 @@ for i = 1:length(soilsiteslist)
     %
     % Monthly soil moisture column index
     colindex2 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
-    % Assign/normalize the data for wateryear i
-    % FIXME - note that this is one year normalization, is this
-    % appropriate?
+    % Assign the data for wateryear i
+    % NOTE - normalizing each year individually
+    % is also an option
     sm5  = data{smcol(1)}(wyeartest_s);
     sm20 = data{smcol(2)}(wyeartest_s);
     sm50 = data{smcol(3)}(wyeartest_s);
@@ -544,3 +545,4 @@ csvwrite([processeddatapath soilwaterfn], soilwatersummary);
 csvwrite([processeddatapath soiltempfn], soiltempsummary);
 
 junk = 99;
+

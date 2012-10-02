@@ -1,4 +1,3 @@
-
 % binseries.m
 % Binning function
 % Bin the vwc datapoints and then generate a mean for each bin
@@ -9,7 +8,9 @@
 % botEdge = 90; % define lower x range of bins
 % numBins = 15; % define number of bins
 
+
 function [binMean1, binMean2] = binseries(x, y1, y2, topEdge, botEdge, numBins)
+    addpath('/home/greg/data/code_resources/m_common/nanstuff/');
     binEdges = linspace(botEdge, topEdge, numBins+1);
     [h,whichBin] = histc(x, binEdges);
     for i = 1:numBins
