@@ -22,7 +22,7 @@ statesel = input(...
 % monthlabel = monthlabels{monthsel};
 
 %Load list of sites in the daily data directory
-havedata = csvread([rawdatapath 'soilsensors_hourly/sitelist.txt']);
+havedata = csvread([rawdatapath 'soilsensors_hourly/filelist.txt']);
 havedata = unique(havedata(:, 1));
 
 % Load 30 year average data
@@ -89,7 +89,7 @@ template = {t t t t t t};
 %m = cell(1, length(sitesarray));
 
 for i = 1:length(sitesarray(:, 1));
-    m = loadsnotel('hourly', sitesarray(i, 1));
+    m = loadsnotel(sitesarray(i, 1), 'hourly', 'exclude');
     Ts = m{8}; % Select sensor depth (7=5cm, 8=20cm, 9=50cm)
     
     % INTERPOLATION to fill gaps in Ts (helps with running mean and
@@ -115,8 +115,8 @@ for i = 1:length(sitesarray(:, 1));
     % Filter
     %Ts = filterseries(Ts, 'shift', 2.5);
     % FILTER Tsoil data (returns filtered and re-interpolated array) 
-    Ts_meandiff = filtertempseries(Ts, 'mean', 7);
-    Ts = filtertempseries(Ts_meandiff, 'shift', 5);
+    Ts_meandiff = filterseries(Ts, 'mean', 7);
+    Ts = filterseries(Ts_meandiff, 'shift', 5);
     
     % Generate decimal day and snowcover test arrays
     decday_h = datenum(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');

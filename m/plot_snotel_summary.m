@@ -10,244 +10,232 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 
-% Access to hist2, etc
-addpath('/home/greg/data/code_resources/m_common/hist2/'); % 
+% Ask user whether use normalized soil moisture data
+normalize = input('Use normalized soil moisture data?  (y/n) : ', 's');
+
+% Access to nan stuff, lines, etc
+addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
 processeddatapath = '../processed_data/';
 
-% LOAD the data
-climatedata = csvread([processeddatapath 'wyear_climatesummary.txt']);
-soilsiteyears = dlmread([rawdatapath 'filelist.txt'], ',');
-soilsites = unique(soilsiteyears(:, 1));
-% Daily data
-% soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_daily.txt']);
-% normsoilwaterdata = csvread([processeddatapath ...
-%     'wyear_soilwatersummary_daily_smnorm.txt']);
-% soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
-% OR Hourly data
-soilwaterdata = csvread([processeddatapath 'wyear_soilwatersummary_hourly.txt']);
-normsoilwaterdata = csvread([processeddatapath ...
-    'wyear_soilwatersummary_hourly_smnorm.txt']);
-soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+% LOAD the data (can switch between daily/hourly data here
+climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
+filelistSoil = dlmread([rawdatapath 'filelist.txt'], ',');
+soilsites = unique(filelistSoil(:, 1));
+% Soil temp data
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+% tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
+% Soil water content data
+if strcmpi(normalize, 'y')
+    vwcData = csvread([processeddatapath ...
+        'wyear_soilwatersummary_hourly_smnorm.txt']);
+%     vwcData = csvread([processeddatapath ...
+%         'wyear_soilwatersummary_daily_smnorm.txt']);
+else
+    vwcData = csvread([processeddatapath...
+        'wyear_soilwatersummary_hourly.txt']);
+%     vwcData = csvread([processeddatapath...
+%         'wyear_soilwatersummary_daily.txt']);
+end
 
+site_cl = climData(:, 1);
+year_cl = climData(:, 2);
+maxswe = climData(:, 3)*25.4;
+maxsweday = climData(:, 4);
+maxdepth = climData(:, 5);
+onsetdoy = climData(:, 6);
+meltdoy = climData(:, 7);
+snowduration = climData(:, 8);
+totaldaysSC = climData(:, 9); % Total days, may vary from duration above
+maxcontinSC = climData(:, 10);% Length of longest continuos snowpack
+numcontinSC = climData(:, 11);% # of continuous snowcovered periods
+accumprecip = climData(:, 12)*25.4;
+JASprecip = climData(:, 13);
+octAirTmean = climData(:, 14);
+octAirTsd = climData(:, 15);
+novAirTmean = climData(:, 16);
+novAirTsd = climData(:, 17);
+decAirTmean = climData(:, 18);
+decAirTsd = climData(:, 19);
+janAirTmean = climData(:, 20);
+janAirTsd = climData(:, 21);
+febAirTmean = climData(:, 22);
+febAirTsd = climData(:, 23);
+marAirTmean = climData(:, 24);
+marAirTsd = climData(:, 25);
+aprAirTmean = climData(:, 26);
+aprAirTsd = climData(:, 27);
+mayAirTmean = climData(:, 28);
+mayAirTsd = climData(:, 29);
+junAirTmean = climData(:, 30);
+junAirTsd = climData(:, 31);
+julAirTmean = climData(:, 32);
+julAirTsd = climData(:, 33);
+augAirTmean = climData(:, 34);
+augAirTsd = climData(:, 35);
+sepAirTmean = climData(:, 36);
+sepAirTsd = climData(:, 37);
+maat = climData(:, 38);
+sdAnnAirT = climData(:, 39);
 
-site_cl = climatedata(:, 1);
-year_cl = climatedata(:, 2);
-maxswe = climatedata(:, 3)*25.4;
-maxsweday = climatedata(:, 4);
-maxdepth = climatedata(:, 5);
-onsetdoy = climatedata(:, 6);
-meltdoy = climatedata(:, 7);
-snowduration = climatedata(:, 8);
-totaldaysSC = climatedata(:, 9); % Total days, may vary from duration above
-maxcontinSC = climatedata(:, 10);% Length of longest continuos snowpack
-numcontinSC = climatedata(:, 11);% # of continuous snowcovered periods
-accumprecip = climatedata(:, 12);
-JASprecip = climatedata(:, 13);
-octAirTmean = climatedata(:, 14);
-octAirTsd = climatedata(:, 15);
-novAirTmean = climatedata(:, 16);
-novAirTsd = climatedata(:, 17);
-decAirTmean = climatedata(:, 18);
-decAirTsd = climatedata(:, 19);
-janAirTmean = climatedata(:, 20);
-janAirTsd = climatedata(:, 21);
-febAirTmean = climatedata(:, 22);
-febAirTsd = climatedata(:, 23);
-marAirTmean = climatedata(:, 24);
-marAirTsd = climatedata(:, 25);
-aprAirTmean = climatedata(:, 26);
-aprAirTsd = climatedata(:, 27);
-mayAirTmean = climatedata(:, 28);
-mayAirTsd = climatedata(:, 29);
-junAirTmean = climatedata(:, 30);
-junAirTsd = climatedata(:, 31);
-julAirTmean = climatedata(:, 32);
-julAirTsd = climatedata(:, 33);
-augAirTmean = climatedata(:, 34);
-augAirTsd = climatedata(:, 35);
-sepAirTmean = climatedata(:, 36);
-sepAirTsd = climatedata(:, 37);
-meanAnnAirT = climatedata(:, 38);
-sdAnnAirT = climatedata(:, 39);
-
-preonsetAirT = climatedata(:, 40);
-preonsetAirTsd = climatedata(:, 41);
-premeltAirT = climatedata(:, 42);
-premeltAirTsd = climatedata(:, 43);
-postmeltAirT = climatedata(:, 44);
-postmeltAirTsd = climatedata(:, 45);
-elev = climatedata(:, 46);
-lat = climatedata(:, 47);
-lon = climatedata(:, 48);
-ltMeanSWE = climatedata(:, 49);
-ltMeanPrecip = climatedata(:, 50);
+preonsetAirT = climData(:, 40);
+preonsetAirTsd = climData(:, 41);
+premeltAirT = climData(:, 42);
+premeltAirTsd = climData(:, 43);
+postmeltAirT = climData(:, 44);
+postmeltAirTsd = climData(:, 45);
+elev = climData(:, 46);
+lat = climData(:, 47);
+lon = climData(:, 48);
+ltMeanSWE = climData(:, 49);
+ltMeanPrecip = climData(:, 50);
 
 % Parse soilwatersummary
-site_sw = soilwaterdata(:, 1);
-year_sw = soilwaterdata(:, 2);
-oct5cmSMmean = normsoilwaterdata(:, 3);
-oct5cmSMsd = normsoilwaterdata(:, 4);
-oct20cmSMmean = normsoilwaterdata(:, 5);
-oct20cmSMsd = normsoilwaterdata(:, 6);
-oct50cmSMmean = normsoilwaterdata(:, 7);
-oct50cmSMsd = normsoilwaterdata(:, 8);
+site_sw = vwcData(:, 1);
+year_sw = vwcData(:, 2);
+oct5cmSMmean = vwcData(:, 3);
+oct5cmSMsd = vwcData(:, 4);
+oct20cmSMmean = vwcData(:, 5);
+oct20cmSMsd = vwcData(:, 6);
+oct50cmSMmean = vwcData(:, 7);
+oct50cmSMsd = vwcData(:, 8);
 
-dec5cmSMmean = normsoilwaterdata(:, 15);
-dec5cmSMsd = normsoilwaterdata(:, 16);
-dec20cmSMmean = normsoilwaterdata(:, 17);
-dec20cmSMsd = normsoilwaterdata(:, 18);
-dec50cmSMmean = normsoilwaterdata(:, 19);
-dec50cmSMsd = normsoilwaterdata(:, 20);
+dec5cmSMmean = vwcData(:, 15);
+dec5cmSMsd = vwcData(:, 16);
+dec20cmSMmean = vwcData(:, 17);
+dec20cmSMsd = vwcData(:, 18);
+dec50cmSMmean = vwcData(:, 19);
+dec50cmSMsd = vwcData(:, 20);
 
-feb5cmSMmean = normsoilwaterdata(:, 27);
-feb5cmSMsd = normsoilwaterdata(:, 28);
-feb20cmSMmean = normsoilwaterdata(:, 29);
-feb20cmSMsd = normsoilwaterdata(:, 30);
-feb50cmSMmean = normsoilwaterdata(:, 31);
-feb50cmSMsd = normsoilwaterdata(:, 32);
+feb5cmSMmean = vwcData(:, 27);
+feb5cmSMsd = vwcData(:, 28);
+feb20cmSMmean = vwcData(:, 29);
+feb20cmSMsd = vwcData(:, 30);
+feb50cmSMmean = vwcData(:, 31);
+feb50cmSMsd = vwcData(:, 32);
 
-apr5cmSMmean = normsoilwaterdata(:, 45);
-apr5cmSMsd = normsoilwaterdata(:, 46);
-apr20cmSMmean = normsoilwaterdata(:, 47);
-apr20cmSMsd = normsoilwaterdata(:, 48);
-apr50cmSMmean = normsoilwaterdata(:, 49);
-apr50cmSMsd = normsoilwaterdata(:, 50);
+apr5cmSMmean = vwcData(:, 45);
+apr5cmSMsd = vwcData(:, 46);
+apr20cmSMmean = vwcData(:, 47);
+apr20cmSMsd = vwcData(:, 48);
+apr50cmSMmean = vwcData(:, 49);
+apr50cmSMsd = vwcData(:, 50);
 
 % These repeat through sept (end of wy)
-ond5cmSMmean = soilwaterdata(:, 73);
-ond5cmSMsd = soilwaterdata(:, 74);
-ond20cmSMmean = soilwaterdata(:, 75);
-ond20cmSMsd = soilwaterdata(:, 76);
-ond50cmSMmean = soilwaterdata(:, 77);
-ond50cmSMsd = soilwaterdata(:, 78);
-jfm5cmSMmean = soilwaterdata(:, 79);
-jfm5cmSMsd = soilwaterdata(:, 80);
-jfm20cmSMmean = soilwaterdata(:, 81);
-jfm20cmSMsd = soilwaterdata(:, 82);
-jfm50cmSMmean = soilwaterdata(:, 83);
-jfm50cmSMsd = soilwaterdata(:, 84);
-amj5cmSMmean = soilwaterdata(:, 85);
-amj5cmSMsd = soilwaterdata(:, 86);
-amj20cmSMmean = soilwaterdata(:, 87);
-amj20cmSMsd = soilwaterdata(:, 88);
-amj50cmSMmean = soilwaterdata(:, 89);
-amj50cmSMsd = soilwaterdata(:, 90);
-jas5cmSMmean = soilwaterdata(:, 91);
-jas5cmSMsd = soilwaterdata(:, 92);
-jas20cmSMmean = soilwaterdata(:, 93);
-jas20cmSMsd = soilwaterdata(:, 94);
-jas50cmSMmean = soilwaterdata(:, 95);
-jas50cmSMsd = soilwaterdata(:, 96);
+ond5cmSMmean = vwcData(:, 73);
+ond5cmSMsd = vwcData(:, 74);
+ond20cmSMmean = vwcData(:, 75);
+ond20cmSMsd = vwcData(:, 76);
+ond50cmSMmean = vwcData(:, 77);
+ond50cmSMsd = vwcData(:, 78);
+jfm5cmSMmean = vwcData(:, 79);
+jfm5cmSMsd = vwcData(:, 80);
+jfm20cmSMmean = vwcData(:, 81);
+jfm20cmSMsd = vwcData(:, 82);
+jfm50cmSMmean = vwcData(:, 83);
+jfm50cmSMsd = vwcData(:, 84);
+amj5cmSMmean = vwcData(:, 85);
+amj5cmSMsd = vwcData(:, 86);
+amj20cmSMmean = vwcData(:, 87);
+amj20cmSMsd = vwcData(:, 88);
+amj50cmSMmean = vwcData(:, 89);
+amj50cmSMsd = vwcData(:, 90);
+jas5cmSMmean = vwcData(:, 91);
+jas5cmSMsd = vwcData(:, 92);
+jas20cmSMmean = vwcData(:, 93);
+jas20cmSMsd = vwcData(:, 94);
+jas50cmSMmean = vwcData(:, 95);
+jas50cmSMsd = vwcData(:, 96);
 
-
-preonset5cmSM = normsoilwaterdata(:, 97);
-preonset5cmSMsd = normsoilwaterdata(:, 98);
-preonset20cmSM = normsoilwaterdata(:, 99);
-preonset20cmSMsd = normsoilwaterdata(:, 100);
-preonset50cmSM = normsoilwaterdata(:, 101);
-preonset50cmSMsd = normsoilwaterdata(:, 102);
-
-% Parse NORMALIZED soilwatersummary
-normamj5cmSMmean = normsoilwaterdata(:, 85);
-normamj5cmSMsd = normsoilwaterdata(:, 86);
-normamj20cmSMmean = normsoilwaterdata(:, 87);
-normamj20cmSMsd = normsoilwaterdata(:, 88);
-normamj50cmSMmean = normsoilwaterdata(:, 89);
-normamj50cmSMsd = normsoilwaterdata(:, 90);
-normjas5cmSMmean = normsoilwaterdata(:, 91);
-normjas5cmSMsd = normsoilwaterdata(:, 92);
-normjas20cmSMmean = normsoilwaterdata(:, 93);
-normjas20cmSMsd = normsoilwaterdata(:, 94);
-normjas50cmSMmean = normsoilwaterdata(:, 95);
-normjas50cmSMsd = normsoilwaterdata(:, 96);
-normond5cmSMmean = normsoilwaterdata(:, 73);
-normond5cmSMsd = normsoilwaterdata(:, 74);
-normond20cmSMmean = normsoilwaterdata(:, 75);
-normond20cmSMsd = normsoilwaterdata(:, 76);
-normond50cmSMmean = normsoilwaterdata(:, 77);
-normond50cmSMsd = normsoilwaterdata(:, 78);
+preonset5cmSM = vwcData(:, 97);
+preonset5cmSMsd = vwcData(:, 98);
+preonset20cmSM = vwcData(:, 99);
+preonset20cmSMsd = vwcData(:, 100);
+preonset50cmSM = vwcData(:, 101);
+preonset50cmSMsd = vwcData(:, 102);
 
 % Parse soiltempsummary
-site_st = soiltempdata(:, 1);
-year_st = soiltempdata(:, 2);
-oct5cmSTmean = soiltempdata(:, 3);
-oct5cmSTsd = soiltempdata(:, 4);
-oct20cmSTmean = soiltempdata(:, 5);
-oct20cmSTsd = soiltempdata(:, 6);
-oct50cmSTmean = soiltempdata(:, 7);
-oct50cmSTsd = soiltempdata(:, 8);
+site_st = tsData(:, 1);
+year_st = tsData(:, 2);
+oct5cmSTmean = tsData(:, 3);
+oct5cmSTsd = tsData(:, 4);
+oct20cmSTmean = tsData(:, 5);
+oct20cmSTsd = tsData(:, 6);
+oct50cmSTmean = tsData(:, 7);
+oct50cmSTsd = tsData(:, 8);
+dec5cmSTmean = tsData(:, 15);
+dec5cmSTsd = tsData(:, 16);
+dec20cmSTmean = tsData(:, 17);
+dec20cmSTsd = tsData(:, 18);
+dec50cmSTmean = tsData(:, 19);
+dec50cmSTsd = tsData(:, 20);
 % These repeat through sept (end of wy)
-ond5cmSTmean = soiltempdata(:, 73);
-ond5cmSTsd = soiltempdata(:, 74);
-ond20cmSTmean = soiltempdata(:, 75);
-ond20cmSTsd = soiltempdata(:, 76);
-ond50cmSTmean = soiltempdata(:, 77);
-ond50cmSTsd = soiltempdata(:, 78);
-jfm5cmSTmean = soiltempdata(:, 79);
-jfm5cmSTsd = soiltempdata(:, 80);
-jfm20cmSTmean = soiltempdata(:, 81);
-jfm20cmSTsd = soiltempdata(:, 82);
-jfm50cmSTmean = soiltempdata(:, 83);
-jfm50cmSTsd = soiltempdata(:, 84);
-amj5cmSTmean = soiltempdata(:, 85);
-amj5cmSTsd = soiltempdata(:, 86);
-amj20cmSTmean = soiltempdata(:, 87);
-amj20cmSTsd = soiltempdata(:, 88);
-amj50cmSTmean = soiltempdata(:, 89);
-amj50cmSTsd = soiltempdata(:, 90);
-jas5cmSTmean = soiltempdata(:, 91);
-jas5cmSTsd = soiltempdata(:, 92);
-jas20cmSTmean = soiltempdata(:, 93);
-jas20cmSTsd = soiltempdata(:, 94);
-jas50cmSTmean = soiltempdata(:, 95);
-jas50cmSTsd = soiltempdata(:, 96);
+ond5cmSTmean = tsData(:, 73);
+ond5cmSTsd = tsData(:, 74);
+ond20cmSTmean = tsData(:, 75);
+ond20cmSTsd = tsData(:, 76);
+ond50cmSTmean = tsData(:, 77);
+ond50cmSTsd = tsData(:, 78);
+jfm5cmSTmean = tsData(:, 79);
+jfm5cmSTsd = tsData(:, 80);
+jfm20cmSTmean = tsData(:, 81);
+jfm20cmSTsd = tsData(:, 82);
+jfm50cmSTmean = tsData(:, 83);
+jfm50cmSTsd = tsData(:, 84);
+amj5cmSTmean = tsData(:, 85);
+amj5cmSTsd = tsData(:, 86);
+amj20cmSTmean = tsData(:, 87);
+amj20cmSTsd = tsData(:, 88);
+amj50cmSTmean = tsData(:, 89);
+amj50cmSTsd = tsData(:, 90);
+jas5cmSTmean = tsData(:, 91);
+jas5cmSTsd = tsData(:, 92);
+jas20cmSTmean = tsData(:, 93);
+jas20cmSTsd = tsData(:, 94);
+jas50cmSTmean = tsData(:, 95);
+jas50cmSTsd = tsData(:, 96);
 
 % Seasonal/yearly soil temp means
-mast5cm = soiltempdata(:, 97);
-sdast5cm = soiltempdata(:, 98);
-mast20cm = soiltempdata(:, 99);
-sdast20cm = soiltempdata(:, 100);
-mast50cm = soiltempdata(:, 101);
-sdast50cm = soiltempdata(:, 102);
+mast5cm = tsData(:, 97);
+sdast5cm = tsData(:, 98);
+mast20cm = tsData(:, 99);
+sdast20cm = tsData(:, 100);
+mast50cm = tsData(:, 101);
+sdast50cm = tsData(:, 102);
 
 % Snowcovered soil temp means
-snowcovMeanST5cm = soiltempdata(:, 103);
-snowcovStdST5cm = soiltempdata(:, 104);
-snowcovMeanST20cm = soiltempdata(:, 105);
-snowcovStdST20cm = soiltempdata(:, 106);
-snowcovMeanST50cm = soiltempdata(:, 107);
-snowcovStdST50cm = soiltempdata(:, 108);
+snowcovMeanST5cm = tsData(:, 103);
+snowcovStdST5cm = tsData(:, 104);
+snowcovMeanST20cm = tsData(:, 105);
+snowcovStdST20cm = tsData(:, 106);
+snowcovMeanST50cm = tsData(:, 107);
+snowcovStdST50cm = tsData(:, 108);
 
 % Snowfree soil temp means
-snowfreeMeanST5cm = soiltempdata(:, 109);
-snowfreeStdST5cm = soiltempdata(:, 110);
-snowfreeMeanST20cm = soiltempdata(:, 111);
-snowfreeStdST20cm = soiltempdata(:, 112);
-snowfreeMeanST50cm = soiltempdata(:, 113);
-snowfreeStdST50cm = soiltempdata(:, 114);
+snowfreeMeanST5cm = tsData(:, 109);
+snowfreeStdST5cm = tsData(:, 110);
+snowfreeMeanST20cm = tsData(:, 111);
+snowfreeStdST20cm = tsData(:, 112);
+snowfreeMeanST50cm = tsData(:, 113);
+snowfreeStdST50cm = tsData(:, 114);
 
-preonset5cmST = soiltempdata(:, 115);
-preonset5cmSTsd = soiltempdata(:, 116);
-preonset20cmST = soiltempdata(:, 117);
-preonset20cmSTsd = soiltempdata(:, 118);
-preonset50cmST = soiltempdata(:, 119);
-preonset50cmSTsd = soiltempdata(:, 120);
-premelt5cmST = soiltempdata(:, 121);
-premelt5cmSTsd = soiltempdata(:, 122);
-postmelt5cmST = soiltempdata(:, 123);
-postmelt5cmSTsd = soiltempdata(:, 124);
-% TEMPORARY outlier repair
-% test = mast5cm>15 | mast20cm>15 | mast50cm>15 | mast5cm<-3.5;
-% mast5cm(test) = nan; mast20cm(test) = nan; mast50cm(test) = nan;
-% test = meanAnnAirT>13 | meanAnnAirT<-2; 
-% meanAnnAirT(test) = nan;
+preonset5cmST = tsData(:, 115);
+preonset5cmSTsd = tsData(:, 116);
+preonset20cmST = tsData(:, 117);
+preonset20cmSTsd = tsData(:, 118);
+preonset50cmST = tsData(:, 119);
+preonset50cmSTsd = tsData(:, 120);
+premelt5cmST = tsData(:, 121);
+premelt5cmSTsd = tsData(:, 122);
+postmelt5cmST = tsData(:, 123);
+postmelt5cmSTsd = tsData(:, 124);
 
-% Get a subset of climatedata that corresponds with available soildata
-matchtest = ismember(climatedata(:, 1:2), soilsiteyears(:, 1:2), 'rows');
-matchsets = climatedata(matchtest, :);
+% Get a subset of climData that corresponds with available soildata
+matchtest = ismember(climData(:, 1:2), filelistSoil(:, 1:2), 'rows');
+matchsets = climData(matchtest, :);
 
 %-----PLOTTING----------------------------------------------------
 % First define the 2d histogram plots
@@ -264,170 +252,238 @@ matchsets = climatedata(matchtest, :);
 
 %------------------------------------------------------------------
 % FIG 1 - 
+% fignum = fignum+1;
+% h = figure(fignum);
+% set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
+% 
+% colormap(jet);
+% 
+% subplot (2, 2, 1)
+% % 2D histogram
+% test = ~isnan(elev) & ~isnan(maxswe);
+% x = elev(test);
+% y = maxswe(test);
+% xedges = linspace(500, 4000, 60);
+% yedges = linspace(0, 2500, 60);
+% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
+% pcolor(xedges, yedges, histmat');
+% title('Peak SWE across the network');
+% 
+% subplot (2, 2, 2)
+% % 2D histogram
+% test = ~isnan(elev) & ~isnan(accumprecip);
+% x = elev(test);
+% y = accumprecip(test);
+% xedges = linspace(500, 4000, 60);
+% yedges = linspace(0, 120, 60);
+% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
+% pcolor(xedges, yedges, histmat');
+% title('Wateryear precip across the network');
+% 
+% subplot (2, 2, 3)
+% plot(elev, maxswe, 'ok', 'MarkerFaceColor', 'k');
+% hold on;
+% testsoil = ismember(site_cl, soilsites);
+% plot(elev(testsoil), maxswe(testsoil), 'ob');
+% xlabel('Elevation (m)');
+% ylabel('Peak SWE (mm)');
+% legend('Intermountain west', 'Soil sites');
+% 
+% subplot (2, 2, 4)
+% plot(elev, accumprecip, 'ob', 'MarkerFaceColor', 'b');
+% hold on;
+% plot(elev(testsoil), accumprecip(testsoil), 'ok');
+% xlabel('Elevation (m)');
+% ylabel('Wateryear precip (mm)');
+% legend('Intermountain west', 'Soil sites');
+
+
+% FIG 2 - 
+testsoil = ismember(site_cl, soilsites);
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
 
-colormap(jet);
-
-subplot (2, 2, 1)
-% 2D histogram
-test = ~isnan(elev) & ~isnan(maxswe);
-x = elev(test);
-y = maxswe(test);
+subplot (3, 2, 1)
 xedges = linspace(500, 4000, 60);
-yedges = linspace(0, 2500, 60);
-histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-pcolor(xedges, yedges, histmat');
-title('Peak SWE across the network');
-
-subplot (2, 2, 2)
-% 2D histogram
-test = ~isnan(elev) & ~isnan(accumprecip);
-x = elev(test);
-y = accumprecip(test);
-xedges = linspace(500, 4000, 60);
-yedges = linspace(0, 120, 60);
-histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-pcolor(xedges, yedges, histmat');
-title('Wateryear precip across the network');
-
-
-subplot (2, 2, 3)
-plot(elev, maxswe, 'ok', 'MarkerFaceColor', 'k');
+networkhist = histc(elev, xedges);
+soilhist = histc(elev(testsoil), xedges);
+bar(xedges, networkhist, 'k');
 hold on;
-testsoil = ismember(site_cl, soilsites);
-plot(elev(testsoil), maxswe(testsoil), 'ob');
-xlabel('Elevation (m)');
-ylabel('Peak SWE (mm)');
-legend('Intermountain west', 'Soil sites');
+bar(xedges, soilhist, 'r');
+vline(nanmean(elev), ':k');
+vline(nanmean(elev(testsoil)), ':r');
+title('Elevation');
 
-
-subplot (2, 2, 4)
-plot(elev, accumprecip, 'ob', 'MarkerFaceColor', 'b');
+subplot (3, 2, 2)
+xedges = linspace(-5, 20, 60);
+networkhist = histc(maat, xedges);
+soilhist = histc(maat(testsoil), xedges);
+bar(xedges, networkhist, 'k');
 hold on;
-plot(elev(testsoil), accumprecip(testsoil), 'ok');
-xlabel('Elevation (m)');
-ylabel('Wateryear precip (mm)');
-legend('Intermountain west', 'Soil sites');
+bar(xedges, soilhist, 'r');
+vline(nanmean(maat), ':k');
+vline(nanmean(maat(testsoil)), ':r');
+title('Mean wateryear air temp');
 
-
-%  --------------------------------------------------------
-% FIG 2 - Add MAT to analysis above
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
-
-colormap(jet);
-
-subplot (2, 1, 1)
-% 2D histogram
-test = ~isnan(elev) & ~isnan(meanAnnAirT);
-x = elev(test);
-y = meanAnnAirT(test);
-xedges = linspace(500, 4000, 60);
-yedges = linspace(-2, 14, 60);
-histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-pcolor(xedges, yedges, histmat');
-title('Mean wateryear airT across network');
-
-subplot (2, 1, 2)
-plot(elev, meanAnnAirT, 'om', 'MarkerFaceColor', 'm');
+subplot (3, 2, 3)
+xedges = linspace(0, 2500, 60);
+networkhist = histc(accumprecip, xedges);
+soilhist = histc(accumprecip(testsoil), xedges);
+bar(xedges, networkhist, 'k');
 hold on;
-testsoil = ismember(site_cl, soilsites);
-plot(elev(testsoil), meanAnnAirT(testsoil), 'ok');
-xlabel('Elevation (m)');
-ylabel('Mean wateryear airT (^oC)');
-legend('Intermountain west', 'Soil sites');
+bar(xedges, soilhist, 'r');
+vline(nanmean(accumprecip), ':k');
+vline(nanmean(accumprecip(testsoil)), ':r');
+title('Wateryear precip');
 
-%-------------------------------------------------------------
-% FIG 3 
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Wateryear snowpack metrics 2 - all sites');
+subplot (3, 2, 4)
+xedges = linspace(100, 2000, 60);
+networkhist = histc(maxswe, xedges);
+soilhist = histc(maxswe(testsoil), xedges);
+bar(xedges, networkhist, 'k');
+hold on;
+bar(xedges, soilhist, 'r');
+vline(nanmean(maxswe), ':k');
+vline(nanmean(maxswe(testsoil)), ':r');
+title('Peak SWE');
 
-subplot (2, 2, 1)
-plot(elev, onsetdoy, 'ob');
-ylim([0 250]);
-xlabel('Elevation');
-ylabel('Day of water year');
-title('Snowpack onset day');
+subplot (3, 2, 5)
+xedges = linspace(0, 365, 60);
+networkhist = histc(totaldaysSC, xedges);
+soilhist = histc(totaldaysSC(testsoil), xedges);
+bar(xedges, networkhist, 'k');
+hold on;
+bar(xedges, soilhist, 'r');
+vline(nanmean(totaldaysSC), ':k');
+vline(nanmean(totaldaysSC(testsoil)), ':r');
+title('Total snowcovered days');
 
-subplot (2, 2, 2)
-% 2D histogram
-test = ~isnan(elev) & ~isnan(onsetdoy);
-x = elev(test);
-y = onsetdoy(test);
-xedges = linspace(0, 4000, 100);
-yedges = linspace(0, 250, 100);
-histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-pcolor(xedges, yedges, histmat'); 
-
-subplot (2, 2, 3)
-plot(elev, meltdoy, 'ob');
-xlabel('Elevation');
-ylabel('Day of water year');
+subplot (3, 2, 6)
+xedges = linspace(0, 365, 60);
+networkhist = histc(meltdoy, xedges);
+soilhist = histc(meltdoy(testsoil), xedges);
+bar(xedges, networkhist, 'k');
+hold on;
+bar(xedges, soilhist, 'r');
+vline(nanmean(meltdoy), ':k');
+vline(nanmean(meltdoy(testsoil)), ':r');
 title('Day of snowmelt');
+% %  --------------------------------------------------------
+% % FIG 2 - Add MAT to analysis above
+% fignum = fignum+1;
+% h = figure(fignum);
+% set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
+% 
+% colormap(jet);
+% 
+% subplot (2, 1, 1)
+% % 2D histogram
+% test = ~isnan(elev) & ~isnan(maat);
+% x = elev(test);
+% y = maat(test);
+% xedges = linspace(500, 4000, 60);
+% yedges = linspace(-2, 14, 60);
+% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
+% pcolor(xedges, yedges, histmat');
+% title('Mean wateryear airT across network');
+% 
+% subplot (2, 1, 2)
+% plot(elev, maat, 'om', 'MarkerFaceColor', 'm');
+% hold on;
+% testsoil = ismember(site_cl, soilsites);
+% plot(elev(testsoil), maat(testsoil), 'ok');
+% xlabel('Elevation (m)');
+% ylabel('Mean wateryear airT (^oC)');
+% legend('Intermountain west', 'Soil sites');
 
-subplot (2, 2, 4)
-% 2D histogram
-test = ~isnan(elev) & ~isnan(meltdoy);
-x = elev(test);
-y = meltdoy(test);
-xedges = linspace(0, 4000, 100);
-yedges = linspace(0, 400, 100);
-histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-pcolor(xedges, yedges, histmat');
+% %-------------------------------------------------------------
+% % FIG 3 
+% fignum = fignum+1;
+% h = figure(fignum);
+% set(h, 'Name', 'Wateryear snowpack metrics 2 - all sites');
+% 
+% subplot (2, 2, 1)
+% plot(elev, onsetdoy, 'ob');
+% ylim([0 250]);
+% xlabel('Elevation');
+% ylabel('Day of water year');
+% title('Snowpack onset day');
+% 
+% subplot (2, 2, 2)
+% % 2D histogram
+% test = ~isnan(elev) & ~isnan(onsetdoy);
+% x = elev(test);
+% y = onsetdoy(test);
+% xedges = linspace(0, 4000, 100);
+% yedges = linspace(0, 250, 100);
+% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
+% pcolor(xedges, yedges, histmat'); 
+% 
+% subplot (2, 2, 3)
+% plot(elev, meltdoy, 'ob');
+% xlabel('Elevation');
+% ylabel('Day of water year');
+% title('Day of snowmelt');
+% 
+% subplot (2, 2, 4)
+% % 2D histogram
+% test = ~isnan(elev) & ~isnan(meltdoy);
+% x = elev(test);
+% y = meltdoy(test);
+% xedges = linspace(0, 4000, 100);
+% yedges = linspace(0, 400, 100);
+% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
+% pcolor(xedges, yedges, histmat');
 
 %----------------------------------------------------
 % FIG 4 - Wateryear precip metrics
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Wateryear precip metrics 1 - all sites');
-
-
-% First four subplots on the left are for quarters
-subplot (2, 2, 1)
-plot(elev, accumprecip, 'ob');
-hold on
-%plot(elev, ltMeanSWE, 'or');
-plot(elev(testsoil), accumprecip(testsoil), 'ok');
-xlabel('Elevation');
-ylabel('Precip (mm)');
-legend('Individual years', 'Soil sites');
-title('Total wateryear precip');
-
-subplot (2, 2, 2)
-% 2D histogram
-test = ~isnan(elev) & ~isnan(accumprecip);
-x = elev(test);
-y = accumprecip(test);
-xedges = linspace(0, 4000, 100);
-yedges = linspace(0, 120, 100);
-histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-pcolor(xedges, yedges, histmat');
-
-% First four subplots on the left are for quarters
-subplot (2, 2, 3)
-plot(elev, JASprecip, 'ob');
-hold on
-%plot(elev, ltMeanSWE, 'or');
-plot(elev(testsoil), JASprecip(testsoil), 'ok');
-xlabel('Elevation');
-ylabel('Precip (mm)');
-ylim([0, 120]);
-legend('Individual years', 'Soil sites');
-title('Summer (JAS) precip');
-
-subplot (2, 2, 4)
-% 2D histogram
-test = ~isnan(elev) & ~isnan(JASprecip);
-x = elev(test);
-y = JASprecip(test);
-xedges = linspace(0, 4000, 100);
-yedges = linspace(0, 120, 100);
-histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-pcolor(xedges, yedges, histmat');
+% fignum = fignum+1;
+% h = figure(fignum);
+% set(h, 'Name', 'Wateryear precip metrics 1 - all sites');
+% 
+% % First four subplots on the left are for quarters
+% subplot (2, 2, 1)
+% plot(elev, accumprecip, 'ob');
+% hold on
+% %plot(elev, ltMeanSWE, 'or');
+% plot(elev(testsoil), accumprecip(testsoil), 'ok');
+% xlabel('Elevation');
+% ylabel('Precip (mm)');
+% legend('Individual years', 'Soil sites');
+% title('Total wateryear precip');
+% 
+% subplot (2, 2, 2)
+% % 2D histogram
+% test = ~isnan(elev) & ~isnan(accumprecip);
+% x = elev(test);
+% y = accumprecip(test);
+% xedges = linspace(0, 4000, 100);
+% yedges = linspace(0, 120, 100);
+% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
+% pcolor(xedges, yedges, histmat');
+% 
+% % First four subplots on the left are for quarters
+% subplot (2, 2, 3)
+% plot(elev, JASprecip, 'ob');
+% hold on
+% %plot(elev, ltMeanSWE, 'or');
+% plot(elev(testsoil), JASprecip(testsoil), 'ok');
+% xlabel('Elevation');
+% ylabel('Precip (mm)');
+% ylim([0, 120]);
+% legend('Individual years', 'Soil sites');
+% title('Summer (JAS) precip');
+% 
+% subplot (2, 2, 4)
+% % 2D histogram
+% test = ~isnan(elev) & ~isnan(JASprecip);
+% x = elev(test);
+% y = JASprecip(test);
+% xedges = linspace(0, 4000, 100);
+% yedges = linspace(0, 120, 100);
+% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
+% pcolor(xedges, yedges, histmat');
 
 %----------------------------------------------------
 % FIG 5 - Plot soil moisture vs max swe snowmelt day
@@ -471,55 +527,13 @@ xlabel('Day of wateryear (mm)');
 ylabel('VWC (%)');
 title(' July, Aug, Sept VWC vs snowmeltday');
 
-%----------------------------------------------------
-% FIG 6 - Plot NORMALIZED soil moisture vs max swe  and snowmelt day
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Wateryear NORMALIZED seasonal soil moisture');
-
-subplot (2, 2, 1)
-plot(maxswe(matchtest), normamj5cmSMmean,  '.g', ...
-    maxswe(matchtest), normamj20cmSMmean, '.b', ...
-    maxswe(matchtest), normamj50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Peak SWE (mm)');
-ylabel('VWC (%)');
-title(' Apr, May, Jun VWC');
-
-subplot (2, 2, 2)
-plot(maxswe(matchtest), normjas5cmSMmean,  '.g', ...
-    maxswe(matchtest), normjas20cmSMmean, '.b', ...
-    maxswe(matchtest), normjas50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Peak SWE (mm)');
-ylabel('VWC (%)');
-title(' July, Aug, Sept VWC');
-
-subplot (2, 2, 3)
-plot(meltdoy(matchtest), normamj5cmSMmean,  '.g', ...
-    meltdoy(matchtest), normamj20cmSMmean, '.b', ...
-    meltdoy(matchtest), normamj50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Day of wateryear');
-ylabel('VWC (%)');
-title(' Apr, May, Jun VWC vs snowmelt day');
-
-subplot (2, 2, 4)
-plot(meltdoy(matchtest), normjas5cmSMmean,  '.g', ...
-    meltdoy(matchtest), normjas20cmSMmean, '.b', ...
-    meltdoy(matchtest), normjas50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Day of wateryear (mm)');
-ylabel('VWC (%)');
-title(' July, Aug, Sept VWC vs snowmeltday');
-
 %--------------------------------------------------------------
 % FIG 7 - Plot MAST % MAT vs max swe, snowcover duration, elevation
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
 subplot (2, 2, 1)
-plot(maxswe(matchtest), meanAnnAirT(matchtest), 'ok', ...
+plot(maxswe(matchtest), maat(matchtest), 'ok', ...
     'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on;
 plot(maxswe(matchtest), mast5cm, '.b', ...
@@ -531,7 +545,7 @@ ylabel('^oC');
 title('Mean wateryear AirT & SoilT vs peak SWE');
 
 subplot (2, 2, 2)
-plot(elev(matchtest), meanAnnAirT(matchtest), 'ok', ...
+plot(elev(matchtest), maat(matchtest), 'ok', ...
     'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on;
 plot(elev(matchtest), mast5cm, '.b', ...
@@ -543,7 +557,7 @@ ylabel('^oC');
 title('Mean wateryear AirT & SoilT vs Elevation');
 
 subplot (2, 2, 3)
-plot(snowduration(matchtest), meanAnnAirT(matchtest), 'ok', ...
+plot(snowduration(matchtest), maat(matchtest), 'ok', ...
     'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on;
 plot(snowduration(matchtest), mast5cm, '.b', ...
@@ -570,7 +584,7 @@ numBins = 15; % define number of bins
 xax = (linspace(botEdge, topEdge, numBins+1)) + 66;
 
 x = maxswe(matchtest); %split into x and y
-y = meanAnnAirT(matchtest);
+y = maat(matchtest);
 y2 = mast20cm;
 %[binMean1, binMean2] = bin(x, y, y2);
 [binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
@@ -596,7 +610,7 @@ numBins = 15; % define number of bins
 xax = (linspace(botEdge, topEdge, numBins+1)) + 85;
 
 x = elev(matchtest);
-y = meanAnnAirT(matchtest);
+y = maat(matchtest);
 [binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
 plot(xax(1:numBins), binMeanAir, 'ok', ...
     'MarkerFaceColor', [0.7 0.7 0.7]);
@@ -620,7 +634,7 @@ numBins = 15; % define number of bins
 xax = (linspace(botEdge, topEdge, numBins+1)) + 10;
 
 x = snowduration(matchtest);
-y = meanAnnAirT(matchtest);
+y = maat(matchtest);
 [binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
 plot(xax(1:numBins), binMeanAir, 'ok', ...
     'MarkerFaceColor', [0.7 0.7 0.7]);
@@ -651,9 +665,9 @@ ylabel('MWYST (^oC)');
 title('Mean wateryear SoilT vs peak SWE');
 
 subplot (2, 2, 2)
-plot(meanAnnAirT(matchtest), mast5cm, '.g', ...
-    meanAnnAirT(matchtest), mast20cm, '.b',...
-    meanAnnAirT(matchtest), mast50cm, '.k');
+plot(maat(matchtest), mast5cm, '.g', ...
+    maat(matchtest), mast20cm, '.b',...
+    maat(matchtest), mast50cm, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Mean wyr AirT (^oC)');
 ylabel('MWYST(^oC)');
@@ -689,7 +703,7 @@ testlo = elev(matchtest) > 2000 & elev(matchtest) < 2500;
 
 matchswe = maxswe(matchtest);
 matchdur = snowduration(matchtest);
-matchMAT = meanAnnAirT(matchtest);
+matchMAT = maat(matchtest);
 
 subplot (2, 2, 1)
 plot(matchswe(testhi), mast50cm(testhi), '.b', ...

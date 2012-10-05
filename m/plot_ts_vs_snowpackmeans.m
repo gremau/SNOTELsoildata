@@ -24,7 +24,7 @@ rawdatapath = '../rawdata/';
 processeddatapath = '../processed_data/';
 
 % Load list of sites with data in the daily data directory
-sitelist = dlmread([rawdatapath 'allsensors_daily/sitelist.txt']);
+sitelist = dlmread([rawdatapath 'allsensors_daily/filelist.txt']);
 havedata = uint16(unique(sitelist(:, 1)));
 
 % Get 30yr average data
@@ -68,7 +68,7 @@ sitesarray = nan*zeros(length(havedata), 16);
 
 % Load data for each site into a large cellarray
 for i = 1:length(havedata);
-    m = loadsnotel('daily', havedata(i));
+    m = loadsnotel(havedata(i), 'daily', 'exclude');
     sitesarray(i, 1) = havedata(i);
     % Create tests to select the average data & put in sitesarray
     avgSWEtest = uint16(avgSWE(:, 1))==havedata(i);

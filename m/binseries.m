@@ -4,9 +4,9 @@
 % Data:
 % x, y1, y2 = x data, ydata and ydata2 (usually std of y1)
 % Binning parameters:
-% topEdge = 300; % define upper x range of bins
-% botEdge = 90; % define lower x range of bins
-% numBins = 15; % define number of bins
+% topEdge = upper x range of bins
+% botEdge = lower x range of bins
+% numBins = number of bins
 
 
 function [binMean1, binMean2] = binseries(x, y1, y2, topEdge, botEdge, numBins)

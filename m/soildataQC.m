@@ -18,6 +18,10 @@ addpath('~/data/code_resources/m_common/stat_tbx/');
 % add path to loadsnotel_raw.m
 addpath('testing/');
 
+% Get a list of hourly files
+hrFilelist = csvread('../rawdata/soilsensors_hourly/filelist.txt');
+hrFilelist = unique(hrFilelist(:,1));
+
 % Ask user for site number
 siteID = str2double(input('Which SNOTEL station?: ', 's'));
 
@@ -30,7 +34,6 @@ filter1 = 'sigma';
 threshold1 = 3;
 filter2 = 'mean';
 threshold2 = 3;
-
 
 % Some data must be removed from the datasets provided by NRCS. These data
 % fall into two categories:
@@ -50,28 +53,24 @@ threshold2 = 3;
 
 % First load hourly and daily data using both loadsnotel.m and a raw data
 % loading function (loadsnotel_raw.m).
-if strcmpi(exclude, 'y')
-    try
-        hourlyData = loadsnotel(siteID, 'hourly', 'exclude');
-    catch
-        disp('Hourly file not found');
-        hourlyData = cell(1, 10);
-    end
-    dailyData = loadsnotel(siteID, 'daily', 'exclude');
-else
-    try
-        hourlyData = loadsnotel(siteID, 'hourly');
-    catch
-        disp('Hourly file not found');
-        hourlyData = cell(1, 10);
-    end
-    dailyData = loadsnotel(siteID, 'daily');
-end;
-try
+if strcmpi(exclude, 'y') && any(hrFilelist==siteID)
+    hourlyData = loadsnotel(siteID, 'hourly', 'exclude');
     hourlyRaw = loadsnotel_raw('hourly', siteID);
-catch
+    dailyData = loadsnotel(siteID, 'daily', 'exclude');
+elseif strcmpi(exclude, 'y') && ~any(hrFilelist==siteID)
     disp('Hourly file not found');
+    hourlyData = cell(1, 10);
     hourlyRaw = cell(1, 10);
+    dailyData = loadsnotel(siteID, 'daily', 'exclude');
+elseif ~strcmpi(exclude, 'y') && any(hrFilelist==siteID)
+    hourlyData = loadsnotel(siteID, 'hourly');
+    hourlyRaw = loadsnotel_raw('hourly', siteID);
+    dailyData = loadsnotel(siteID, 'daily');
+elseif ~strcmpi(exclude, 'y') && ~any(hrFilelist==siteID)
+    disp('Hourly file not found');
+    hourlyData = cell(1, 10);
+    hourlyRaw = cell(1, 10);
+    dailyData = loadsnotel(siteID, 'daily');
 end
 dailyRaw = loadsnotel_raw('daily', siteID);
 
@@ -169,170 +168,171 @@ plot(decday_dRaw, airTavgRaw, '.r', decday_d, airTavg, '.k');
 title('Avg AirT'); datetick('x', 'mmm-yy')
 legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
 
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
-subplot(3, 1, 1)
-plot(decday_hRaw, ts5Raw, '.r', decday_h, ts5, '.k');
-title('Ts -5cm'); datetick('x', 'mmm-yy');
-subplot(3, 1, 2)
-plot(decday_hRaw, ts20Raw, '.r', decday_h, ts20, '.k');
-title('Ts -20cm'); datetick('x', 'mmm-yy');
-subplot(3, 1, 3)
-plot(decday_hRaw, ts50Raw, '.r', decday_h, ts50, '.k');
-title('Ts - 50cm'); datetick('x', 'mmm-yy')
-legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
-
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
-subplot(3, 1, 1)
-plot(decday_hRaw, vwc5Raw, '.r', decday_h, vwc5, '.k');
-title('VWC -5cm'); datetick('x', 'mmm-yy');
-subplot(3, 1, 2)
-plot(decday_hRaw, vwc20Raw, '.r', decday_h, vwc20, '.k');
-title('VWC -20cm'); datetick('x', 'mmm-yy');
-subplot(3, 1, 3);
-plot(decday_hRaw, vwc50Raw, '.r', decday_h, vwc50, '.k');
-title('VWC -50cm'); datetick('x', 'mmm-yy');
-legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
-
-% ******* TEST Ts FILTERING *******
-% Generate filtered Ts data
- ts5_F1 = filterseries(ts5, filter1, 25, threshold1);
- ts20_F1 = filterseries(ts20, filter1, 25, threshold1);
- ts50_F1 = filterseries(ts50, filter1, 25, threshold1);
- ts5_F2 = filterseries(ts5, filter2, 25, threshold2);
- ts20_F2 = filterseries(ts20, filter2, 25, threshold2);
- ts50_F2 = filterseries(ts50, filter2, 25, threshold2);
-
-% PLOT unfiltered and FILTER 1 timeseries
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
-subplot(3, 1, 1)
-plot(decday_h, ts5, '.r', decday_h, ts5_F1, '.k');
-title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 2)
-plot(decday_h, ts20, '.r', decday_h, ts20_F1, '.k');
-title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 3)
-plot(decday_h, ts50, '.r', decday_h, ts50_F1, '.k');
-title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
-legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
-
-% PLOT unfiltered and FILTER 2 timeseries
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
-subplot(3, 1, 1)
-plot(decday_h, ts5, '.r', decday_h, ts5_F2, '.k');
-title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 2)
-plot(decday_h, ts20, '.r', decday_h, ts20_F2, '.k');
-title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 3)
-plot(decday_h, ts50, '.r', decday_h, ts50_F2, '.k');
-title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
-legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
-
-% HISTOGRAMS of unfiltered and filtered Ts data
-fignum = fignum + 1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
-    ' Histogram of filtered values']);
-% Number of bins
-xedges = linspace(-20, 47.5, 51);
-% Sort the raw and filtered series into bins
-u1 = histc(ts5, xedges);    % Unfiltered data
-f1 = histc(ts5_F1, xedges); % Filter 1
-f2 = histc(ts5_F2, xedges); % Filter 2
-% Now plot the histograms
-subplot(1,2,1);
-title(['Filtered with ' filter1]);
-bar(xedges, u1, 'r'); % Unfiltered values in red
-hold on;
-bar(xedges, f1, 'k'); % Filtered values in black
-ylabel({'Frequency'}); xlabel('Tsoil');
-subplot(1,2,2);
-title(['Filtered with ' filter2]);
-bar(xedges, u1, 'r'); % Unfiltered values in red
-hold on;
-bar(xedges, f2, 'k'); % Filtered values in black
-ylabel('Frequency'); xlabel('Tsoil');
-
-%******* TEST VWC FILTERING *******
-% Generate filtered VWC data
- vwc5_F1 = filterseries(vwc5, filter1, 25, threshold1);
- vwc20_F1 = filterseries(vwc20, filter1, 25, threshold1);
- vwc50_F1 = filterseries(vwc50, filter1, 25, threshold1);
- vwc5_F2 = filterseries(vwc5, filter2, 25, threshold2);
- vwc20_F2 = filterseries(vwc20, filter2, 25, threshold2);
- vwc50_F2 = filterseries(vwc50, filter2, 25, threshold2);
-% Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
-
-% PLOT unfiltered and FILTER 1 timeseries
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
-subplot(3, 1, 1)
-plot(decday_h, vwc5, '.r', decday_h, vwc5_F1, '.k');
-title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 2)
-plot(decday_h, vwc20, '.r', decday_h, vwc20_F1, '.k');
-title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 3)
-plot(decday_h, vwc50, '.r', decday_h, vwc50_F1, '.k');
-title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
-legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
-
-% PLOT unfiltered and FILTER 2 timeseries
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
-subplot(3, 1, 1)
-plot(decday_h, vwc5, '.r', decday_h, vwc5_F2, '.k');
-title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 2)
-plot(decday_h, vwc20, '.r', decday_h, vwc20_F2, '.k');
-title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
-subplot(3, 1, 3)
-plot(decday_h, vwc50, '.r', decday_h, vwc50_F2, '.k');
-title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
-legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
-
-% HISTOGRAMS of unfiltered and filtered VWC data
-fignum = fignum + 1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
-    ' Histogram of filtered values']);
-% Number of bins
-xedges = linspace(-1, 47.5, 51);
-% Sort the raw and filtered series into bins
-u1 = histc(vwc5, xedges);    % Unfiltered data
-f1 = histc(vwc5_F1, xedges); % Filter 1
-f2 = histc(vwc5_F2, xedges); % Filter 2
-% Now plot the histograms
-subplot(1,2,1);
-title(['Filtered with ' filter1]);
-bar(xedges, u1, 'r'); % Unfiltered values in red
-hold on;
-bar(xedges, f1, 'k'); % Filtered values in black
-ylabel({'Frequency'}); xlabel('VWC');
-subplot(1,2,2);
-title(['Filtered with ' filter2]);
-bar(xedges, u1, 'r'); % Unfiltered values in red
-hold on;
-bar(xedges, f2, 'k'); % Filtered values in black
-ylabel('Frequency'); xlabel('VWC');
-
+if any(hrFilelist==siteID)
+    fignum = fignum+1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+    subplot(3, 1, 1)
+    plot(decday_hRaw, ts5Raw, '.r', decday_h, ts5, '.k');
+    title('Ts -5cm'); datetick('x', 'mmm-yy');
+    subplot(3, 1, 2)
+    plot(decday_hRaw, ts20Raw, '.r', decday_h, ts20, '.k');
+    title('Ts -20cm'); datetick('x', 'mmm-yy');
+    subplot(3, 1, 3)
+    plot(decday_hRaw, ts50Raw, '.r', decday_h, ts50, '.k');
+    title('Ts - 50cm'); datetick('x', 'mmm-yy')
+    legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
+    
+    fignum = fignum+1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
+    subplot(3, 1, 1)
+    plot(decday_hRaw, vwc5Raw, '.r', decday_h, vwc5, '.k');
+    title('VWC -5cm'); datetick('x', 'mmm-yy');
+    subplot(3, 1, 2)
+    plot(decday_hRaw, vwc20Raw, '.r', decday_h, vwc20, '.k');
+    title('VWC -20cm'); datetick('x', 'mmm-yy');
+    subplot(3, 1, 3);
+    plot(decday_hRaw, vwc50Raw, '.r', decday_h, vwc50, '.k');
+    title('VWC -50cm'); datetick('x', 'mmm-yy');
+    legend('Raw data', 'After loadsnotel.m', 'Location', 'NorthWest');
+    
+    % ******* TEST Ts FILTERING *******
+    % Generate filtered Ts data
+    ts5_F1 = filterseries(ts5, filter1, 25, threshold1);
+    ts20_F1 = filterseries(ts20, filter1, 25, threshold1);
+    ts50_F1 = filterseries(ts50, filter1, 25, threshold1);
+    ts5_F2 = filterseries(ts5, filter2, 25, threshold2);
+    ts20_F2 = filterseries(ts20, filter2, 25, threshold2);
+    ts50_F2 = filterseries(ts50, filter2, 25, threshold2);
+    
+    % PLOT unfiltered and FILTER 1 timeseries
+    fignum = fignum+1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+    subplot(3, 1, 1)
+    plot(decday_h, ts5, '.r', decday_h, ts5_F1, '.k');
+    title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 2)
+    plot(decday_h, ts20, '.r', decday_h, ts20_F1, '.k');
+    title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 3)
+    plot(decday_h, ts50, '.r', decday_h, ts50_F1, '.k');
+    title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
+    
+    % PLOT unfiltered and FILTER 2 timeseries
+    fignum = fignum+1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+    subplot(3, 1, 1)
+    plot(decday_h, ts5, '.r', decday_h, ts5_F2, '.k');
+    title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 2)
+    plot(decday_h, ts20, '.r', decday_h, ts20_F2, '.k');
+    title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 3)
+    plot(decday_h, ts50, '.r', decday_h, ts50_F2, '.k');
+    title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
+    
+    % HISTOGRAMS of unfiltered and filtered Ts data
+    fignum = fignum + 1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
+        ' Histogram of filtered 5cm Tsoil values']);
+    % Number of bins
+    xedges = linspace(-20, 47.5, 51);
+    % Sort the raw and filtered series into bins
+    u1 = histc(ts5, xedges);    % Unfiltered data
+    f1 = histc(ts5_F1, xedges); % Filter 1
+    f2 = histc(ts5_F2, xedges); % Filter 2
+    % Now plot the histograms
+    subplot(1,2,1);
+    title(['Filtered with ' filter1]);
+    bar(xedges, u1, 'r'); % Unfiltered values in red
+    hold on;
+    bar(xedges, f1, 'k'); % Filtered values in black
+    ylabel({'Frequency'}); xlabel('Tsoil');
+    subplot(1,2,2);
+    title(['Filtered with ' filter2]);
+    bar(xedges, u1, 'r'); % Unfiltered values in red
+    hold on;
+    bar(xedges, f2, 'k'); % Filtered values in black
+    ylabel('Frequency'); xlabel('Tsoil');
+    
+    %******* TEST VWC FILTERING *******
+    % Generate filtered VWC data
+    vwc5_F1 = filterseries(vwc5, filter1, 25, threshold1);
+    vwc20_F1 = filterseries(vwc20, filter1, 25, threshold1);
+    vwc50_F1 = filterseries(vwc50, filter1, 25, threshold1);
+    vwc5_F2 = filterseries(vwc5, filter2, 25, threshold2);
+    vwc20_F2 = filterseries(vwc20, filter2, 25, threshold2);
+    vwc50_F2 = filterseries(vwc50, filter2, 25, threshold2);
+    % Ts_bothdiff = filterseries(Ts_meandiff, 'shift', 3);
+    
+    % PLOT unfiltered and FILTER 1 timeseries
+    fignum = fignum+1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
+    subplot(3, 1, 1)
+    plot(decday_h, vwc5, '.r', decday_h, vwc5_F1, '.k');
+    title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 2)
+    plot(decday_h, vwc20, '.r', decday_h, vwc20_F1, '.k');
+    title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 3)
+    plot(decday_h, vwc50, '.r', decday_h, vwc50_F1, '.k');
+    title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
+    
+    % PLOT unfiltered and FILTER 2 timeseries
+    fignum = fignum+1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
+    subplot(3, 1, 1)
+    plot(decday_h, vwc5, '.r', decday_h, vwc5_F2, '.k');
+    title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 2)
+    plot(decday_h, vwc20, '.r', decday_h, vwc20_F2, '.k');
+    title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    subplot(3, 1, 3)
+    plot(decday_h, vwc50, '.r', decday_h, vwc50_F2, '.k');
+    title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
+    legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
+    
+    % HISTOGRAMS of unfiltered and filtered VWC data
+    fignum = fignum + 1;
+    h = figure(fignum);
+    set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
+        ' Histogram of filtered values']);
+    % Number of bins
+    xedges = linspace(-1, 47.5, 51);
+    % Sort the raw and filtered series into bins
+    u1 = histc(vwc5, xedges);    % Unfiltered data
+    f1 = histc(vwc5_F1, xedges); % Filter 1
+    f2 = histc(vwc5_F2, xedges); % Filter 2
+    % Now plot the histograms
+    subplot(1,2,1);
+    title(['Filtered with ' filter1]);
+    bar(xedges, u1, 'r'); % Unfiltered values in red
+    hold on;
+    bar(xedges, f1, 'k'); % Filtered values in black
+    ylabel({'Frequency'}); xlabel('VWC');
+    subplot(1,2,2);
+    title(['Filtered with ' filter2]);
+    bar(xedges, u1, 'r'); % Unfiltered values in red
+    hold on;
+    bar(xedges, f2, 'k'); % Filtered values in black
+    ylabel('Frequency'); xlabel('VWC');
+end
 
 % ******* TEST PRECIP FILTERING *******
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
+set(h, 'Name', ['Site ' num2str(siteID) ' - PRECIP']);
 subplot(3, 1, 1)
-plot(decday_h, ts5, '.r', decday_h, ts5_F1, '.k');
+plot(decday_h, , '.r', decday_h, ts5_F1, '.k');
 title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
 subplot(3, 1, 2)
 plot(decday_h, ts20, '.r', decday_h, ts20_F1, '.k');

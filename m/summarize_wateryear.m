@@ -13,7 +13,6 @@
 %
 % Feb 20, 2012
 %
-
 clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots

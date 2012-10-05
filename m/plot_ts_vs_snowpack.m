@@ -44,7 +44,7 @@ monthlabel = monthLabels{monthsel};
 monthMeans = [];
 % Load data and parse out month data
 for i = 1:length(sites);
-    m = loadsnotel(sites(i), 'daily');
+    m = loadsnotel(sites(i), 'daily', 'exclude');
     %Create datevector for datafile
     siteDateVec = datevec(m{2}, 'yyyy-mm-dd');
     % Columns are site, year, st-5, st-20, st-60, sndepth, swe, airT
