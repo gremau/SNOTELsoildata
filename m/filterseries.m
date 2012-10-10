@@ -1,9 +1,9 @@
 function array = filterseries(series, type, windowsize, threshold)
-% filtertemprseries.m
+% filterseries.m
 %
-% Filters soil temperature data series using a difference from the mean, or 
-% difference from neighbor, then fills in generated nans with interpolation
-% routine.
+% Filters a data series using one of 4 algorithms, then returns a filtered
+% timeseries. Descriptions of the filters are below. There is an optional
+% plotting routine that can be run (uncomment it first).
 %
 % **Arguments**
 %   1 = input data series
@@ -11,9 +11,9 @@ function array = filterseries(series, type, windowsize, threshold)
 %   3 = windowsize , integer number for the moving window size
 %   4 = threshold difference above which datapoint is set to nan
 %
-% Note that if NaN's are present in the input series, most filters will
-% them by the window size. Therefore, these calculate statistics based on
-% interpolated data, generated using interpseries(series).
+% WARNING! If NaN's are present in the input series, most filters will
+% propagate them by about 2x the window size. Therefore, these calculate 
+% statistics based on interpolated data, generated using interpseries.m.
 %
 % 4/27/2011 Greg Maurer     
 
@@ -25,7 +25,6 @@ addpath('~/data/code_resources/m_common/hampel/');
 window = windowsize; 
 
 % MEAN - Filter by difference from the mean
-% WARNING !! This filter propagates NaN's if interpolation is left out.
 if strcmp(type, 'mean')
     % First interpolate over the missing data in the input series
     series_filled = interpseries(series);
@@ -43,7 +42,6 @@ if strcmp(type, 'mean')
 
 % MEDIAN - Filter by difference from the median
 % Use slidefun.m from MATLAB FEx to calculate median
-% WARNING !! This filter propagates NaN's if interpolation is left out.
 elseif strcmp(type, 'median')
     % First interpolate over the missing data in the input series
     series_filled = interpseries(series);
@@ -57,7 +55,7 @@ elseif strcmp(type, 'median')
     testDiff = abs(diff) > threshold;
     filteredSeries(testDiff) = nan;
     
-% SHIFT - Filter by difference from nearest neighbor;
+% SHIFT - Filter by difference from nearest +/- neighbors;
 % Warning - multiplies the NaN's in the original data
 elseif strcmp(type, 'shift')
     %Calculate difference from nearest neigboring datapoint
@@ -120,3 +118,16 @@ else
 end
 
 array = filteredSeries;
+
+
+% Plot the unfiltered/filtered data and some statistics.
+% h = figure(99);
+% set(h, 'Name', 'Filtering results and intermed. statistics');
+% plot(1:length(series), series, '.r', 1:length(filteredSeries), ...
+%     filteredSeries, '.k', 1:length(runningMean), runningMean, '-g')
+% hold on;
+% if strcmp(type, 'sigma')
+%     plot(1:length(runningStd), runningStd, '-b');
+% end
+% title(['Threshold = ' num2str(threshold) ' Window = ' num2str(window)]);
+% legend('Removed', 'New series', 'Mean', 'StDev');

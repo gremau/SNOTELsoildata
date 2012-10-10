@@ -186,15 +186,17 @@ for i = 1:length(files)
     end
     clear readfilecell loopindex j test form forma format;
     
-    % Combine excluded and missing data columns
-    nanCols = [excludeCols{i}, missingdatacols{i}];
+    % Combine excluded and missing data columns (and remove repeated ones)
+    nanCols = unique([excludeCols{i}, missingdatacols{i}]);
     
     % Insert nans for missing/excluded sensor columns
-    len = length(orderedcell{1});
-    for j = nanCols %missingdatacols{i}
-        orderedcell{j} = nan * zeros(len, 1);
-        % ...and then append it to m (output array)
-        m{j} = [m{j}; orderedcell{j}];
+    if ~isempty(nanCols)
+        len = length(orderedcell{1});
+        for j = nanCols %missingdatacols{i}
+            orderedcell{j} = nan * zeros(len, 1);
+            % ...and then append it to m (output array)
+            m{j} = [m{j}; orderedcell{j}];
+        end
     end
     clear orderedcell j nanCols excludeTest;
 end

@@ -1,4 +1,5 @@
-% plot_snotel_summary.m
+function plot_snotel_summary
+%plot_snotel_summary.m
 %
 % Reads the outputs from summarize_wateryear.m and makes a number of plots
 % characterizing variability in soil moisture and soil temperature in the
@@ -236,6 +237,18 @@ postmelt5cmSTsd = tsData(:, 124);
 % Get a subset of climData that corresponds with available soildata
 matchtest = ismember(climData(:, 1:2), filelistSoil(:, 1:2), 'rows');
 matchsets = climData(matchtest, :);
+
+function [coefficients, rsq] = getstats(x, y);
+    nantest = isnan(x) | isnan(y);
+    x = x(~nantest);
+    y = y(~nantest);
+    coefficients = polyfit(x, y, 1);
+    yfit = polyval(coefficients, x);
+    yresid = y - yfit;
+    SSresid = sum(yresid.^2);
+    SStotal = (length(y)-1) * var(y);
+    rsq = 1 - SSresid/SStotal;
+end
 
 %-----PLOTTING----------------------------------------------------
 % First define the 2d histogram plots
@@ -529,34 +542,51 @@ title(' July, Aug, Sept VWC vs snowmeltday');
 
 %--------------------------------------------------------------
 % FIG 7 - Plot MAST % MAT vs max swe, snowcover duration, elevation
+% fignum = fignum+1;
+% h = figure(fignum);
+% set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
+% subplot (2, 2, 1)
+% plot(maxswe(matchtest), maat(matchtest), 'ok', ...
+%     'MarkerFaceColor', [0.7 0.7 0.7]);
+% hold on;
+% plot(maxswe(matchtest), mast5cm, '.b', ...
+%     maxswe(matchtest), mast20cm, '.b', ...
+%     maxswe(matchtest), mast50cm, '.b');
+% legend('Mean Air T', 'Mean Soil T');
+% xlabel('Peak SWE (mm)');
+% ylabel('^oC');
+% title('Mean wateryear AirT & SoilT vs peak SWE');
+% 
+% subplot (2, 2, 2)
+% plot(elev(matchtest), maat(matchtest), 'ok', ...
+%     'MarkerFaceColor', [0.7 0.7 0.7]);
+% hold on;
+% plot(elev(matchtest), mast5cm, '.b', ...
+%     elev(matchtest), mast20cm, '.b',...
+%     elev(matchtest), mast50cm, '.b');
+% legend('Mean Air T', 'Mean Soil T');
+% xlabel('Elevation (m)');
+% ylabel('^oC');
+% title('Mean wateryear AirT & SoilT vs Elevation');
+% 
+% subplot (2, 2, 3)
+% plot(snowduration(matchtest), maat(matchtest), 'ok', ...
+%     'MarkerFaceColor', [0.7 0.7 0.7]);
+% hold on;
+% plot(snowduration(matchtest), mast5cm, '.b', ...
+%     snowduration(matchtest), mast20cm, '.b',...
+%     snowduration(matchtest), mast50cm, '.b');
+% legend('Mean Air T', 'Mean Soil T');
+% xlabel('Snowpack duration (days)');
+% ylabel('^oC');
+% title('... vs Snowpack duration');
+
+%--------------------------------------------------------------
+% FIG 7 - Plot MAST % MAT vs max swe, snowcover duration, elevation
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
 subplot (2, 2, 1)
-plot(maxswe(matchtest), maat(matchtest), 'ok', ...
-    'MarkerFaceColor', [0.7 0.7 0.7]);
-hold on;
-plot(maxswe(matchtest), mast5cm, '.b', ...
-    maxswe(matchtest), mast20cm, '.b', ...
-    maxswe(matchtest), mast50cm, '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Peak SWE (mm)');
-ylabel('^oC');
-title('Mean wateryear AirT & SoilT vs peak SWE');
-
-subplot (2, 2, 2)
-plot(elev(matchtest), maat(matchtest), 'ok', ...
-    'MarkerFaceColor', [0.7 0.7 0.7]);
-hold on;
-plot(elev(matchtest), mast5cm, '.b', ...
-    elev(matchtest), mast20cm, '.b',...
-    elev(matchtest), mast50cm, '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Elevation (m)');
-ylabel('^oC');
-title('Mean wateryear AirT & SoilT vs Elevation');
-
-subplot (2, 2, 3)
 plot(snowduration(matchtest), maat(matchtest), 'ok', ...
     'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on;
@@ -566,7 +596,117 @@ plot(snowduration(matchtest), mast5cm, '.b', ...
 legend('Mean Air T', 'Mean Soil T');
 xlabel('Snowpack duration (days)');
 ylabel('^oC');
+title('MAST & MAT vs Snowpack duration');
+
+subplot (2, 2, 2)
+% plot(snowduration(matchtest), maat(matchtest), 'ok', ...
+%     'MarkerFaceColor', [0.7 0.7 0.7]);
+% hold on;
+plot(snowduration(matchtest), mast5cm-maat(matchtest), '.r', ...
+    snowduration(matchtest), mast20cm-maat(matchtest), '.g',...
+    snowduration(matchtest), mast50cm-maat(matchtest), '.b');
+legend('Mean Air T', 'Mean Soil T');
+xlabel('Snowpack duration (days)');
+ylabel('^oC');
 title('... vs Snowpack duration');
+
+bigtest = elev(matchtest)<2500 & elev(matchtest)>2000;
+eltest = elev > 2000 & elev < 2500;
+subplot (2, 2, 3)
+% plot(snowduration(matchtest), maat(matchtest), 'ok', ...
+%     'MarkerFaceColor', [0.7 0.7 0.7]);
+% hold on;
+plot(snowduration(matchtest & eltest), mast5cm(bigtest)-maat(matchtest & eltest), '.r', ...
+    snowduration(matchtest & eltest), mast5cm(bigtest)-maat(matchtest & eltest), '.g',...
+    snowduration(matchtest & eltest), mast5cm(bigtest)-maat(matchtest & eltest), '.b');
+legend('Mean Air T', 'Mean Soil T');
+xlabel('Snowpack duration (days)');
+ylabel('^oC');
+title('... vs Snowpack duration');
+
+%--------------------------------------------------------------
+% FIG  - Plot MAST vs snowpack duration for 3 sites
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Regress mast vs snowpack duration for 3 sites');
+test = site_cl==828
+site1dur = snowduration(matchtest & test);
+site1maat = maat(matchtest & test);
+site1mast = mast20cm(site_st==828);
+test = site_cl==393
+site2dur = snowduration(matchtest & test);
+site2maat = maat(matchtest & test);
+site2mast = mast20cm(site_st==393);
+test = site_cl==582
+site3dur = snowduration(matchtest & test);
+site3mast = mast20cm(site_st==582);
+site3maat = maat(matchtest & test);
+
+subplot (3, 2, 1)
+plot(site1dur, site1mast, '.b');
+hold on;
+[coefficients1, rsq1] = getstats(site1dur, site1mast);
+linear_fit1 = polyval(coefficients1, [150 300]);
+plot([150 300],linear_fit1,':k');
+text(155, 4, ['r^2 = ' num2str(rsq1, 2)]); % r^2 values
+xlabel('Snowpack duration (days)');
+ylabel('MAST');
+title('Trial Lake');
+
+subplot (3, 2, 3)
+plot(site2dur, site2mast, '.b');
+hold on;
+[coefficients2, rsq2] = getstats(site2dur, site2mast);
+linear_fit2 = polyval(coefficients2, [150 300]);
+plot([150 300],linear_fit2,':k');
+text(155, 5, ['r^2 = ' num2str(rsq2, 2)]); % r^2 values
+xlabel('Snowpack duration (days)');
+ylabel('MAST');
+title('Chalk Creek 1');
+
+subplot (3, 2, 5)
+plot(site3dur, site3mast, '.b');
+hold on;
+[coefficients3, rsq3] = getstats(site3dur, site3mast);
+linear_fit3 = polyval(coefficients3, [150 300]);
+plot([150 300],linear_fit3,':k');
+text(155, 5, ['r^2 = ' num2str(rsq3, 2)]); % r^2 values
+xlabel('Snowpack duration (days)');
+ylabel('MAST');
+title('Little Bear');
+
+subplot (3, 2, 2)
+plot(site1maat, site1mast, '.b')
+hold on;
+[coefficients4, rsq4] = getstats(site1maat, site1mast);
+linear_fit4 = polyval(coefficients4, [0 9]);
+plot([0 9],linear_fit4,':k');
+text(3, 4, ['r^2 = ' num2str(rsq4, 2)]); % r^2 values
+xlabel('MAT');
+ylabel('MAST');
+title('Trial Lake');
+
+subplot (3, 2, 4)
+plot(site2maat, site2mast, '.b')
+hold on;
+[coefficients5, rsq5] = getstats(site2maat, site2mast);
+linear_fit5 = polyval(coefficients5, [0 9]);
+plot([0 9],linear_fit4,':k');
+text(6, 4, ['r^2 = ' num2str(rsq5, 2)]); % r^2 values
+xlabel('MAT');
+ylabel('MAST');
+title('Chalk Creek 1');
+
+subplot (3, 2, 6)
+hold on;
+[coefficients6, rsq6] = getstats(site3maat, site3mast);
+linear_fit6 = polyval(coefficients6, [0 9]);
+plot([0 9],linear_fit6,':k');
+plot(site3maat, site3mast, '.b')
+text(7, 7, ['r^2 = ' num2str(rsq6, 2)]); % r^2 values
+xlabel('MAT');
+ylabel('MAST');
+title('Little Bear');
 
 %--------------------------------------------------------------
 % FIG 8 - Plot MAST % MAT vs max swe, snowcover duration, elevation
@@ -809,9 +949,43 @@ set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
 
 subplot (2, 2, 1)
 % Set binning parameters
-topEdge = 1; % define limits
+topEdge = 45; % define limits
 botEdge = 0; % define limits
-numBins = 15; % define number of bins
+numBins = 10; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1));
+
+x = preonset5cmSM; %split into x and y
+y = oct5cmSMmean;
+y2 = oct5cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanDec, binSdDec, '.g');
+hold on;
+x = preonset20cmSM; %split into x and y
+y = oct20cmSMmean;
+y2 = oct20cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanDec, binSdDec, '.b');
+x = preonset50cmSM; %split into x and y
+y = oct50cmSMmean;
+y2 = oct50cmSMsd;
+%[binMean1, binMean2] = bin(x, y, y2);
+[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanDec, binSdDec, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Wateryear pre-snowpack soilVWC (%)');
+ylabel('Mean VWC (%)');
+xlim([-5, 45]);
+ylim([-5, 45]);
+title('Oct VWC vs pre-snowpack VWC');
+
+subplot (2, 2, 2)
+% Set binning parameters
+topEdge = 45; % define limits
+botEdge = 0; % define limits
+numBins = 10; % define number of bins
 % And an xaxis to use
 xax = (linspace(botEdge, topEdge, numBins+1));
 
@@ -819,31 +993,33 @@ x = preonset5cmSM; %split into x and y
 y = dec5cmSMmean;
 y2 = dec5cmSMsd;
 %[binMean1, binMean2] = bin(x, y, y2);
-[binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanOND, binSdOND, '.g');
+[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanDec, binSdDec, '.g');
 hold on;
 x = preonset20cmSM; %split into x and y
 y = dec20cmSMmean;
 y2 = dec20cmSMsd;
 %[binMean1, binMean2] = bin(x, y, y2);
-[binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanOND, binSdOND, '.b');
+[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanDec, binSdDec, '.b');
 x = preonset50cmSM; %split into x and y
 y = dec50cmSMmean;
 y2 = dec50cmSMsd;
 %[binMean1, binMean2] = bin(x, y, y2);
-[binMeanOND, binSdOND] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanOND, binSdOND, '.k');
+[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+errorbar(xax(1:numBins), binMeanDec, binSdDec, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
-title('Oct, Nov, Dec VWC vs pre-snowpack VWC');
+xlim([-5, 45]);
+ylim([-5, 45]);
+title('Dec VWC vs pre-snowpack VWC');
 
-subplot (2, 2, 2)
+subplot (2, 2, 3)
 % Set binning parameters
-topEdge = 1; % define limits
+topEdge = 45; % define limits
 botEdge = 0; % define limits
-numBins = 15; % define number of bins
+numBins = 10; % define number of bins
 % And an xaxis to use
 xax = (linspace(botEdge, topEdge, numBins+1));
 
@@ -869,13 +1045,15 @@ errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
+xlim([-5, 45]);
+ylim([-5, 45]);
 title('February VWC vs pre-snowpack VWC');
 
-subplot (2, 2, 3)
+subplot (2, 2, 4)
 % Set binning parameters
-topEdge = 1; % define limits
+topEdge = 45; % define limits
 botEdge = 0; % define limits
-numBins = 15; % define number of bins
+numBins = 10; % define number of bins
 % And an xaxis to use
 xax = (linspace(botEdge, topEdge, numBins+1));
 
@@ -901,10 +1079,12 @@ errorbar(xax(1:numBins), binMeanApr, binSdApr, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
-ylim([0, 1]);
+xlim([-5, 45]);
+ylim([-5, 45]);
 title('April VWC vs pre-snowpack VWC');
 
 junk = 99;
+end
 
 
 
