@@ -406,7 +406,7 @@ title('Day of snowmelt');
 
 
 % %------------------------------------------------------------------
-% % FIG 3 - 3d histogram of some data above (just as an example)
+% % FIG 3 - 2d histogram of some data above (just as an example)
 % fignum = fignum+1;
 % h = figure(fignum);
 % set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
