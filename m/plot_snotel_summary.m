@@ -16,7 +16,9 @@ normalize = input('Use normalized soil moisture data?  (y/n) : ', 's');
 
 % Access to nan stuff, lines, etc
 addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/');
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
+%addpath('/home/greg/data/code_resources/m_common/hist2/');
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
@@ -238,86 +240,83 @@ postmelt5cmSTsd = tsData(:, 124);
 matchtest = ismember(climData(:, 1:2), filelistSoil(:, 1:2), 'rows');
 matchsets = climData(matchtest, :);
 
-function [coefficients, rsq] = getstats(x, y);
-    nantest = isnan(x) | isnan(y);
-    x = x(~nantest);
-    y = y(~nantest);
-    coefficients = polyfit(x, y, 1);
-    yfit = polyval(coefficients, x);
-    yresid = y - yfit;
-    SSresid = sum(yresid.^2);
-    SStotal = (length(y)-1) * var(y);
-    rsq = 1 - SSresid/SStotal;
-end
+%------------------------------------------------------------------
+% FIG 1 - Plot data for entire network and soil subset
 
-%-----PLOTTING----------------------------------------------------
-% First define the 2d histogram plots
-% colormap(jet)
-% function @f = datadensity(xvar, yvar, xmax, ymax)
-%     test = ~isnan(xvar) & ~isnan(yvar);
-%     x = xvar(test);
-%     y = yvar(test);
-%     xedges = linspace(0, xmax, 75);
-%     yedges = linspace(0, ymax, 75);
-%     histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-%     pcolor(xedges, yedges, histmat');
-% end
+% Get the subset that is 
+testsoil = ismember(site_cl, soilsites);
+
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Wateryear data scatter - all sites/years');
+
+subplot (4, 2, 1)
+plot(elev, elev, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+plot(elev(testsoil), elev(testsoil)+100, 'or');
+ylabel('Elevation (m)');
+legend('Intermountain west', 'Soil sites (+100m)');
+title('Elevation');
+
+subplot (4, 2, 2)
+plot(elev, maat, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+plot(elev(testsoil), maat(testsoil), 'or');
+ylabel('MAT (deg C)');
+legend('Intermountain west', 'Soil sites');
+title('Mean wateryear air T');
+
+subplot (4, 2, 3)
+plot(elev, accumprecip, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+testsoil = ismember(site_cl, soilsites);
+plot(elev(testsoil), accumprecip(testsoil), 'or');
+ylabel('Annual precip (mm)');
+title('Wateryear precip');
+
+subplot (4, 2, 4)
+plot(elev, JASprecip, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+plot(elev(testsoil), JASprecip(testsoil), 'or');
+ylabel('Precip (mm)');
+title('Summer Precip (Jul, Aug, Sep)');
+
+subplot (4, 2, 5)
+plot(elev, maxswe, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+plot(elev(testsoil), maxswe(testsoil), 'or');
+ylabel('SWE (mm)');
+title('Peak SWE');
+
+subplot (4, 2, 6)
+plot(elev, totaldaysSC, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+plot(elev(testsoil), totaldaysSC(testsoil), 'or');
+ylabel('No. Days');
+title('Total snowcovered days');
+
+subplot (4, 2, 7)
+plot(elev, onsetdoy, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+plot(elev(testsoil), onsetdoy(testsoil), 'or');
+xlabel('Elevation (m)'); ylabel('Day of year');
+title('Snowpack onset day');
+
+subplot (4, 2, 8)
+plot(elev, meltdoy, 'ok', 'MarkerFaceColor', 'k');
+hold on;
+plot(elev(testsoil), meltdoy(testsoil), 'or');
+xlabel('Elevation (m)'); ylabel('Day of year');
+title('Day of snowmelt');
 
 %------------------------------------------------------------------
-% FIG 1 - 
-% fignum = fignum+1;
-% h = figure(fignum);
-% set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
-% 
-% colormap(jet);
-% 
-% subplot (2, 2, 1)
-% % 2D histogram
-% test = ~isnan(elev) & ~isnan(maxswe);
-% x = elev(test);
-% y = maxswe(test);
-% xedges = linspace(500, 4000, 60);
-% yedges = linspace(0, 2500, 60);
-% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-% pcolor(xedges, yedges, histmat');
-% title('Peak SWE across the network');
-% 
-% subplot (2, 2, 2)
-% % 2D histogram
-% test = ~isnan(elev) & ~isnan(accumprecip);
-% x = elev(test);
-% y = accumprecip(test);
-% xedges = linspace(500, 4000, 60);
-% yedges = linspace(0, 120, 60);
-% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-% pcolor(xedges, yedges, histmat');
-% title('Wateryear precip across the network');
-% 
-% subplot (2, 2, 3)
-% plot(elev, maxswe, 'ok', 'MarkerFaceColor', 'k');
-% hold on;
-% testsoil = ismember(site_cl, soilsites);
-% plot(elev(testsoil), maxswe(testsoil), 'ob');
-% xlabel('Elevation (m)');
-% ylabel('Peak SWE (mm)');
-% legend('Intermountain west', 'Soil sites');
-% 
-% subplot (2, 2, 4)
-% plot(elev, accumprecip, 'ob', 'MarkerFaceColor', 'b');
-% hold on;
-% plot(elev(testsoil), accumprecip(testsoil), 'ok');
-% xlabel('Elevation (m)');
-% ylabel('Wateryear precip (mm)');
-% legend('Intermountain west', 'Soil sites');
-
-
-% FIG 2 - 
+% FIG 2 - Histograms of entire network and soil subset
 testsoil = ismember(site_cl, soilsites);
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
+set(h, 'Name', 'Wateryear data histograms - all sites/years');
 
-subplot (3, 2, 1)
+subplot (4, 2, 1)
 xedges = linspace(500, 4000, 60);
 networkhist = histc(elev, xedges);
 soilhist = histc(elev(testsoil), xedges);
@@ -328,7 +327,7 @@ vline(nanmean(elev), ':k');
 vline(nanmean(elev(testsoil)), ':r');
 title('Elevation');
 
-subplot (3, 2, 2)
+subplot (4, 2, 2)
 xedges = linspace(-5, 20, 60);
 networkhist = histc(maat, xedges);
 soilhist = histc(maat(testsoil), xedges);
@@ -337,9 +336,9 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(maat), ':k');
 vline(nanmean(maat(testsoil)), ':r');
-title('Mean wateryear air temp');
+title('Mean wateryear air T');
 
-subplot (3, 2, 3)
+subplot (4, 2, 3)
 xedges = linspace(0, 2500, 60);
 networkhist = histc(accumprecip, xedges);
 soilhist = histc(accumprecip(testsoil), xedges);
@@ -350,7 +349,18 @@ vline(nanmean(accumprecip), ':k');
 vline(nanmean(accumprecip(testsoil)), ':r');
 title('Wateryear precip');
 
-subplot (3, 2, 4)
+subplot (4, 2, 4)
+xedges = linspace(0, 70, 60);
+networkhist = histc(JASprecip, xedges);
+soilhist = histc(JASprecip(testsoil), xedges);
+bar(xedges, networkhist, 'k');
+hold on;
+bar(xedges, soilhist, 'r');
+vline(nanmean(JASprecip), ':k');
+vline(nanmean(JASprecip(testsoil)), ':r');
+title('Summer Precip (Jul, Aug, Sep)');
+
+subplot (4, 2, 5)
 xedges = linspace(100, 2000, 60);
 networkhist = histc(maxswe, xedges);
 soilhist = histc(maxswe(testsoil), xedges);
@@ -361,7 +371,7 @@ vline(nanmean(maxswe), ':k');
 vline(nanmean(maxswe(testsoil)), ':r');
 title('Peak SWE');
 
-subplot (3, 2, 5)
+subplot (4, 2, 6)
 xedges = linspace(0, 365, 60);
 networkhist = histc(totaldaysSC, xedges);
 soilhist = histc(totaldaysSC(testsoil), xedges);
@@ -372,7 +382,18 @@ vline(nanmean(totaldaysSC), ':k');
 vline(nanmean(totaldaysSC(testsoil)), ':r');
 title('Total snowcovered days');
 
-subplot (3, 2, 6)
+subplot (4, 2, 7)
+xedges = linspace(0, 130, 60);
+networkhist = histc(onsetdoy, xedges);
+soilhist = histc(onsetdoy(testsoil), xedges);
+bar(xedges, networkhist, 'k');
+hold on;
+bar(xedges, soilhist, 'r');
+vline(nanmean(onsetdoy), ':k');
+vline(nanmean(onsetdoy(testsoil)), ':r');
+title('Snowpack onset day');
+
+subplot (4, 2, 8)
 xedges = linspace(0, 365, 60);
 networkhist = histc(meltdoy, xedges);
 soilhist = histc(meltdoy(testsoil), xedges);
@@ -382,8 +403,10 @@ bar(xedges, soilhist, 'r');
 vline(nanmean(meltdoy), ':k');
 vline(nanmean(meltdoy(testsoil)), ':r');
 title('Day of snowmelt');
-% %  --------------------------------------------------------
-% % FIG 2 - Add MAT to analysis above
+
+
+% %------------------------------------------------------------------
+% % FIG 3 - 3d histogram of some data above (just as an example)
 % fignum = fignum+1;
 % h = figure(fignum);
 % set(h, 'Name', 'Wateryear snowpack metrics 1 - all sites');
@@ -410,234 +433,205 @@ title('Day of snowmelt');
 % ylabel('Mean wateryear airT (^oC)');
 % legend('Intermountain west', 'Soil sites');
 
-% %-------------------------------------------------------------
-% % FIG 3 
-% fignum = fignum+1;
-% h = figure(fignum);
-% set(h, 'Name', 'Wateryear snowpack metrics 2 - all sites');
-% 
-% subplot (2, 2, 1)
-% plot(elev, onsetdoy, 'ob');
-% ylim([0 250]);
-% xlabel('Elevation');
-% ylabel('Day of water year');
-% title('Snowpack onset day');
-% 
-% subplot (2, 2, 2)
-% % 2D histogram
-% test = ~isnan(elev) & ~isnan(onsetdoy);
-% x = elev(test);
-% y = onsetdoy(test);
-% xedges = linspace(0, 4000, 100);
-% yedges = linspace(0, 250, 100);
-% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-% pcolor(xedges, yedges, histmat'); 
-% 
-% subplot (2, 2, 3)
-% plot(elev, meltdoy, 'ob');
-% xlabel('Elevation');
-% ylabel('Day of water year');
-% title('Day of snowmelt');
-% 
-% subplot (2, 2, 4)
-% % 2D histogram
-% test = ~isnan(elev) & ~isnan(meltdoy);
-% x = elev(test);
-% y = meltdoy(test);
-% xedges = linspace(0, 4000, 100);
-% yedges = linspace(0, 400, 100);
-% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-% pcolor(xedges, yedges, histmat');
-
-%----------------------------------------------------
-% FIG 4 - Wateryear precip metrics
-% fignum = fignum+1;
-% h = figure(fignum);
-% set(h, 'Name', 'Wateryear precip metrics 1 - all sites');
-% 
-% % First four subplots on the left are for quarters
-% subplot (2, 2, 1)
-% plot(elev, accumprecip, 'ob');
-% hold on
-% %plot(elev, ltMeanSWE, 'or');
-% plot(elev(testsoil), accumprecip(testsoil), 'ok');
-% xlabel('Elevation');
-% ylabel('Precip (mm)');
-% legend('Individual years', 'Soil sites');
-% title('Total wateryear precip');
-% 
-% subplot (2, 2, 2)
-% % 2D histogram
-% test = ~isnan(elev) & ~isnan(accumprecip);
-% x = elev(test);
-% y = accumprecip(test);
-% xedges = linspace(0, 4000, 100);
-% yedges = linspace(0, 120, 100);
-% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-% pcolor(xedges, yedges, histmat');
-% 
-% % First four subplots on the left are for quarters
-% subplot (2, 2, 3)
-% plot(elev, JASprecip, 'ob');
-% hold on
-% %plot(elev, ltMeanSWE, 'or');
-% plot(elev(testsoil), JASprecip(testsoil), 'ok');
-% xlabel('Elevation');
-% ylabel('Precip (mm)');
-% ylim([0, 120]);
-% legend('Individual years', 'Soil sites');
-% title('Summer (JAS) precip');
-% 
-% subplot (2, 2, 4)
-% % 2D histogram
-% test = ~isnan(elev) & ~isnan(JASprecip);
-% x = elev(test);
-% y = JASprecip(test);
-% xedges = linspace(0, 4000, 100);
-% yedges = linspace(0, 120, 100);
-% histmat = hist2(x, y, xedges, yedges);  % hist2 is from the matlab user forum
-% pcolor(xedges, yedges, histmat');
-
-%----------------------------------------------------
-% FIG 5 - Plot soil moisture vs max swe snowmelt day
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Wateryear seasonal soil moisture');
-
-subplot (2, 2, 1)
-plot(maxswe(matchtest), amj5cmSMmean,  '.g', ...
-    maxswe(matchtest), amj20cmSMmean, '.b', ...
-    maxswe(matchtest), amj50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Peak SWE (mm)');
-ylabel('VWC (%)');
-title(' Apr, May, Jun VWC');
-
-subplot (2, 2, 2)
-plot(maxswe(matchtest), jas5cmSMmean,  '.g', ...
-    maxswe(matchtest), jas20cmSMmean, '.b', ...
-    maxswe(matchtest), jas50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Peak SWE (mm)');
-ylabel('VWC (%)');
-title(' July, Aug, Sept VWC');
-
-subplot (2, 2, 3)
-plot(meltdoy(matchtest), amj5cmSMmean,  '.g', ...
-    meltdoy(matchtest), amj20cmSMmean, '.b', ...
-    meltdoy(matchtest), amj50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Day of wateryear');
-ylabel('VWC (%)');
-title(' Apr, May, Jun VWC vs snowmelt day');
-
-subplot (2, 2, 4)
-plot(meltdoy(matchtest), jas5cmSMmean,  '.g', ...
-    meltdoy(matchtest), jas20cmSMmean, '.b', ...
-    meltdoy(matchtest), jas50cmSMmean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Day of wateryear (mm)');
-ylabel('VWC (%)');
-title(' July, Aug, Sept VWC vs snowmeltday');
-
 %--------------------------------------------------------------
-% FIG 7 - Plot MAST % MAT vs max swe, snowcover duration, elevation
-% fignum = fignum+1;
-% h = figure(fignum);
-% set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
-% subplot (2, 2, 1)
-% plot(maxswe(matchtest), maat(matchtest), 'ok', ...
-%     'MarkerFaceColor', [0.7 0.7 0.7]);
-% hold on;
-% plot(maxswe(matchtest), mast5cm, '.b', ...
-%     maxswe(matchtest), mast20cm, '.b', ...
-%     maxswe(matchtest), mast50cm, '.b');
-% legend('Mean Air T', 'Mean Soil T');
-% xlabel('Peak SWE (mm)');
-% ylabel('^oC');
-% title('Mean wateryear AirT & SoilT vs peak SWE');
-% 
-% subplot (2, 2, 2)
-% plot(elev(matchtest), maat(matchtest), 'ok', ...
-%     'MarkerFaceColor', [0.7 0.7 0.7]);
-% hold on;
-% plot(elev(matchtest), mast5cm, '.b', ...
-%     elev(matchtest), mast20cm, '.b',...
-%     elev(matchtest), mast50cm, '.b');
-% legend('Mean Air T', 'Mean Soil T');
-% xlabel('Elevation (m)');
-% ylabel('^oC');
-% title('Mean wateryear AirT & SoilT vs Elevation');
-% 
-% subplot (2, 2, 3)
-% plot(snowduration(matchtest), maat(matchtest), 'ok', ...
-%     'MarkerFaceColor', [0.7 0.7 0.7]);
-% hold on;
-% plot(snowduration(matchtest), mast5cm, '.b', ...
-%     snowduration(matchtest), mast20cm, '.b',...
-%     snowduration(matchtest), mast50cm, '.b');
-% legend('Mean Air T', 'Mean Soil T');
-% xlabel('Snowpack duration (days)');
-% ylabel('^oC');
-% title('... vs Snowpack duration');
-
-%--------------------------------------------------------------
-% FIG 7 - Plot MAST % MAT vs max swe, snowcover duration, elevation
+% FIG 3 - Plot MAST & MAT vs max swe, snowcover duration, elevation
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
-subplot (2, 2, 1)
-plot(snowduration(matchtest), maat(matchtest), 'ok', ...
-    'MarkerFaceColor', [0.7 0.7 0.7]);
+
+% First plot MAT vs SWE, and its fit line/r-squared value
+subplot1 = subplot (2, 2, 1);
+plot(maxswe(matchtest), maat(matchtest), 'ok', ...
+    'MarkerFaceColor', 'red');
 hold on;
-plot(snowduration(matchtest), mast5cm, '.b', ...
-    snowduration(matchtest), mast20cm, '.b',...
-    snowduration(matchtest), mast50cm, '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Snowpack duration (days)');
-ylabel('^oC');
-title('MAST & MAT vs Snowpack duration');
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(maxswe(matchtest), maat(matchtest), 2, xrange);
+plot(xfit, yfit, '--k');
+text(1200, 0, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% Then plot MAST and its fit line/r-squared value
+plot(maxswe(matchtest), mast5cm, '.b', ...
+    maxswe(matchtest), mast20cm, '+b', ...
+    maxswe(matchtest), mast50cm, '*b');
+[~, rsq, xfit, yfit] = fitline(maxswe(matchtest), mast20cm, 2, xrange);
+plot(xfit, yfit, ':k');
+text(1200, 6, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% Label stuff
+legend('Mean Air T', 'linear fit', 'Mean 5cm Ts','20cm','50cm',...
+    'linear fit (20cm)');
+xlabel('Peak SWE (mm)'); ylabel('^oC');
+title('Mean wateryear AirT & SoilT vs peak SWE');
 
+% Then plot MAT vs elevation, and its fit line/r-squared value
 subplot (2, 2, 2)
-% plot(snowduration(matchtest), maat(matchtest), 'ok', ...
-%     'MarkerFaceColor', [0.7 0.7 0.7]);
-% hold on;
-plot(snowduration(matchtest), mast5cm-maat(matchtest), '.r', ...
-    snowduration(matchtest), mast20cm-maat(matchtest), '.g',...
-    snowduration(matchtest), mast50cm-maat(matchtest), '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Snowpack duration (days)');
-ylabel('^oC');
+plot(elev(matchtest), maat(matchtest), 'ok', ...
+    'MarkerFaceColor', 'red');
+hold on;
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(elev(matchtest), maat(matchtest), 1, xrange);
+plot(xfit, yfit, '--k');
+text(500, 12, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% MAST and its fit line/r-squared value
+plot(elev(matchtest), mast5cm, '.b', ...
+    elev(matchtest), mast20cm, '+b',...
+    elev(matchtest), mast50cm, '*b');
+[~, rsq, xfit, yfit] = fitline(elev(matchtest), mast20cm, 1, xrange);
+plot(xfit, yfit, ':k');
+text(500, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% Label stuff
+xlabel('Elevation (m)'); ylabel('^oC');
+title('Mean wateryear AirT & SoilT vs Elevation');
+
+% Then MAT vs snowpack duration, and its fit line/r-squared value
+subplot (2, 2, 3)
+plot(snowduration(matchtest), maat(matchtest), 'ok', ...
+    'MarkerFaceColor', 'red');
+hold on;
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(snowduration(matchtest), maat(matchtest), 1, xrange);
+plot(xfit, yfit, '--k');
+text(30, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% MAST and its fit line/r-squared value
+plot(snowduration(matchtest), mast5cm, '.b', ...
+    snowduration(matchtest), mast20cm, '+b',...
+    snowduration(matchtest), mast50cm, '*b');
+[~, rsq, xfit, yfit] = fitline(snowduration(matchtest), mast20cm, 1, xrange);
+plot(xfit, yfit, ':k');
+text(30, 12, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% Label stuff
+xlabel('Snowpack duration (days)'); ylabel('^oC');
 title('... vs Snowpack duration');
 
-bigtest = elev(matchtest)<2500 & elev(matchtest)>2000;
-eltest = elev > 2000 & elev < 2500;
-subplot (2, 2, 3)
-% plot(snowduration(matchtest), maat(matchtest), 'ok', ...
-%     'MarkerFaceColor', [0.7 0.7 0.7]);
-% hold on;
-plot(snowduration(matchtest & eltest), mast5cm(bigtest)-maat(matchtest & eltest), '.r', ...
-    snowduration(matchtest & eltest), mast5cm(bigtest)-maat(matchtest & eltest), '.g',...
-    snowduration(matchtest & eltest), mast5cm(bigtest)-maat(matchtest & eltest), '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Snowpack duration (days)');
-ylabel('^oC');
-title('... vs Snowpack duration');
+% And MAT vs total snowcovered days, and its fit line/r-squared value
+subplot (2, 2, 4)
+plot(totaldaysSC(matchtest), maat(matchtest), 'ok', ...
+    'MarkerFaceColor', 'red');
+hold on;
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(totaldaysSC(matchtest), maat(matchtest), 1, xrange);
+plot(xfit, yfit, '--k');
+text(30, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% MAST and its fit line/r-squared value
+plot(totaldaysSC(matchtest), mast5cm, '.b', ...
+    totaldaysSC(matchtest), mast20cm, '+b',...
+    totaldaysSC(matchtest), mast50cm, '*b');
+[~, rsq, xfit, yfit] = fitline(totaldaysSC(matchtest), mast20cm, 1, xrange);
+plot(xfit, yfit, ':k');
+text(30, 12, ['r^2 = ' num2str(rsq, 2)]);
+% Label stuff
+xlabel('No. snowcovered days'); ylabel('^oC');
+title('... vs Tot. snowcovered days');
 
 %--------------------------------------------------------------
-% FIG  - Plot MAST vs snowpack duration for 3 sites
+% FIG 4 - Plot MAST vs MAT/Snowcovered days by depth and elevation
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'MAST vs MAT/Snowcovered days by depth and elevation');
+
+% Left side - Plot MAST vs MAT/snowcovered days by depth
+subplot (2, 2, 1)
+plot(maat(matchtest), mast5cm, '.g', ...
+    maat(matchtest), mast20cm, '.b',...
+    maat(matchtest), mast50cm, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Mean AirT (^oC)');
+ylabel('MAST(^oC)');
+title('Mean wateryear Ts vs Mean wateryear Tair');
+
+subplot (2, 2, 3)
+plot(totaldaysSC(matchtest), mast5cm, '.g', ...
+    totaldaysSC(matchtest), mast20cm, '.b',...
+    totaldaysSC(matchtest), mast50cm, '.k');
+xlabel('No. days');
+ylabel('MAST (^oC)');
+title('... vs Snowcovered days');
+
+% Right side - Plot MAST vs MAT/Snowcovered days in elevation bins
+% First get the elevation categories
+testhi = elev(matchtest) > 3000;
+testmid = elev(matchtest) > 2500 & elev(matchtest) < 3000;
+testlo = elev(matchtest) > 2000 & elev(matchtest) < 2500;
+% Match the climatedata variables with soil data
+matchSCdays = totaldaysSC(matchtest);
+matchMAT = maat(matchtest);
+
+subplot (2, 2, 2)
+plot(matchMAT(testhi), mast20cm(testhi), '.b', ...
+    matchMAT(testmid), mast20cm(testmid), '.g',...
+    matchMAT(testlo), mast20cm(testlo), '.r');
+legend('3000+', '2500-3000', '2000-2500cm');
+xlabel('Mean AirT (^oC)');
+ylabel('20cm MAST (^oC)');
+title('Mean wateryear Ts vs. Mean wateryear Tair');
+
+subplot (2, 2, 4)
+plot(matchSCdays(testhi), mast20cm(testhi), '.b', ...
+    matchSCdays(testmid), mast20cm(testmid), '.g',...
+    matchSCdays(testlo), mast20cm(testlo), '.r');
+xlabel('No. days');
+ylabel('20cm MAST(^oC)');
+title('... vs Snowcovered days');
+
+%--------------------------------------------------------------
+% FIG 5 - Plot OFFSETS between MAST and MAT
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'MAST - MAT for all wateryears');
+% Calculate the offsets for each depth
+offset5cm = mast5cm-maat(matchtest);
+offset20cm = mast20cm-maat(matchtest);
+offset50cm = mast50cm-maat(matchtest);
+
+subplot (2, 2, 1)
+plot(elev(matchtest), offset5cm, '.r', ...
+    elev(matchtest), offset20cm, '.g',...
+    elev(matchtest), offset50cm, '.b');
+hold on;
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(elev(matchtest), offset20cm, 1, xrange);
+plot(xfit, yfit, '--k');
+text(1000, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+legend('5cm', '20cm', '50cm', 'linear fit (20cm)');
+xlabel('Elevation(m)'); ylabel('^oC');
+title('MAST - MAT vs Elevation');
+
+subplot (2, 2, 2)
+plot(totaldaysSC(matchtest), offset5cm, '.r', ...
+    totaldaysSC(matchtest), offset20cm, '.g',...
+    totaldaysSC(matchtest), offset50cm, '.b');
+hold on;
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(totaldaysSC(matchtest), offset20cm, 1, xrange);
+plot(xfit, yfit, '--k');
+text(30, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('No. days'); ylabel('^oC');
+title('MAST - MAT vs Tot. Snowcovered Days');
+
+subplot (2, 2, 3)
+plot(maxswe(matchtest), offset5cm, '.r', ...
+    maxswe(matchtest), offset20cm, '.g',...
+    maxswe(matchtest), offset50cm, '.b');
+hold on;
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(maxswe(matchtest), offset20cm, 1, xrange);
+plot(xfit, yfit, '--k');
+text(200, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('mm'); ylabel('^oC');
+title('MAST - MAT vs Peak SWE');
+
+%--------------------------------------------------------------
+% FIG 6 - Plot MAST vs snowpack duration for 3 sites
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Regress mast vs snowpack duration for 3 sites');
-test = site_cl==828
+test = site_cl==828;
 site1dur = snowduration(matchtest & test);
 site1maat = maat(matchtest & test);
 site1mast = mast20cm(site_st==828);
-test = site_cl==393
+test = site_cl==393;
 site2dur = snowduration(matchtest & test);
 site2maat = maat(matchtest & test);
 site2mast = mast20cm(site_st==393);
-test = site_cl==582
+test = site_cl==582;
 site3dur = snowduration(matchtest & test);
 site3mast = mast20cm(site_st==582);
 site3maat = maat(matchtest & test);
@@ -645,237 +639,65 @@ site3maat = maat(matchtest & test);
 subplot (3, 2, 1)
 plot(site1dur, site1mast, '.b');
 hold on;
-[coefficients1, rsq1] = getstats(site1dur, site1mast);
-linear_fit1 = polyval(coefficients1, [150 300]);
-plot([150 300],linear_fit1,':k');
-text(155, 4, ['r^2 = ' num2str(rsq1, 2)]); % r^2 values
-xlabel('Snowpack duration (days)');
-ylabel('MAST');
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(site1dur, site1mast, 1, xrange);
+plot(xfit, yfit,':k');
+text(160, 4, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('Snowpack duration (days)'); ylabel('MAST');
 title('Trial Lake');
 
 subplot (3, 2, 3)
 plot(site2dur, site2mast, '.b');
 hold on;
-[coefficients2, rsq2] = getstats(site2dur, site2mast);
-linear_fit2 = polyval(coefficients2, [150 300]);
-plot([150 300],linear_fit2,':k');
-text(155, 5, ['r^2 = ' num2str(rsq2, 2)]); % r^2 values
-xlabel('Snowpack duration (days)');
-ylabel('MAST');
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(site2dur, site2mast, 1, xrange);
+plot(xfit, yfit,':k');
+text(190, 5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('Snowpack duration (days)'); ylabel('MAST');
 title('Chalk Creek 1');
 
 subplot (3, 2, 5)
 plot(site3dur, site3mast, '.b');
 hold on;
-[coefficients3, rsq3] = getstats(site3dur, site3mast);
-linear_fit3 = polyval(coefficients3, [150 300]);
-plot([150 300],linear_fit3,':k');
-text(155, 5, ['r^2 = ' num2str(rsq3, 2)]); % r^2 values
-xlabel('Snowpack duration (days)');
-ylabel('MAST');
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(site3dur, site3mast, 1, xrange);
+plot(xfit, yfit,':k');
+text(165, 8.5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('Snowpack duration (days)'); ylabel('MAST');
 title('Little Bear');
 
 subplot (3, 2, 2)
 plot(site1maat, site1mast, '.b')
 hold on;
-[coefficients4, rsq4] = getstats(site1maat, site1mast);
-linear_fit4 = polyval(coefficients4, [0 9]);
-plot([0 9],linear_fit4,':k');
-text(3, 4, ['r^2 = ' num2str(rsq4, 2)]); % r^2 values
-xlabel('MAT');
-ylabel('MAST');
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(site1maat, site1mast, 1, xrange);
+plot(xfit, yfit,':k');
+text(1, 2.7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('MAT'); ylabel('MAST');
 title('Trial Lake');
 
 subplot (3, 2, 4)
 plot(site2maat, site2mast, '.b')
 hold on;
-[coefficients5, rsq5] = getstats(site2maat, site2mast);
-linear_fit5 = polyval(coefficients5, [0 9]);
-plot([0 9],linear_fit4,':k');
-text(6, 4, ['r^2 = ' num2str(rsq5, 2)]); % r^2 values
-xlabel('MAT');
-ylabel('MAST');
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(site2maat, site2mast, 1, xrange);
+plot(xfit, yfit,':k');
+text(3.7, 4.5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('MAT'); ylabel('MAST');
 title('Chalk Creek 1');
 
 subplot (3, 2, 6)
-hold on;
-[coefficients6, rsq6] = getstats(site3maat, site3mast);
-linear_fit6 = polyval(coefficients6, [0 9]);
-plot([0 9],linear_fit6,':k');
 plot(site3maat, site3mast, '.b')
-text(7, 7, ['r^2 = ' num2str(rsq6, 2)]); % r^2 values
-xlabel('MAT');
-ylabel('MAST');
+hold on;
+xrange = xlim(gca);
+[~, rsq, xfit, yfit] = fitline(site3maat, site3mast, 1, xrange);
+plot(xfit, yfit,':k');
+text(7, 7.5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('MAT'); ylabel('MAST');
 title('Little Bear');
 
-%--------------------------------------------------------------
-% FIG 8 - Plot MAST % MAT vs max swe, snowcover duration, elevation
-% SAME as above but binned using only 20cm data
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Compare MAST & MAT (vs maxSWE, snowduration, elev');
-
-subplot (2, 2, 1)
-% Set binning parameters
-topEdge = 2000; % define limits
-botEdge = 0; % define limits
-numBins = 15; % define number of bins
-% And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1)) + 66;
-
-x = maxswe(matchtest); %split into x and y
-y = maat(matchtest);
-y2 = mast20cm;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
-plot(xax(1:numBins), binMeanAir, 'ok', ...
-    'MarkerFaceColor', [0.7 0.7 0.7]);
-hold on;
-y = mast20cm;
-y2 = sdast20cm;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanSoil, binSdSoil] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanSoil, binSdSoil, '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Peak SWE (mm)');
-ylabel('^oC');
-title('Mean wateryear AirT & SoilT vs peak SWE');
-
-subplot (2, 2, 2)
-% Set binning parameters
-topEdge = 3500; % define limits
-botEdge = 920; % define limits
-numBins = 15; % define number of bins
-% And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1)) + 85;
-
-x = elev(matchtest);
-y = maat(matchtest);
-[binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
-plot(xax(1:numBins), binMeanAir, 'ok', ...
-    'MarkerFaceColor', [0.7 0.7 0.7]);
-hold on;
-y = mast20cm;
-y2 = sdast20cm;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanSoil, binSdSoil] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanSoil, binSdSoil, '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Elevation (m)');
-ylabel('^oC');
-title('Mean wateryear AirT & SoilT vs Elevation');
-
-subplot (2, 2, 3)
-% Set binning parameters
-topEdge = 300; % define limits
-botEdge = 0; % define limits
-numBins = 15; % define number of bins
-% And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1)) + 10;
-
-x = snowduration(matchtest);
-y = maat(matchtest);
-[binMeanAir, ~] = binseries(x, y, y2, topEdge, botEdge, numBins);
-plot(xax(1:numBins), binMeanAir, 'ok', ...
-    'MarkerFaceColor', [0.7 0.7 0.7]);
-hold on;
-y = mast20cm;
-y2 = sdast20cm;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanSoil, binSdSoil] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanSoil, binSdSoil, '.b');
-legend('Mean Air T', 'Mean Soil T');
-xlabel('Snowpack duration (days)');
-ylabel('^oC');
-title('... vs Snowpack duration');
-
-%--------------------------------------------------------------
-% FIG 9 - Plot MAST (3 depths) vs SWE, snowcover duration, elevation, MAT
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'MAST vs SWE, snowduration, MAT, elevation');
-
-subplot (2, 2, 1)
-plot(maxswe(matchtest), mast5cm, '.g', ...
-    maxswe(matchtest), mast20cm, '.b',...
-    maxswe(matchtest), mast50cm, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Peak SWE (mm)');
-ylabel('MWYST (^oC)');
-title('Mean wateryear SoilT vs peak SWE');
-
-subplot (2, 2, 2)
-plot(maat(matchtest), mast5cm, '.g', ...
-    maat(matchtest), mast20cm, '.b',...
-    maat(matchtest), mast50cm, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Mean wyr AirT (^oC)');
-ylabel('MWYST(^oC)');
-title('Mean wateryear SoilT vs Mean wateryear AirT');
-
-subplot (2, 2, 3)
-plot(snowduration(matchtest), mast5cm, '.g', ...
-    snowduration(matchtest), mast20cm, '.b',...
-    snowduration(matchtest), mast50cm, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Snowpack duration (days)');
-ylabel('MWYST (^oC)');
-title('... vs snowpack duration');
-
-subplot (2, 2, 4)
-plot(elev(matchtest), mast5cm, '.g', ...
-    elev(matchtest), mast20cm, '.b',...
-    elev(matchtest), mast50cm, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Elevation (m)');
-ylabel('MWYST (^oC)');
-title('... vs Elevation');
-
-%--------------------------------------------------------------
-% FIG 10 - Plot MAST vs SWE, snowcover duration, MAT in elevation bins
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ' MAST (50cm) vs SWE, MAT, snowcover duration, in elevation bins');
-
-testhi = elev(matchtest) > 3000;
-testmid = elev(matchtest) > 2500 & elev(matchtest) < 3000;
-testlo = elev(matchtest) > 2000 & elev(matchtest) < 2500;
-
-matchswe = maxswe(matchtest);
-matchdur = snowduration(matchtest);
-matchMAT = maat(matchtest);
-
-subplot (2, 2, 1)
-plot(matchswe(testhi), mast50cm(testhi), '.b', ...
-    matchswe(testmid), mast50cm(testmid), '.g', ...
-    matchswe(testlo), mast50cm(testlo), '.r');
-legend('3000+', '2500-3000', '2000-2500cm');
-xlabel('Peak SWE (mm)');
-ylabel('MWYST (^oC)');
-title('Mean wateryear SoilT vs peak SWE');
-
-subplot (2, 2, 2)
-plot(matchMAT(testhi), mast50cm(testhi), '.b', ...
-    matchMAT(testmid), mast50cm(testmid), '.g',...
-    matchMAT(testlo), mast50cm(testlo), '.r');
-legend('3000+', '2500-3000', '2000-2500cm');
-xlabel('Mean wateryear AirT (^oC)');
-ylabel('MWYST (^oC)');
-title('Mean wateryear SoilT vs. Mean wateryear AirT');
-
-subplot (2, 2, 3)
-plot(matchdur(testhi), mast50cm(testhi), '.b', ...
-    matchdur(testmid), mast50cm(testmid), '.g',...
-    matchdur(testlo), mast50cm(testlo), '.r');
-legend('3000+', '2500-3000', '2000-2500cm');
-xlabel('Snowpack duration (days)');
-ylabel('MWYST(^oC)');
-title('... vs Mean wateryear Air T');
-
-
-
 %----------------------------------------------------
-% FIG 11 - Plot snowcovered temp vs onset temps
+% FIG 7 - Plot snowcovered temp vs onset temps
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter SoilT vs pre-snowpack temps');
@@ -916,8 +738,50 @@ xlabel('Wateryear pre-snowpack SoilT (^oC)');
 ylabel('Mean JFM temp (^oC)');
 title('Mean Jan, Feb, Mar SoilT vs. pre-snowpack SoilT');
 
+%------------------------------------------------------------------
+% FIG 8 - Plot soil moisture vs max swe/snowmelt day
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Wateryear seasonal soil moisture');
+
+subplot (2, 2, 1)
+plot(maxswe(matchtest), amj5cmSMmean,  '.g', ...
+    maxswe(matchtest), amj20cmSMmean, '.b', ...
+    maxswe(matchtest), amj50cmSMmean, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Peak SWE (mm)');
+ylabel('VWC (%)');
+title(' Apr, May, Jun VWC');
+
+subplot (2, 2, 2)
+plot(maxswe(matchtest), jas5cmSMmean,  '.g', ...
+    maxswe(matchtest), jas20cmSMmean, '.b', ...
+    maxswe(matchtest), jas50cmSMmean, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Peak SWE (mm)');
+ylabel('VWC (%)');
+title(' July, Aug, Sept VWC');
+
+subplot (2, 2, 3)
+plot(meltdoy(matchtest), amj5cmSMmean,  '.g', ...
+    meltdoy(matchtest), amj20cmSMmean, '.b', ...
+    meltdoy(matchtest), amj50cmSMmean, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Day of wateryear');
+ylabel('VWC (%)');
+title(' Apr, May, Jun VWC vs snowmelt day');
+
+subplot (2, 2, 4)
+plot(meltdoy(matchtest), jas5cmSMmean,  '.g', ...
+    meltdoy(matchtest), jas20cmSMmean, '.b', ...
+    meltdoy(matchtest), jas50cmSMmean, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Day of wateryear (mm)');
+ylabel('VWC (%)');
+title(' July, Aug, Sept VWC vs snowmeltday');
+
 %----------------------------------------------------
-% FIG 12 - Plot winter soil moisture vs onset soil moisture
+% FIG 9 - Plot winter soil moisture vs onset soil moisture
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
@@ -941,7 +805,7 @@ ylabel('Mean VWC (%)');
 title('February VWC vs pre-snowpack VWC');
 
 %----------------------------------------------------
-% FIG 13 - Plot winter soil moisture vs onset soil moisture
+% FIG 10 - Plot winter soil moisture vs onset soil moisture
 % Same as above, but binned, using only 20cm data
 fignum = fignum+1;
 h = figure(fignum);

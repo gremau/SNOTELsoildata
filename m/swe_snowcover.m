@@ -7,9 +7,6 @@ function returned = swe_snowcover(site_id, decday_h)
 %
 % ver 1: 110803 GM
 
-%close all;      % clear any figures
-%fignum = 0;     % used to increment figure number for plots
-
 % load daily data from site w/ loadsnotel:
 dailyData = loadsnotel(site_id, 'daily', 'exclude');
 

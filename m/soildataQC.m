@@ -9,7 +9,7 @@
 %
 % Data for all years (available) is represented.
 %
-% This script was taken from (and should replace) site_ts_variability.m
+% This script was taken from (and replaces) site_ts_variability.m
 
 close all; clear all;     % clear any figures and variables
 fignum = 0;     % used to increment figure number for plots
