@@ -22,7 +22,8 @@ rawdatapath = '../rawdata/';
 processeddatapath = '../processed_data/';
 
 % Load list of sites with data in the daily data directory
-dailyDataSites = sortrows(csvread([rawdatapath 'allsensors_daily/filelist.txt']));
+dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
+soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
 
 % Import list of wasatch + uinta sites
 formatstr = '%s%f%s%s';
@@ -37,28 +38,104 @@ wasatch = wasatchUintaCell{2}(wasatchTest);
 uintas = wasatchUintaCell{2}(uintaTest);
 clear test;
 
-sites = unique(dailyDataSites(:, 1));
-monthLabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
-    'Nov' 'Dec'};
-monthlabel = monthLabels{monthsel};
-monthMeans = [];
-% Load data and parse out month data
-for i = 1:length(sites);
-    m = loadsnotel(sites(i), 'daily', 'exclude');
-    %Create datevector for datafile
-    siteDateVec = datevec(m{2}, 'yyyy-mm-dd');
-    % Columns are site, year, st-5, st-20, st-60, sndepth, swe, airT
-    siteData = [double(m{1}) siteDateVec(:,1) m{14} m{15} m{16} (m{10}*25.4) (m{4}*25.4) m{9}];
-    % Get monthly data
-    monthTest = siteDateVec(:,2)==monthsel;
-    monthData = siteData(monthTest, :);
-    monthYears = unique(monthData(:,2));
-    % Reduce to yearly averages
-    for j = 1:length(monthYears)
-        yearTest = monthData(:, 2) == monthYears(j);
-        monthMeans = [monthMeans; nanmean(monthData(yearTest, :))];
-    end
-end
+% LOAD the data (can switch between daily/hourly data here
+climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
+% soilsites = unique(filelistSoil(:, 1));
+% Soil temp data
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+% tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
+
+% Get a subset of climData that corresponds with available soildata
+[matchtest, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
+soilClim = climData(matchtest, :);
+
+% Now assign variables
+octSWEmean = climData(:, 14);
+octSWEmed = climData(:, 15);
+octSWEsd = climData(:, 16);
+novSWEmean = climData(:, 17);
+novSWEmed = climData(:, 18);
+novSWEsd = climData(:, 19);
+decSWEmean = climData(:, 20);
+decSWEmed = climData(:, 21);
+decSWEsd = climData(:, 22);
+janSWEmean = climData(:, 23);
+janSWEmed = climData(:, 24);
+janSWEsd = climData(:, 25);
+febSWEmean = climData(:, 26);
+febSWEmed = climData(:, 27);
+febSWEsd = climData(:, 28);
+marSWEmean = climData(:, 29);
+marSWEmed = climData(:, 30);
+marSWEsd = climData(:, 31);
+aprSWEmean = climData(:, 32);
+aprSWEmed = climData(:, 33);
+aprSWEsd = climData(:, 34);
+maySWEmean = climData(:, 35);
+maySWEmed = climData(:, 36);
+maySWEsd = climData(:, 37);
+junSWEmean = climData(:, 38);
+junSWEmed = climData(:, 39);
+junSWEsd = climData(:, 40);
+julSWEmean = climData(:, 41);
+julSWEmed = climData(:, 42);
+julSWEsd = climData(:, 43);
+
+oct5cmSTmean = tsData(:, 3);
+oct5cmSTsd = tsData(:, 4);
+oct20cmSTmean = tsData(:, 5);
+oct20cmSTsd = tsData(:, 6);
+oct50cmSTmean = tsData(:, 7);
+oct50cmSTsd = tsData(:, 8);
+dec5cmSTmean = tsData(:, 15);
+dec5cmSTsd = tsData(:, 16);
+dec20cmSTmean = tsData(:, 17);
+dec20cmSTsd = tsData(:, 18);
+dec50cmSTmean = tsData(:, 19);
+dec50cmSTsd = tsData(:, 20);
+% These repeat through sept (end of wy)
+
+
+% sites = unique(soilsites(:, 1));
+% monthLabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
+%     'Nov' 'Dec'};
+% monthlabel = monthLabels{monthsel};
+% d_monthMeans = [];
+% h_monthMeans = [];
+% % Load data and parse out month data
+% for i = 1:length(sites);
+%     dData = loadsnotel(sites(i), 'daily', 'exclude');
+%     hData = loadsnotel(sites(i), 'hourly', 'exclude');
+%     %Create datevector for datafile
+%     dDatevec = datevec(dData{2}, 'yyyy-mm-dd');
+%     hDatevec = datevec(strcat(hData{2}, hData{3}), 'yyyy-mm-ddHH:MM');
+%     % Columns are site, year, sndepth, swe, airT
+%     dailyData = [double(dData{1}) dDatevec(:,1) dData{10}*25.4 ...
+%         dData{4}*25.4 dData{9}];
+%     % Columns are site, year ts5, ts20, ts50
+%     hourlyData = [double(hData{1}) hDatevec(:,1) hData{7} hData{8} hData{9}];
+%     % Get monthly data
+%     d_monthTest = dDatevec(:,2)==monthsel;
+%     h_monthTest = hDatevec(:,2)==monthsel;
+%     d_monthData = dailyData(d_monthTest, :);
+%     h_monthData = hourlyData(h_monthTest, :);
+%     monthYears = unique(h_monthData(:,2));
+%     % Reduce to yearly averages
+%     for j = 1:length(monthYears)
+%         yearTest1 = d_monthData(:, 2) == monthYears(j);
+%         yearTest2 = h_monthData(:, 2) == monthYears(j);
+%         d_monthMeans = [d_monthMeans; nanmean(d_monthData(yearTest1, :), 1)];
+%         h_monthMeans = [h_monthMeans; nanmean(h_monthData(yearTest2, :), 1)];
+%     end
+% end
+% 
+% % Verify that the site/year rows in d_ and h_monthMeans are the same
+% dhlogical = ismember(d_monthMeans(:,1:2), h_monthMeans(:,1:2), 'rows');
+% sum(dhlogical)==length(h_monthMeans)
+% 
+% % site, year ts5, ts20, ts50, sndepth, swe, airT
+% monthMeans = [h_monthMeans, d_monthMeans(:, 3:5)];
+
 
 
 % PLOTS

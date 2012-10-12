@@ -16,7 +16,12 @@ sensordepth = str2num(input(...
     'What sensor depth in histograms (1=5cm, 2=20cm, 3=50cm)?: ', 's'));
 
 % Load hourly data from site  w/ loadsnotel:
-siteHourly = loadsnotel('hourly', siteID);
+siteHourly = loadsnotel(siteID, 'hourly', 'exclude');
+
+% Filter the data with filterseries.m
+for i=4:9
+    siteHourly{i} = filterseries(siteHourly{i}, 'sigma', 25, 3);
+end
 
 % Parse out the date and soil moisture sensors and set normalizing/axes
 datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}), 'yyyy-mm-ddHH:MM');
@@ -163,7 +168,6 @@ for i = 1:length(wyears)
     axis([xmin xmax 0 ymax]);
     ylabel('Frequency');
     title('July 1 - Sept 30');
-    
     
     % Subplots of the monthly distributions in 3 rows 
     plotorder = [6 7 8 10 11 12 14 15 16 2 3 4];

@@ -179,8 +179,25 @@ for i = 1:length(climatesummary)
     else
         climatesummary(i, 13) = NaN;
     end
+    
+    % Monthly average SWE
+    colindex1 = 14:3:47;
+    % Get average SWE from data
+    wteq = dailydata{4}(wyeartest_c);
+    for j = 1:12;
+        monthtest = wyeardatevec_c(:, 2)==wymonths(j);
+        meanswe = nanmean(nancheck(wteq(monthtest)));
+        slice = nancheck(wteq(monthtest));
+        medswe = median(slice(~isnan(slice)));
+        swestd = nanstd(nancheck(wteq(monthtest)));
+        climatesummary(i, colindex1(j)) = meanswe;
+        climatesummary(i, colindex1(j) + 1) = medswe;
+        climatesummary(i, colindex1(j) + 2) = swestd;
+    end
+    clear monthtest;
+    
     % Monthly average air temps
-    colindex1 = [14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36];
+    colindex2 = 50:2:72;
     % Get TAVG from data
     avgAirT = dailydata{9}(wyeartest_c);
     for j = 1:12;
@@ -191,8 +208,8 @@ for i = 1:length(climatesummary)
         climatesummary(i, colindex1(j) + 1) = tempstd;
     end
     clear monthtest;
-    climatesummary(i, 38) = nanmean(nancheck(avgAirT)); % MAT
-    climatesummary(i, 39) = nanstd(nancheck(avgAirT)); % MAT - sd
+    climatesummary(i, 74) = nanmean(nancheck(avgAirT)); % MAT
+    climatesummary(i, 75) = nanstd(nancheck(avgAirT)); % MAT - sd
     
     % Calculate air temp during the two-week transitions 
     % before onset of snowpack an at snowmelt
@@ -228,21 +245,21 @@ for i = 1:length(climatesummary)
         postmeltAirT = nanmean(nancheck(dailydata{9}(postmelttest)));
         postmeltAirTsd = nanstd(nancheck(dailydata{9}(postmelttest)));
     end
-    climatesummary(i, 40) = preonsetAirT;
-    climatesummary(i, 41) = preonsetAirTsd;
-    climatesummary(i, 42) = premeltAirT;
-    climatesummary(i, 43) = premeltAirTsd;
-    climatesummary(i, 44) = postmeltAirT;
-    climatesummary(i, 45) = postmeltAirTsd;
+    climatesummary(i, 76) = preonsetAirT;
+    climatesummary(i, 77) = preonsetAirTsd;
+    climatesummary(i, 78) = premeltAirT;
+    climatesummary(i, 79) = premeltAirTsd;
+    climatesummary(i, 80) = postmeltAirT;
+    climatesummary(i, 81) = postmeltAirTsd;
     % Assign elev, lat, lon, avgSWE, avgPrecip from values set above
-    climatesummary(i, 46) = inventoryrow(4)*0.3048; % elev
-    climatesummary(i, 47) = inventoryrow(2); % lat
-    climatesummary(i, 48) = inventoryrow(3); % lon
-    climatesummary(i, 49) = avgSWEvalue;
-    climatesummary(i, 50) = avgPrecipvalue;
+    climatesummary(i, 82) = inventoryrow(4)*0.3048; % elev
+    climatesummary(i, 83) = inventoryrow(2); % lat
+    climatesummary(i, 84) = inventoryrow(3); % lon
+    climatesummary(i, 85) = avgSWEvalue;
+    climatesummary(i, 86) = avgPrecipvalue;
 end
     
-clear i j dailydata wyear_c wyeartest_c monthtest;
+clear i j dailydata wyear_c wyeartest_c monthtest slice;
 
 % Write the climate data file
 csvwrite([processeddatapath 'wyear_climatesummary.txt'], climatesummary);
@@ -296,7 +313,7 @@ for i = 1:length(soilsiteslist)
     % SOIL WATER SUMMARY (calculate, load, and write soilwatersummary)
     %
     % Monthly soil moisture column index
-    colindex2 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
+    colindex3 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
     % Assign the data for wateryear i
     % NOTE - normalizing each year individually
     % is also an option
@@ -344,7 +361,7 @@ for i = 1:length(soilsiteslist)
         (wydatevec_s(:, 2)==9);
     
     quarterscell = {ONDtest, JFMtest, AMJtest, JAStest};
-    colindex3 = [73, 79, 85, 91];
+    colindex4 = [73, 79, 85, 91];
     % Then calculate them and  put in soilwatersummary
     for j = 1:4;
         mean5cm = nanmean(nancheck(sm5(quarterscell{j})));
@@ -401,7 +418,7 @@ for i = 1:length(soilsiteslist)
     % SOIL TEMP SUMMARY (calculate, load, and write soiltempsummary
     %
     % Monthly soil temperature column indices
-    colindex4 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
+    colindex5 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
     % Get wateryear soil temp for 3 depths
     st5  = data{stcol(1)}(wyeartest_s);
     st20 = data{stcol(2)}(wyeartest_s);
@@ -438,7 +455,7 @@ for i = 1:length(soilsiteslist)
         (wydatevec_s(:, 2)==9);
     
     quarterscell = {ONDtest, JFMtest, AMJtest, JAStest};
-    colindex5 = [73, 79, 85, 91];
+    colindex6 = [73, 79, 85, 91];
     % Then calculate them and  put in soiltempsummary
     for j = 1:4;
         mean5cm = nanmean(nancheck(st5(quarterscell{j})));

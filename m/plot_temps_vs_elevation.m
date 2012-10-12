@@ -29,7 +29,7 @@ monthlabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
 monthlabel = monthlabels{monthsel};
 
 %Load list of sites in the daily data directory
-havedata = csvread([rawdatapath 'allsensors_daily/sitelist.txt']);
+havedata = csvread([rawdatapath 'allsensors_daily/filelist.txt']);
 havedata = unique(havedata(:, 1));
 
 % Load 30 year average data
@@ -62,7 +62,7 @@ sitesarray = sitesarray(havedatatest, :);
 % Load data for each site into a large cellarray
 datacell = cell(length(sitesarray), 1);
 for i = 1:length(sitesarray);
-    m = loadsnotel('daily', sitesarray(i,1));
+    m = loadsnotel(sitesarray(i,1), 'daily', 'exclude');
     dailysite_datevec = datevec(m{2}, 'yyyy-mm-dd');
     % Create logical test for July and selected month
     julytest = dailysite_datevec(:,2)==7;
