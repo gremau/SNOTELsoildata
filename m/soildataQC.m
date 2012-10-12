@@ -57,7 +57,7 @@ threshold2 = 3;
 % loading function (loadsnotel_raw.m).
 if strcmpi(exclude, 'y') && any(hrFilelist==siteID)
     hourlyData = loadsnotel(siteID, 'hourly', 'exclude');
-    hourlyRaw = loadsnotel_raw('hourly', siteID);
+    hourlyRaw = loadsnotel_raw(siteID, 'hourly');
     dailyData = loadsnotel(siteID, 'daily', 'exclude');
 elseif strcmpi(exclude, 'y') && ~any(hrFilelist==siteID)
     disp('Hourly file not found');
@@ -66,7 +66,7 @@ elseif strcmpi(exclude, 'y') && ~any(hrFilelist==siteID)
     dailyData = loadsnotel(siteID, 'daily', 'exclude');
 elseif ~strcmpi(exclude, 'y') && any(hrFilelist==siteID)
     hourlyData = loadsnotel(siteID, 'hourly');
-    hourlyRaw = loadsnotel_raw('hourly', siteID);
+    hourlyRaw = loadsnotel_raw(siteID, 'hourly');
     dailyData = loadsnotel(siteID, 'daily');
 elseif ~strcmpi(exclude, 'y') && ~any(hrFilelist==siteID)
     disp('Hourly file not found');
@@ -74,7 +74,7 @@ elseif ~strcmpi(exclude, 'y') && ~any(hrFilelist==siteID)
     hourlyRaw = cell(1, 10);
     dailyData = loadsnotel(siteID, 'daily');
 end
-dailyRaw = loadsnotel_raw('daily', siteID);
+dailyRaw = loadsnotel_raw(siteID, 'daily');
 
 % Load the climate data from summarize_wateryear.m
 processeddatapath = '../processed_data/';
@@ -413,22 +413,25 @@ set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
     ' Ts, SWE, and onset/melt calculations']);
 subplot(3,1,1);
 plot(decday_d, wteq, '-b', decday_h, wteqHourlyBool*15, '--g');
+datetick('x', 'mmm-yy');
 legend('SWE', 'Hourly snowcover boolean (swe_snowcover.m)');
 % SWE, peak SWE, onset, melt (as calculated in summarize_wateryear.m)
 subplot(3,1,2);
 plot(decday_d, wteq, '-b');
 hold on;
 plot(maxSWEDatenums, maxSWE, '*r');
-vline(onsetDatenums, ':b')
-vline(meltDatenums, ':k')
-legend('SWE', 'Peak SWE', 'Onset day', 'Snowmelt day');
+vline(onsetDatenums, ':b');
+vline(meltDatenums, ':k');
+legend('SWE', 'Peak SWE', 'Onset day', 'Snowmelt day'); 
+datetick('x', 'mmm-yy');
 % Ts, with onset and melt timing
 subplot(3,1,3);
 plot(decday_h, ts5_F1, '-r');
 hold on;
-vline(onsetDatenums, ':b')
-vline(meltDatenums, ':k')
-legend('Ts - 5cm');
+vline(onsetDatenums, ':b');
+vline(meltDatenums, ':k');
+legend('Ts - 5cm'); 
+datetick('x', 'mmm-yy');
 
 % %PLOT timeseries of Ts during snowcovered and snowfree periods
 % fignum = fignum + 1;

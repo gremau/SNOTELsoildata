@@ -575,7 +575,7 @@ title('... vs Snowcovered days');
 % FIG 5 - Plot OFFSETS between MAST and MAT
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', 'MAST - MAT for all wateryears');
+set(h, 'Name', 'MAST-MAT (Temp offset) for all wateryears');
 % Calculate the offsets for each depth
 offset5cm = mast5cm-maat(matchtest);
 offset20cm = mast20cm-maat(matchtest);

@@ -1,4 +1,4 @@
-function m = loadsnotel_raw(interval, siteID, varargin)
+function m = loadsnotel_raw(siteID, interval, varargin)
 % loadsnotel_raw.m
 %
 % Generates a loadsnotel-type matrix with no modification of original

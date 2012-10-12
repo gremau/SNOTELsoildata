@@ -17,8 +17,8 @@ processeddatapath = '../processed_data/';
 statesel = input(...
     'Which state ("AZ, CO, ID, MT, NM, NV, UT, WY, or all")?: ', 's');
 
-% monthlabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
-%     'Nov' 'Dec'};
+%monthlabels = ['Jan';'Feb';'Mar';'Apr';'May';'Jun';'Jul';'Aug';'Sep'...
+%    'Oct';'Nov';'Dec'];
 % monthlabel = monthlabels{monthsel};
 
 %Load list of sites in the daily data directory
@@ -60,7 +60,7 @@ sitesarray = sitesarray(testhavedata, :);
 
 % Change variables to something more useful
 % sites = sitesArray(:,1);
-% elev = sitesArray(:,2);
+elev = sitesArray(:,2);
 % ltprecip = nan * zeros(length(sites), 1);
 % ltswe = nan * zeros(length(sites), 1);
 
