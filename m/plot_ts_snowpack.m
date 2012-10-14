@@ -1,4 +1,4 @@
-% plot_ts_vs_snowpack.m
+% plot_ts_snowpack.m
 %
 % Plots soil and air temp from recent daily sensor data vs SWE, snow 
 % depth for SNOTEL sites (and subsets of SNOTELS)
@@ -12,16 +12,16 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
+addpath('~/data/code_resources/m_common/');
 addpath('~/data/code_resources/m_common/nanstuff/');
 
 % Ask user for month number
-monthsel = str2double(input('Which month (1-12)?: ', 's'));
+%monthsel = str2double(input('Which month (1-12)?: ', 's'));
 
-% Set data path and file name, read in file
-rawdatapath = '../rawdata/';
+% Set processed data path
 processeddatapath = '../processed_data/';
 
-% Load list of sites with data in the daily data directory
+% Load lists of sites with data in the daily/hourly data directory
 dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
 soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
 
@@ -36,50 +36,49 @@ wasatchTest = strcmpi(wasatchUintaCell{4}, 'WASATCH');
 uintaTest =  strcmpi(wasatchUintaCell{4},'UINTA');
 wasatch = wasatchUintaCell{2}(wasatchTest);
 uintas = wasatchUintaCell{2}(uintaTest);
-clear test;
+clear wasatchTest uintaTest wasatchUintaCell;
 
-% LOAD the data (can switch between daily/hourly data here
+% LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
-% soilsites = unique(filelistSoil(:, 1));
-% Soil temp data
 tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
 % Get a subset of climData that corresponds with available soildata
 [matchtest, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 soilClim = climData(matchtest, :);
+% matchtest2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
 
 % Now assign variables
-octSWEmean = climData(:, 14);
-octSWEmed = climData(:, 15);
-octSWEsd = climData(:, 16);
-novSWEmean = climData(:, 17);
-novSWEmed = climData(:, 18);
-novSWEsd = climData(:, 19);
-decSWEmean = climData(:, 20);
-decSWEmed = climData(:, 21);
-decSWEsd = climData(:, 22);
-janSWEmean = climData(:, 23);
-janSWEmed = climData(:, 24);
-janSWEsd = climData(:, 25);
-febSWEmean = climData(:, 26);
-febSWEmed = climData(:, 27);
-febSWEsd = climData(:, 28);
-marSWEmean = climData(:, 29);
-marSWEmed = climData(:, 30);
-marSWEsd = climData(:, 31);
-aprSWEmean = climData(:, 32);
-aprSWEmed = climData(:, 33);
-aprSWEsd = climData(:, 34);
-maySWEmean = climData(:, 35);
-maySWEmed = climData(:, 36);
-maySWEsd = climData(:, 37);
-junSWEmean = climData(:, 38);
-junSWEmed = climData(:, 39);
-junSWEsd = climData(:, 40);
-julSWEmean = climData(:, 41);
-julSWEmed = climData(:, 42);
-julSWEsd = climData(:, 43);
+octSWEmean = climData(:, 14)*25.4;
+octSWEmed = climData(:, 15)*25.4;
+octSWEsd = climData(:, 16)*25.4;
+novSWEmean = soilClim(:, 17)*25.4;
+novSWEmed = soilClim(:, 18)*25.4;
+novSWEsd = soilClim(:, 19)*25.4;
+decSWEmean = soilClim(:, 20)*25.4;
+decSWEmed = soilClim(:, 21)*25.4;
+decSWEsd = soilClim(:, 22)*25.4;
+janSWEmean = soilClim(:, 23)*25.4;
+janSWEmed = soilClim(:, 24)*25.4;
+janSWEsd = soilClim(:, 25)*25.4;
+febSWEmean = soilClim(:, 26)*25.4;
+febSWEmed = soilClim(:, 27)*25.4;
+febSWEsd = soilClim(:, 28)*25.4;
+marSWEmean = soilClim(:, 29)*25.4;
+marSWEmed = soilClim(:, 30)*25.4;
+marSWEsd = soilClim(:, 31)*25.4;
+aprSWEmean = soilClim(:, 32)*25.4;
+aprSWEmed = soilClim(:, 33)*25.4;
+aprSWEsd = soilClim(:, 34)*25.4;
+maySWEmean = soilClim(:, 35)*25.4;
+maySWEmed = soilClim(:, 36)*25.4;
+maySWEsd = soilClim(:, 37)*25.4;
+junSWEmean = soilClim(:, 38)*25.4;
+junSWEmed = soilClim(:, 39)*25.4;
+junSWEsd = soilClim(:, 40)*25.4;
+julSWEmean = soilClim(:, 41)*25.4;
+julSWEmed = soilClim(:, 42)*25.4;
+julSWEsd = soilClim(:, 43)*25.4;
 
 oct5cmSTmean = tsData(:, 3);
 oct5cmSTsd = tsData(:, 4);
@@ -87,93 +86,141 @@ oct20cmSTmean = tsData(:, 5);
 oct20cmSTsd = tsData(:, 6);
 oct50cmSTmean = tsData(:, 7);
 oct50cmSTsd = tsData(:, 8);
+nov5cmSTmean = tsData(:, 9);
+nov5cmSTsd = tsData(:, 10);
+nov20cmSTmean = tsData(:, 11);
+nov20cmSTsd = tsData(:, 12);
+nov50cmSTmean = tsData(:, 13);
+nov50cmSTsd = tsData(:, 14);
 dec5cmSTmean = tsData(:, 15);
 dec5cmSTsd = tsData(:, 16);
 dec20cmSTmean = tsData(:, 17);
 dec20cmSTsd = tsData(:, 18);
 dec50cmSTmean = tsData(:, 19);
 dec50cmSTsd = tsData(:, 20);
+jan5cmSTmean = tsData(:, 21);
+jan5cmSTsd = tsData(:, 22);
+jan20cmSTmean = tsData(:, 23);
+jan20cmSTsd = tsData(:, 24);
+jan50cmSTmean = tsData(:, 25);
+jan50cmSTsd = tsData(:, 26);
+feb5cmSTmean = tsData(:, 27);
+feb5cmSTsd = tsData(:, 28);
+feb20cmSTmean = tsData(:, 29);
+feb20cmSTsd = tsData(:, 30);
+feb50cmSTmean = tsData(:, 31);
+feb50cmSTsd = tsData(:, 32);
+mar5cmSTmean = tsData(:, 33);
+mar5cmSTsd = tsData(:, 34);
+mar20cmSTmean = tsData(:, 35);
+mar20cmSTsd = tsData(:, 36);
+mar50cmSTmean = tsData(:, 37);
+mar50cmSTsd = tsData(:, 38);
+apr5cmSTmean = tsData(:, 39);
+apr5cmSTsd = tsData(:, 40);
+apr20cmSTmean = tsData(:, 41);
+apr20cmSTsd = tsData(:, 42);
+apr50cmSTmean = tsData(:, 43);
+apr50cmSTsd = tsData(:, 44);
+may5cmSTmean = tsData(:, 45);
+may5cmSTsd = tsData(:, 46);
+may20cmSTmean = tsData(:, 47);
+may20cmSTsd = tsData(:, 48);
+may50cmSTmean = tsData(:, 49);
+may50cmSTsd = tsData(:, 50);
+jun5cmSTmean = tsData(:, 51);
+jun5cmSTsd = tsData(:, 52);
+jun20cmSTmean = tsData(:, 53);
+jun20cmSTsd = tsData(:, 54);
+jun50cmSTmean = tsData(:, 55);
+jun50cmSTsd = tsData(:, 56);
 % These repeat through sept (end of wy)
-
-
-% sites = unique(soilsites(:, 1));
-% monthLabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
-%     'Nov' 'Dec'};
-% monthlabel = monthLabels{monthsel};
-% d_monthMeans = [];
-% h_monthMeans = [];
-% % Load data and parse out month data
-% for i = 1:length(sites);
-%     dData = loadsnotel(sites(i), 'daily', 'exclude');
-%     hData = loadsnotel(sites(i), 'hourly', 'exclude');
-%     %Create datevector for datafile
-%     dDatevec = datevec(dData{2}, 'yyyy-mm-dd');
-%     hDatevec = datevec(strcat(hData{2}, hData{3}), 'yyyy-mm-ddHH:MM');
-%     % Columns are site, year, sndepth, swe, airT
-%     dailyData = [double(dData{1}) dDatevec(:,1) dData{10}*25.4 ...
-%         dData{4}*25.4 dData{9}];
-%     % Columns are site, year ts5, ts20, ts50
-%     hourlyData = [double(hData{1}) hDatevec(:,1) hData{7} hData{8} hData{9}];
-%     % Get monthly data
-%     d_monthTest = dDatevec(:,2)==monthsel;
-%     h_monthTest = hDatevec(:,2)==monthsel;
-%     d_monthData = dailyData(d_monthTest, :);
-%     h_monthData = hourlyData(h_monthTest, :);
-%     monthYears = unique(h_monthData(:,2));
-%     % Reduce to yearly averages
-%     for j = 1:length(monthYears)
-%         yearTest1 = d_monthData(:, 2) == monthYears(j);
-%         yearTest2 = h_monthData(:, 2) == monthYears(j);
-%         d_monthMeans = [d_monthMeans; nanmean(d_monthData(yearTest1, :), 1)];
-%         h_monthMeans = [h_monthMeans; nanmean(h_monthData(yearTest2, :), 1)];
-%     end
-% end
-% 
-% % Verify that the site/year rows in d_ and h_monthMeans are the same
-% dhlogical = ismember(d_monthMeans(:,1:2), h_monthMeans(:,1:2), 'rows');
-% sum(dhlogical)==length(h_monthMeans)
-% 
-% % site, year ts5, ts20, ts50, sndepth, swe, airT
-% monthMeans = [h_monthMeans, d_monthMeans(:, 3:5)];
-
 
 
 % PLOTS
 %----------------------------------------------------------------------
-% FIG 1 - Month soil temps vs snowpack
-% Note that each datapoint is one year of temp and snowpack data at one
-% site during the month of interest
+% FIG 1 - Month soil temps vs mean SWE
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name', ['Mean ' monthlabel ' Ts vs snowpack at 2 depths']);
+set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
 
-% Mean month soil temp by SWE - 5cm
-subplot 221;
-plot(monthMeans(:,7), monthMeans(:,3), 'ok');
-xlabel('Mean SWE');
-ylabel('Mean 5cm soil temp (Celsius)');
-title([monthlabel ' 5cm soil temp vs ' monthlabel ' SWE']);
+% Set some plotting parameters
+plotorder = 1:5;
+months = ['dec';'jan';'feb';'mar';'apr'] ;
+polyorder = 3;
 
-% Mean month soil temp by snow depth - 5cm
-subplot 222;
-plot(monthMeans(:,6), monthMeans(:,3), 'ok');
-xlabel('Mean snow depth');
-%ylabel('Mean soil temp (Celsius)');
-title(['vs ' monthlabel ' snow depth']);
+for i=plotorder
+    subplot(3, 5, i);
+    eval(['x = ' months(i,:) 'SWEmean;']);
+    eval(['y = ' months(i,:) '5cmSTmean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    xlim([0, 1500]); ylim([-10, 10]);
+    
+    subplot(3, 5, i+5)
+    eval(['x = ' months(i,:) 'SWEmean;']);
+    eval(['y = ' months(i,:) '20cmSTmean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    xlim([0, 1500]); ylim([-10, 10]);
+    
+    subplot(3, 5, i+10);
+    eval(['x = ' months(i,:) 'SWEmean;']);
+    eval(['y = ' months(i,:) '50cmSTmean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    xlim([0, 1500]); ylim([-10, 10]);
+end
 
-% Mean month soil temp by SWE - 20cm
-subplot 223;
-plot(monthMeans(:,7), monthMeans(:,4), 'ok');
-xlabel('Mean SWE');
-ylabel('Mean 20cm soil temp (Celsius)');
-title([monthlabel ' 20cm soil temp vs ' monthlabel ' SWE']);
 
-% Mean month soil temp by snow depth - 20cm
-subplot 224;
-plot(monthMeans(:,6), monthMeans(:,4), 'ok');
-xlabel('Mean snow depth');
-%ylabel('Mean soil temp (Celsius)');
-title(['vs ' monthlabel ' snow depth']);
+%----------------------------------------------------------------------
+% FIG 2 - Month soil temps vs median SWE
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name', 'Mean monthly temp vs Median SWE - all sites/wateryears');
+
+% plotorder, months, and polyorder are set in previous figure's code
+
+for i=plotorder
+    subplot(3, 5, i)
+    eval(['x = ' months(i,:) 'SWEmed;']);
+    eval(['y = ' months(i,:) '5cmSTmean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    xlim([0, 1500]); ylim([-10, 10]);
+    
+    subplot(3, 5, i+5)
+    eval(['x = ' months(i,:) 'SWEmed;']);
+    eval(['y = ' months(i,:) '20cmSTmean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    xlim([0, 1500]); ylim([-10, 10]);
+    
+    subplot(3, 5, i+10)
+    eval(['x = ' months(i,:) 'SWEmed;']);
+    eval(['y = ' months(i,:) '50cmSTmean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    xlim([0, 1500]); ylim([-10, 10]);
+end
 
 %--------------------------------------------------------
 % FIG 2 - Same as above, but tweaked for AGU 2011 poster
@@ -181,7 +228,7 @@ fignum = fignum+1;
 h = figure(fignum);
 
 subplot 121;
-plot(monthMeans(:,7), monthMeans(:,3), 'ob');
+plot(janSWEmean, jan5cmSTmean, 'ob');
 xlabel('Mean SWE (mm)');
 ylabel('Soil T (^oC)');
 title('December soil temperatures');
@@ -189,7 +236,7 @@ legend('5cm one-month mean');
 
 % Mean month soil temp by SWE - 20cm
 subplot 122;
-plot(monthMeans(:,7), monthMeans(:,4), 'ok');
+plot(janSWEmean, jan20cmSTmean, 'ok');
 xlabel('Mean SWE (mm)');
 ylabel('Soil T (^oC)');
 legend('20cm one-month mean');

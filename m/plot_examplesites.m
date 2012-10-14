@@ -87,7 +87,8 @@ clear all;
 % Examine the interannual variability in Ts and vwc at one site
 % Load hourly and daily data
 siteID = 828; % 828=TrialLake, 972=LouisMeadow, 432=CurrantCreek
-              % 330=BeaverDivide, 333=BenLomTrail
+              % 330=BeaverDivide, 333=BenLomTrail, 674=OrchardRangeID
+              % 654=MudFlatID, 310=BaldyAZ, 720=RockCreek
 hourlyData = loadsnotel(siteID, 'hourly');
 dailyData = loadsnotel(siteID, 'daily', 'exclude');
 
@@ -115,62 +116,76 @@ tickmonths = ['Oct'; 'Nov'; 'Dec'; 'Jan'; 'Feb'; 'Mar'; 'Apr'; 'May';...
 
 subplot(3,1,1);
 hold on;
-seriesSum = [];
-datenumSum = [];
+% Initialize variables for calculating a mean timeseries
+wteqConcat = []; doyConcat = [];
 for i = 1:length(wyears_h)
+    % Slice out each wateryear worth of data/datenums
     dailytest = dailyData{21}==wyears_h(i);
     wyWteq = wteq(dailytest);
+    % Subtract of the initial datenum to get doy
     doys = decday_d(dailytest) - startdays(i);
     plot(doys, wyWteq, 'Color', [0.7,0.7,0.7], ...
         'LineWidth', 1.5);
-    seriesSum = [seriesSum; wyWteq];
-    datenumSum = [datenumSum; doys];
+    wteqConcat = [wteqConcat; wyWteq]; % Concatenate yearly wteq
+    doyConcat = [doyConcat; doys]; % And each years doy values
 end;
-datenumSum = [datenumSum ones(size(datenumSum))];
-seriesMean = accumarray(datenumSum, seriesSum)/length(wyears_h);
-plot(1:366, seriesMean, '-b', 'LineWidth', 2);
+doyConcat = [doyConcat ones(size(doyConcat))]; % Create accumarray index
+% Get a mean timeseries with accumarray and plot it
+wteqMean = accumarray(doyConcat, wteqConcat, ...
+    [numel(unique(doyConcat)) 1], @nanmean)
+plot(1:366, wteqMean, '-b', 'LineWidth', 2);
 % Set axes limits, tick locations, labels, position, etc
 xlim([0 367]); ylim([-5 1500]);
 ylabel('mm');
 set(gca,'XTick',ticklocs, 'XTickLabel', '',...
-    'Position', [0.13, 0.676, 0.775, 0.25]);
+    'Position', [0.13, 0.678, 0.775, 0.25]);
 title('Trial Lake');
 %
 subplot(3,1,2);
 hold on;
-% seriesSum = [];
-% datenumSum = [];
+tsConcat = []; doyConcat = [];
 for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
     wyTs = ts(hourlytest);
     doys = decday_h(hourlytest) - startdays(i);
     plot(doys, wyTs, 'Color', [0.7,0.7,0.7],...
         'LineWidth', 1.5);
-%     seriesSum = [seriesSum; wyTs];
-%     datenumSum = [datenumSum; doys];
+    tsConcat = [tsConcat; wyTs];
+    doyConcat = [doyConcat; doys];
 end;
-% datenumSum = [datenumSum ones(size(datenumSum))];
-% seriesMean = accumarray(datenumSum, seriesSum)/length(wyears_h);
-% plot(1:365*24, seriesMean, '-r');
+[doyvals, ~, doyindex] = unique(doyConcat);
+doyConcat = [doyindex ones(size(doyindex))];
+tsMean = accumarray(doyConcat, tsConcat,...
+    [numel(unique(doyConcat)) 1], @nanmean);
+plot(doyvals, tsMean, '-r');
 % Set axes limits, tick locations, labels, position, etc
 zeroline = line(get(gca, 'XLim'), [0, 0]);
 set(zeroline, 'Color', 'k', 'LineStyle', ':');
 xlim([0 367]); ylim([-5 25]);
 ylabel('^oC');
 set(gca,'XTick',ticklocs, 'XTickLabel', '',...
-    'Position', [0.13, 0.425, 0.775, 0.25]);
+    'Position', [0.13, 0.424, 0.775, 0.25]);
 
 subplot(3,1,3);
 hold on;
+vwcConcat = []; doyConcat = [];
 for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
+    wyVwc = vwc(hourlytest);
     doys = decday_h(hourlytest) - startdays(i);
     plot(doys, vwc(hourlytest), 'Color', [0.7,0.7,0.7],...
         'LineWidth', 1.5);
+    vwcConcat = [vwcConcat; wyVwc];
+    doyConcat = [doyConcat; doys];
 end;
+[doyvals, ~, doyindex] = unique(doyConcat);
+doyConcat = [doyindex ones(size(doyindex))];
+vwcMean = accumarray(doyConcat, vwcConcat,...
+    [numel(unique(doyConcat)) 1], @nanmean);
+plot(doyvals, vwcMean, '-k', 'LineWidth', 2);
 % Set axes limits, tick locations, labels, position, etc
 xlim([0 367]); ylim([-5 45]);
 ylabel('VWC (%)');
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths,...
-    'Position', [0.13, 0.174, 0.775, 0.25]);
+    'Position', [0.13, 0.172, 0.775, 0.25]);
     

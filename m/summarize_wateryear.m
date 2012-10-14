@@ -204,8 +204,8 @@ for i = 1:length(climatesummary)
         monthtest = wyeardatevec_c(:, 2)==wymonths(j);
         meantemp = nanmean(nancheck(avgAirT(monthtest)));
         tempstd = nanstd(nancheck(avgAirT(monthtest)));
-        climatesummary(i, colindex1(j)) = meantemp;
-        climatesummary(i, colindex1(j) + 1) = tempstd;
+        climatesummary(i, colindex2(j)) = meantemp;
+        climatesummary(i, colindex2(j) + 1) = tempstd;
     end
     clear monthtest;
     climatesummary(i, 74) = nanmean(nancheck(avgAirT)); % MAT
@@ -313,7 +313,7 @@ for i = 1:length(soilsiteslist)
     % SOIL WATER SUMMARY (calculate, load, and write soilwatersummary)
     %
     % Monthly soil moisture column index
-    colindex3 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
+    colindex3 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 63, 69];
     % Assign the data for wateryear i
     % NOTE - normalizing each year individually
     % is also an option
@@ -341,12 +341,12 @@ for i = 1:length(soilsiteslist)
         std20cm = nanstd(nancheck(sm20(monthtest)));
         mean50cm = nanmean(nancheck(sm50(monthtest)));
         std50cm = nanstd(nancheck(sm50(monthtest)));
-        soilwatersummary(i, colindex2(j)) = mean5cm;
-        soilwatersummary(i, colindex2(j) + 1) = std5cm;
-        soilwatersummary(i, colindex2(j) + 2) = mean20cm;
-        soilwatersummary(i, colindex2(j) + 3) = std20cm;
-        soilwatersummary(i, colindex2(j) + 4) = mean50cm;
-        soilwatersummary(i, colindex2(j) + 5) = std50cm;
+        soilwatersummary(i, colindex3(j)) = mean5cm;
+        soilwatersummary(i, colindex3(j) + 1) = std5cm;
+        soilwatersummary(i, colindex3(j) + 2) = mean20cm;
+        soilwatersummary(i, colindex3(j) + 3) = std20cm;
+        soilwatersummary(i, colindex3(j) + 4) = mean50cm;
+        soilwatersummary(i, colindex3(j) + 5) = std50cm;
     end
     clear monthtest;
     
@@ -361,7 +361,7 @@ for i = 1:length(soilsiteslist)
         (wydatevec_s(:, 2)==9);
     
     quarterscell = {ONDtest, JFMtest, AMJtest, JAStest};
-    colindex4 = [73, 79, 85, 91];
+    colindex4 = [75, 81, 87, 93];
     % Then calculate them and  put in soilwatersummary
     for j = 1:4;
         mean5cm = nanmean(nancheck(sm5(quarterscell{j})));
@@ -370,12 +370,12 @@ for i = 1:length(soilsiteslist)
         std20cm = nanstd(nancheck(sm20(quarterscell{j})));
         mean50cm = nanmean(nancheck(sm50(quarterscell{j})));
         std50cm = nanstd(nancheck(sm50(quarterscell{j})));
-        soilwatersummary(i, colindex3(j)) = mean5cm;
-        soilwatersummary(i, colindex3(j) + 1) = std5cm;
-        soilwatersummary(i, colindex3(j) + 2) = mean20cm;
-        soilwatersummary(i, colindex3(j) + 3) = std20cm;
-        soilwatersummary(i, colindex3(j) + 4) = mean50cm;
-        soilwatersummary(i, colindex3(j) + 5) = std50cm;
+        soilwatersummary(i, colindex4(j)) = mean5cm;
+        soilwatersummary(i, colindex4(j) + 1) = std5cm;
+        soilwatersummary(i, colindex4(j) + 2) = mean20cm;
+        soilwatersummary(i, colindex4(j) + 3) = std20cm;
+        soilwatersummary(i, colindex4(j) + 4) = mean50cm;
+        soilwatersummary(i, colindex4(j) + 5) = std50cm;
     end
     
     % Calculate soil moisture during the two-weeks prior to snowpack onset
@@ -408,17 +408,17 @@ for i = 1:length(soilsiteslist)
     end
 
     % Put in the matrix
-    soilwatersummary(i, 97) = preonset5cmSM;
-    soilwatersummary(i, 98) = preonset5cmSMsd;
-    soilwatersummary(i, 99) = preonset20cmSM;
-    soilwatersummary(i, 100) = preonset20cmSMsd;
-    soilwatersummary(i, 101) = preonset50cmSM;
-    soilwatersummary(i, 102) = preonset50cmSMsd;
+    soilwatersummary(i, 99) = preonset5cmSM;
+    soilwatersummary(i, 100) = preonset5cmSMsd;
+    soilwatersummary(i, 101) = preonset20cmSM;
+    soilwatersummary(i, 102) = preonset20cmSMsd;
+    soilwatersummary(i, 103) = preonset50cmSM;
+    soilwatersummary(i, 104) = preonset50cmSMsd;
 
     % SOIL TEMP SUMMARY (calculate, load, and write soiltempsummary
     %
     % Monthly soil temperature column indices
-    colindex5 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 61, 67];
+    colindex5 = [3, 9, 15, 21, 27, 33, 39, 45, 51, 57, 63, 69];
     % Get wateryear soil temp for 3 depths
     st5  = data{stcol(1)}(wyeartest_s);
     st20 = data{stcol(2)}(wyeartest_s);
@@ -436,12 +436,12 @@ for i = 1:length(soilsiteslist)
         std20cm = nanstd(nancheck(st20(monthtest)));
         mean50cm = nanmean(nancheck(st50(monthtest)));
         std50cm = nanstd(nancheck(st50(monthtest)));
-        soiltempsummary(i, colindex4(j)) = mean5cm;
-        soiltempsummary(i, colindex4(j) + 1) = std5cm;
-        soiltempsummary(i, colindex4(j) + 2) = mean20cm;
-        soiltempsummary(i, colindex4(j) + 3) = std20cm;
-        soiltempsummary(i, colindex4(j) + 4) = mean50cm;
-        soiltempsummary(i, colindex4(j) + 5) = std50cm;
+        soiltempsummary(i, colindex5(j)) = mean5cm;
+        soiltempsummary(i, colindex5(j) + 1) = std5cm;
+        soiltempsummary(i, colindex5(j) + 2) = mean20cm;
+        soiltempsummary(i, colindex5(j) + 3) = std20cm;
+        soiltempsummary(i, colindex5(j) + 4) = mean50cm;
+        soiltempsummary(i, colindex5(j) + 5) = std50cm;
     end
     clear monthtest;
     % Create quarterly soil temp tests
@@ -455,7 +455,7 @@ for i = 1:length(soilsiteslist)
         (wydatevec_s(:, 2)==9);
     
     quarterscell = {ONDtest, JFMtest, AMJtest, JAStest};
-    colindex6 = [73, 79, 85, 91];
+    colindex6 = [75, 81, 87, 93];
     % Then calculate them and  put in soiltempsummary
     for j = 1:4;
         mean5cm = nanmean(nancheck(st5(quarterscell{j})));
@@ -464,34 +464,34 @@ for i = 1:length(soilsiteslist)
         std20cm = nanstd(nancheck(st20(quarterscell{j})));
         mean50cm = nanmean(nancheck(st50(quarterscell{j})));
         std50cm = nanstd(nancheck(st50(quarterscell{j})));
-        soiltempsummary(i, colindex5(j)) = mean5cm;
-        soiltempsummary(i, colindex5(j) + 1) = std5cm;
-        soiltempsummary(i, colindex5(j) + 2) = mean20cm;
-        soiltempsummary(i, colindex5(j) + 3) = std20cm;
-        soiltempsummary(i, colindex5(j) + 4) = mean50cm;
-        soiltempsummary(i, colindex5(j) + 5) = std50cm;
+        soiltempsummary(i, colindex6(j)) = mean5cm;
+        soiltempsummary(i, colindex6(j) + 1) = std5cm;
+        soiltempsummary(i, colindex6(j) + 2) = mean20cm;
+        soiltempsummary(i, colindex6(j) + 3) = std20cm;
+        soiltempsummary(i, colindex6(j) + 4) = mean50cm;
+        soiltempsummary(i, colindex6(j) + 5) = std50cm;
     end
     % Calculate some seasonal/yearly means
-    soiltempsummary(i, 97) = nanmean(nancheck(st5)); % mast5cm
-    soiltempsummary(i, 98) = nanstd(nancheck(st5)); % stdev
-    soiltempsummary(i, 99) = nanmean(nancheck(st20)); % mast20cm
-    soiltempsummary(i, 100) = nanstd(nancheck(st20)); % stdev
-    soiltempsummary(i, 101) = nanmean(nancheck(st50)); % mast50cm
-    soiltempsummary(i, 102) = nanstd(nancheck(st50)); % stdev
+    soiltempsummary(i, 99) = nanmean(nancheck(st5)); % mast5cm
+    soiltempsummary(i, 100) = nanstd(nancheck(st5)); % stdev
+    soiltempsummary(i, 101) = nanmean(nancheck(st20)); % mast20cm
+    soiltempsummary(i, 102) = nanstd(nancheck(st20)); % stdev
+    soiltempsummary(i, 103) = nanmean(nancheck(st50)); % mast50cm
+    soiltempsummary(i, 104) = nanstd(nancheck(st50)); % stdev
     % Snowcovered soil temp means
-    soiltempsummary(i, 103) = nanmean(nancheck(st5(wysnowtest)));
-    soiltempsummary(i, 104) = nanstd(nancheck(st5(wysnowtest)));
-    soiltempsummary(i, 105) = nanmean(nancheck(st20(wysnowtest)));
-    soiltempsummary(i, 106) = nanstd(nancheck(st20(wysnowtest)));
-    soiltempsummary(i, 107) = nanmean(nancheck(st50(wysnowtest)));
-    soiltempsummary(i, 108) = nanstd(nancheck(st50(wysnowtest)));
+    soiltempsummary(i, 105) = nanmean(nancheck(st5(wysnowtest)));
+    soiltempsummary(i, 106) = nanstd(nancheck(st5(wysnowtest)));
+    soiltempsummary(i, 107) = nanmean(nancheck(st20(wysnowtest)));
+    soiltempsummary(i, 108) = nanstd(nancheck(st20(wysnowtest)));
+    soiltempsummary(i, 109) = nanmean(nancheck(st50(wysnowtest)));
+    soiltempsummary(i, 110) = nanstd(nancheck(st50(wysnowtest)));
     % Snowfree soil temp means
-    soiltempsummary(i, 109) = nanmean(nancheck(st5(~wysnowtest)));
-    soiltempsummary(i, 110) = nanstd(nancheck(st5(~wysnowtest)));
-    soiltempsummary(i, 111) = nanmean(nancheck(st20(~wysnowtest)));
-    soiltempsummary(i, 112) = nanstd(nancheck(st20(~wysnowtest)));
-    soiltempsummary(i, 113) = nanmean(nancheck(st50(~wysnowtest)));
-    soiltempsummary(i, 114) = nanstd(nancheck(st50(~wysnowtest)));
+    soiltempsummary(i, 111) = nanmean(nancheck(st5(~wysnowtest)));
+    soiltempsummary(i, 112) = nanstd(nancheck(st5(~wysnowtest)));
+    soiltempsummary(i, 113) = nanmean(nancheck(st20(~wysnowtest)));
+    soiltempsummary(i, 114) = nanstd(nancheck(st20(~wysnowtest)));
+    soiltempsummary(i, 115) = nanmean(nancheck(st50(~wysnowtest)));
+    soiltempsummary(i, 116) = nanstd(nancheck(st50(~wysnowtest)));
     
     % Get soil temperatures at transition times (see above)
     if isnan(onsetdatenum_s)
@@ -534,24 +534,24 @@ for i = 1:length(soilsiteslist)
         postmelt50cmSTsd = nanstd(nancheck(data{stcol(3)}(postmelttest)));
     end
     % Put in the matrix
-    soiltempsummary(i, 115) = preonset5cmST;
-    soiltempsummary(i, 116) = preonset5cmSTsd;
-    soiltempsummary(i, 117) = preonset20cmST;
-    soiltempsummary(i, 118) = preonset20cmSTsd;
-    soiltempsummary(i, 119) = preonset50cmST;
-    soiltempsummary(i, 120) = preonset50cmSTsd;
-    soiltempsummary(i, 121) = premelt5cmST;
-    soiltempsummary(i, 122) = premelt5cmSTsd;
-    soiltempsummary(i, 123) = postmelt5cmST;
-    soiltempsummary(i, 124) = postmelt5cmSTsd;
-    soiltempsummary(i, 125) = premelt20cmST;
-    soiltempsummary(i, 126) = premelt20cmSTsd;
-    soiltempsummary(i, 127) = postmelt20cmST;
-    soiltempsummary(i, 128) = postmelt20cmSTsd;
-    soiltempsummary(i, 129) = premelt50cmST;
-    soiltempsummary(i, 130) = premelt50cmSTsd;
-    soiltempsummary(i, 131) = postmelt50cmST;
-    soiltempsummary(i, 132) = postmelt50cmSTsd;
+    soiltempsummary(i, 117) = preonset5cmST;
+    soiltempsummary(i, 118) = preonset5cmSTsd;
+    soiltempsummary(i, 119) = preonset20cmST;
+    soiltempsummary(i, 120) = preonset20cmSTsd;
+    soiltempsummary(i, 121) = preonset50cmST;
+    soiltempsummary(i, 122) = preonset50cmSTsd;
+    soiltempsummary(i, 123) = premelt5cmST;
+    soiltempsummary(i, 124) = premelt5cmSTsd;
+    soiltempsummary(i, 125) = postmelt5cmST;
+    soiltempsummary(i, 126) = postmelt5cmSTsd;
+    soiltempsummary(i, 127) = premelt20cmST;
+    soiltempsummary(i, 128) = premelt20cmSTsd;
+    soiltempsummary(i, 129) = postmelt20cmST;
+    soiltempsummary(i, 130) = postmelt20cmSTsd;
+    soiltempsummary(i, 131) = premelt50cmST;
+    soiltempsummary(i, 132) = premelt50cmSTsd;
+    soiltempsummary(i, 133) = postmelt50cmST;
+    soiltempsummary(i, 134) = postmelt50cmSTsd;
 end
 
 % Write the soil data files

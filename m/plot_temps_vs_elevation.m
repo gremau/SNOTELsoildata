@@ -19,11 +19,51 @@ addpath('/home/greg/data/programming_resources/m_common/');
 rawdatapath = '../rawdata/';
 processeddatapath = '../processed_data/';
 
+% Load lists of sites with data in the daily/hourly data directory
+dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
+soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
+sites = unique(soilsites(:,1));
+
+% LOAD the data (can switch between daily/hourly data here)
+climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+% tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
+
+% Get a subset of climData that corresponds with available soildata
+[matchtest, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
+soilClim = climData(matchtest, :);
+% matchtest2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
+
+%-----------------------------
+% Assign variables
+decAirTmean = soilClim(:, 54);
+decAirTsd = soilClim(:, 55);
+julAirTmean = soilClim(:, 68);
+julAirTsd = soilClim(:, 69);
+
+elev = soilClim(:, 82);
+lat = soilClim(:, 83);
+lon = soilClim(:, 84);
+ltMeanSWE = soilClim(:, 85);
+ltMeanPrecip = soilClim(:, 86);
+dec5cmSTmean = tsData(:, 15);
+dec5cmSTsd = tsData(:, 16);
+dec20cmSTmean = tsData(:, 17);
+dec20cmSTsd = tsData(:, 18);
+dec50cmSTmean = tsData(:, 19);
+dec50cmSTsd = tsData(:, 20);
+jul5cmSTmean = tsData(:, 57);
+jul5cmSTsd = tsData(:, 58);
+jul20cmSTmean = tsData(:, 59);
+jul20cmSTsd = tsData(:, 60);
+jul50cmSTmean = tsData(:, 61);
+jul50cmSTsd = tsData(:, 62);
+
+
 % Ask user for month number and state
 monthsel = str2double(input('Which month (1-12)?: ', 's'));
 statesel = input(...
     'Which state ("AZ, CO, ID, MT, NM, NV, UT, WY, or all")?: ', 's');
-
 monthlabels = {'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sept' 'Oct'...
     'Nov' 'Dec'};
 monthlabel = monthlabels{monthsel};
@@ -137,6 +177,111 @@ subplot (2, 2, 4)
 plot(sitesarray(:,2), sitesarray(:,10), '.k');
 hold on
 plot(sitesarray(:,2), sitesarray(:,11), '.b');
+xlabel('Elevation(m)');
+ylabel('mm of water (Celsius)');
+title('Precip and SWE');
+legend('Total precip', 'Peak SWE');
+
+%----------------------------------
+% FIG 1 - Full  gradients
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name',['Mean air and soil temps by elevation, ' statesel ...
+    ' SNOTEL sites']);
+
+subplot (2, 2, 1)
+plot(elev, julAirTmean, '.m');
+hold on
+plot(elev, jul20cmSTmean, '.b');
+xlabel('Elevation(m)');
+ylabel('Mean July temp (^oC)');
+title('JULY - Air and soil temp vs elevation');
+legend('Air', 'Soil(20cm, 12am)');
+
+subplot (2, 2, 2)
+plot(elev, decAirTmean, 'ok', 'MarkerFaceColor', ...
+    [0.7 0.7 0.7]);
+hold on
+plot(elev, dec20cmSTmean, 'ok', 'MarkerFaceColor', 'r');
+% Plot moist adiabatic lapse rate
+plot([900 3500], [4, -9], ':k')
+xlabel('Elevation(m)');
+ylabel('Mean temp (Celsius)');
+title([ monthlabel ' - Air and soil temp vs elevation']);
+legend('Air', 'Soil(20cm)', 'Moist adiabatic lapse( 5^oC/km)');
+
+subplot (2, 2, 3)
+plot(sitesarray(:,3), sitesarray(:,3), '.r');
+hold on
+plot(sitesarray(:,3), sitesarray(:,6), '.b');
+xlabel('Elevation(m)');
+ylabel('MAX air temp (Celsius)');
+title('Max air temp vs elevation');
+legend('July', [ monthlabel, '(20cm, 12am)']);
+
+subplot (2, 2, 4)
+plot(elev, ltMeanPrecip, '.k');
+hold on
+plot(elev, ltMeanSWE, '.b');
+xlabel('Elevation(m)');
+ylabel('mm of water (Celsius)');
+title('Precip and SWE');
+legend('Total precip', 'Peak SWE');
+
+
+%----------------------------------
+% FIG 1 - Full  gradients - aggregate all years
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name',['Mean air and soil temps by elevation, ' statesel ...
+    ' SNOTEL sites']);
+
+[vals, ~, valindex] = unique(soilClim(:,1));
+aggindex = [valindex ones(size(soilClim(:,1)))];
+
+subplot (2, 2, 1)
+% First accumilate the data with accumarray
+elevAgg = accumarray(aggindex, elev, [numel(sites) 1], @mean);
+julAirTmeanAgg = accumarray(aggindex, julAirTmean, [numel(sites) 1], @nanmean);
+jul20cmSTmeanAgg = accumarray(aggindex, jul20cmSTmean, [numel(sites) 1], @nanmean);
+
+plot(elevAgg, julAirTmeanAgg, '.m');
+hold on
+plot(elevAgg, jul20cmSTmeanAgg, '.b');
+xlabel('Elevation(m)');
+ylabel('Mean July temp (^oC)');
+title('JULY - Air and soil temp vs elevation');
+legend('Air', 'Soil(20cm, 12am)');
+
+subplot (2, 2, 2)
+
+decAirTmeanAgg = accumarray(aggindex, decAirTmean, [numel(sites) 1], @nanmean);
+dec20cmSTmeanAgg = accumarray(aggindex, dec20cmSTmean, [numel(sites) 1], @nanmean);
+
+plot(elevAgg, decAirTmeanAgg, 'ok', 'MarkerFaceColor', ...
+    [0.7 0.7 0.7]);
+hold on
+plot(elevAgg, dec20cmSTmeanAgg, 'ok', 'MarkerFaceColor', 'r');
+% Plot moist adiabatic lapse rate
+plot([900 3500], [4, -9], ':k')
+xlabel('Elevation(m)');
+ylabel('Mean temp (Celsius)');
+title([ monthlabel ' - Air and soil temp vs elevation']);
+legend('Air', 'Soil(20cm)', 'Moist adiabatic lapse( 5^oC/km)');
+
+subplot (2, 2, 3)
+plot(sitesarray(:,3), sitesarray(:,3), '.r');
+hold on
+plot(sitesarray(:,3), sitesarray(:,6), '.b');
+xlabel('Elevation(m)');
+ylabel('MAX air temp (Celsius)');
+title('Max air temp vs elevation');
+legend('July', [ monthlabel, '(20cm, 12am)']);
+
+subplot (2, 2, 4)
+plot(elev, ltMeanPrecip, '.k');
+hold on
+plot(elev, ltMeanSWE, '.b');
 xlabel('Elevation(m)');
 ylabel('mm of water (Celsius)');
 title('Precip and SWE');
