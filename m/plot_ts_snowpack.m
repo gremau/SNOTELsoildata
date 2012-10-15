@@ -159,6 +159,13 @@ for i=plotorder
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
+    title(months(i,:));
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('5cm ^oC');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
     
     subplot(3, 5, i+5)
     eval(['x = ' months(i,:) 'SWEmean;']);
@@ -169,6 +176,12 @@ for i=plotorder
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('20cm ^oC');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
     
     subplot(3, 5, i+10);
     eval(['x = ' months(i,:) 'SWEmean;']);
@@ -179,6 +192,13 @@ for i=plotorder
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
+    if i==1
+        ylabel('50cm ^oC');
+    elseif i==3
+        xlabel('Mean SWE');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
 end
 
 
@@ -200,6 +220,13 @@ for i=plotorder
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
+    title(months(i,:));
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('5cm ^oC');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
     
     subplot(3, 5, i+5)
     eval(['x = ' months(i,:) 'SWEmed;']);
@@ -210,6 +237,12 @@ for i=plotorder
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('20cm ^oC');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
     
     subplot(3, 5, i+10)
     eval(['x = ' months(i,:) 'SWEmed;']);
@@ -220,6 +253,14 @@ for i=plotorder
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
+    if i==1
+        ylabel('50cm ^oC');
+    elseif i==3
+        xlabel('Mean SWE');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+
 end
 
 %--------------------------------------------------------

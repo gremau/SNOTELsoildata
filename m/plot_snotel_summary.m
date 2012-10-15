@@ -152,12 +152,19 @@ feb20cmSMsd = vwcData(:, 30);
 feb50cmSMmean = vwcData(:, 31);
 feb50cmSMsd = vwcData(:, 32);
 
-apr5cmSMmean = vwcData(:, 45);
-apr5cmSMsd = vwcData(:, 46);
-apr20cmSMmean = vwcData(:, 47);
-apr20cmSMsd = vwcData(:, 48);
-apr50cmSMmean = vwcData(:, 49);
-apr50cmSMsd = vwcData(:, 50);
+apr5cmSMmean = vwcData(:, 39);
+apr5cmSMsd = vwcData(:, 40);
+apr20cmSMmean = vwcData(:, 41);
+apr20cmSMsd = vwcData(:, 42);
+apr50cmSMmean = vwcData(:, 43);
+apr50cmSMsd = vwcData(:, 44);
+
+may5cmSMmean = vwcData(:, 45);
+may5cmSMsd = vwcData(:, 46);
+may20cmSMmean = vwcData(:, 47);
+may20cmSMsd = vwcData(:, 48);
+may50cmSMmean = vwcData(:, 49);
+may50cmSMsd = vwcData(:, 50);
 
 % These repeat through sept (end of wy)
 ond5cmSMmean = vwcData(:, 75);
@@ -843,14 +850,26 @@ fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
 
-subplot (2, 2, 1)
+
 % Set binning parameters
-topEdge = 45; % define limits
-botEdge = 0; % define limits
-numBins = 10; % define number of bins
+if strcmpi(normalize, 'n')
+    topEdge = 45; % define limits
+    botEdge = 0; % define limits
+    numBins = 10; % define number of bins
+    xaxlim = [0 45];
+    yaxlim = [0 45];
+elseif strcmpi(normalize, 'y')
+    topEdge = 1; % define limits
+    botEdge = 0; % define limits
+    numBins = 10; % define number of bins
+    xaxlim = [0 1];
+    yaxlim = [0 1];
+end
+    
 % And an xaxis to use
 xax = (linspace(botEdge, topEdge, numBins+1));
 
+subplot (2, 2, 1)
 x = preonset5cmSM; %split into x and y
 y = oct5cmSMmean;
 y2 = oct5cmSMsd;
@@ -873,18 +892,10 @@ errorbar(xax(1:numBins), binMeanDec, binSdDec, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
-xlim([-5, 45]);
-ylim([-5, 45]);
+xlim(xaxlim); ylim(yaxlim);
 title('Oct VWC vs pre-snowpack VWC');
 
 subplot (2, 2, 2)
-% Set binning parameters
-topEdge = 45; % define limits
-botEdge = 0; % define limits
-numBins = 10; % define number of bins
-% And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1));
-
 x = preonset5cmSM; %split into x and y
 y = dec5cmSMmean;
 y2 = dec5cmSMsd;
@@ -907,18 +918,10 @@ errorbar(xax(1:numBins), binMeanDec, binSdDec, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
-xlim([-5, 45]);
-ylim([-5, 45]);
+xlim(xaxlim); ylim(yaxlim);
 title('Dec VWC vs pre-snowpack VWC');
 
-subplot (2, 2, 3)
-% Set binning parameters
-topEdge = 45; % define limits
-botEdge = 0; % define limits
-numBins = 10; % define number of bins
-% And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1));
-
+subplot (2, 2, 3);
 x = preonset5cmSM; %split into x and y
 y = feb5cmSMmean;
 y2 = feb5cmSMsd;
@@ -941,18 +944,10 @@ errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
-xlim([-5, 45]);
-ylim([-5, 45]);
+xlim(xaxlim); ylim(yaxlim);
 title('February VWC vs pre-snowpack VWC');
 
-subplot (2, 2, 4)
-% Set binning parameters
-topEdge = 45; % define limits
-botEdge = 0; % define limits
-numBins = 10; % define number of bins
-% And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1));
-
+subplot (2, 2, 4);
 x = preonset5cmSM; %split into x and y
 y = apr5cmSMmean;
 y2 = apr5cmSMsd;
@@ -975,8 +970,7 @@ errorbar(xax(1:numBins), binMeanApr, binSdApr, '.k');
 legend('5cm', '20cm', '50cm');
 xlabel('Wateryear pre-snowpack soilVWC (%)');
 ylabel('Mean VWC (%)');
-xlim([-5, 45]);
-ylim([-5, 45]);
+xlim(xaxlim); ylim(yaxlim);
 title('April VWC vs pre-snowpack VWC');
 
 junk = 99;
