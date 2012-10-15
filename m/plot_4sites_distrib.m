@@ -3,6 +3,9 @@
 % Plots quarterly soil moisture distributions of 4 SNOTEL sites for all
 % (available) years.
 %
+% WARNING: This file is deprecated and has been replaced by
+% plot_examplesites.m
+%
 % Greg Maurer 120202
 
 close all; clear all;   % clear figures and variables in the workspace

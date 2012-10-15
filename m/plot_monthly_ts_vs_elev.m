@@ -3,7 +3,8 @@
 % ver 3: 111130 GM
 %
 % WARNING: This file is deprecated and has been replaced by
-% plot_tempgradients.scr
+% plot_t_elevgradients.scr
+%
 % Was monthlysoiltempgradients_scr.m
 
 close all;      % clear any figures

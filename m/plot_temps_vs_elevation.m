@@ -1,4 +1,4 @@
-% plot_temps_vs_elevation.m
+% plot_t_elevgradients.m
 %
 % Plots elevational gradients in air and soil temperature, and the offset
 % between the two, including comparisons of growing season vs winter months
