@@ -164,13 +164,28 @@ sep20cmSTsd = tsData(:, 72);
 sep50cmSTmean = tsData(:, 73);
 sep50cmSTsd = tsData(:, 74);
 
+% Snowcovered soil temp means
+snowcovMeanST5cm = tsData(:, 105);
+snowcovStdST5cm = tsData(:, 106);
+snowcovMeanST20cm = tsData(:, 107);
+snowcovStdST20cm = tsData(:, 108);
+snowcovMeanST50cm = tsData(:, 109);
+snowcovStdST50cm = tsData(:, 110);
+
+% Snowfree soil temp means
+snowfreeMeanST5cm = tsData(:, 111);
+snowfreeStdST5cm = tsData(:, 112);
+snowfreeMeanST20cm = tsData(:, 113);
+snowfreeStdST20cm = tsData(:, 114);
+snowfreeMeanST50cm = tsData(:, 115);
+snowfreeStdST50cm = tsData(:, 116);
 
 % PLOTS
 %----------------------------------
-% FIG 1 - January and July Tair/Tsoil gradients - all SNOTEL
+% FIG 1 - January and July Tair/Tsoil gradients - All SNOTEL/years
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name','Mean Tair and Tsoil by elevation, all SNOTEL sites');
+set(h, 'Name','Jan/July Air and soil temperature gradients, All SNOTEL');
 
 subplot (2, 2, 1)
 plot(elev, julAirTmean, 'ok', 'MarkerFaceColor', 'r');
@@ -223,9 +238,55 @@ ylabel('Mean temp (Celsius)');
 title('January (mean of all wateryears)');
 legend('Air', 'Soil', 'Moist adiabatic lapse( 5^oC/km)');
 
+% -------------------------------------------------------------
+% FIG 2
+% % Plot all temperature data
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Soil temperature elevation/swe gradients - All SNOTEL/years');
+
+% Plot Snowcovered and snow-free soil temps
+subplot(2,2,1);
+errorbar(elev, snowcovMeanST20cm, snowcovStdST20cm, 'b.');
+hold on
+errorbar(elev, snowfreeMeanST20cm, snowfreeStdST20cm, 'r.');
+title('Snowcovered and snowfree temperature');
+legend('Snow-covered', 'Snow-free');
+ylabel('20cm soil temp');
+xlabel('Elevation (m)');
+
+subplot(2,2,2);
+errorbar(maxswe, snowcovMeanST20cm, snowcovStdST20cm, 'b.');
+hold on
+errorbar(maxswe, snowfreeMeanST20cm, snowfreeStdST20cm, 'r.');
+title('Snowcovered and snowfree temperature');
+legend('Snow-covered', 'Snow-free');
+ylabel('20cm Ts (^oC)');
+xlabel('Peak SWE (mm)');
+
+% Plot January and July soil temps by elevation
+subplot(2,2,3);
+errorbar(elev, jan20cmSTmean,jan20cmSTsd, 'ko', 'MarkerFaceColor', 'w');
+hold on;
+errorbar(elev, jul20cmSTmean, jul20cmSTsd, 'ko', 'MarkerFaceColor', 'k');
+% Plot moist adiabatic lapse rate
+plot([1600 3400], [18, 9], ':k');
+legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
+xlabel('Elevation (m)');
+ylabel('20cm Ts (^oC)')
+
+% Plot January and July soil temps by elevation
+subplot(2,2,4);
+errorbar(maxswe, jan20cmSTmean,jan20cmSTsd, 'ko', 'MarkerFaceColor', 'w');
+hold on;
+errorbar(maxswe, jul20cmSTmean, jul20cmSTsd, 'ko', 'MarkerFaceColor', 'k');
+% Plot moist adiabatic lapse rate
+legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
+xlabel('Peak SWE (mm)');
+ylabel('20cm Ts (^oC)')
 
 %----------------------------------
-% FIG 2 - Other landscape gradients
+% FIG 3 - Other landscape gradients
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name', 'Other landscape gradients');
@@ -278,10 +339,10 @@ title('Snow events vs latitude');
 legend('Snow onset', 'Snow melt', 'Total snow days');
 
 % -----------------------------------------------------------
-% FIG 3 - Month soil temps vs air temp
+% FIG 4 - Month soil temps vs air temp
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
+set(h, 'Name', 'Mean monthly air and soil T - All SNOTEL/years');
 
 % Set some plotting parameters
 plotorder = 1:3;
@@ -358,10 +419,10 @@ for i=plotorder
 end
 
 % -------------------------------------------------------
-% FIG 4 - Month soil temps vs air temp
+% FIG 5 - Month soil temps vs air temp
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
+set(h, 'Name', 'Dec-Apr air and soil temp - All SNOTEL/years');
 
 % Set some plotting parameters
 plotorder = 1:5;
@@ -418,7 +479,7 @@ end
 
 
 %--------------------------------------------------------
-% FIG 5 - Restricted gradients
+% FIG 6 - Restricted gradients
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name','Restricted gradients');
@@ -456,9 +517,10 @@ title('Constant elevation - Peak SWE');
 
 
 %----------------------------------------------------------------------
-% FIG 6
+% FIG 7 - Winter Air/Soil gradient - All SNOTEL/years
 fignum = fignum+1;    
 h = figure(fignum);
+set(h, 'Name','Dec Air/Soil gradient - All SNOTEL/years');
 
 subplot (1,2,1);
 plot(elev, decAirTmean, 'ok', 'MarkerFaceColor', ...
@@ -484,9 +546,10 @@ legend('Air', 'Soil(5cm)', 'Moist adiabatic lapse( 5^oC/km)');
 
 
 % -------------------------------------------------------------
-% FIG 7
+% FIG 8 - Winter Air/Soil gradient and offset - All SNOTEL/years
 fignum = fignum+1;    
 h = figure(fignum);
+set(h, 'Name','Dec Air/Soil gradient and offset - All SNOTEL/years');
 
 subplot (1,2,1);
 errorbar(elev, decAirTmean, decAirTsd, ...
@@ -510,9 +573,10 @@ title('Air-Soil temp. offset');
 %legend('Air-Soil Offset');
 
 % -------------------------------------------------------------
-% FIG 8 - Look at Utah data only
+% FIG 9 - Jan Air/Soil T gradients - Utah data only
 fignum = fignum+1;    
 h = figure(fignum);
+set(h, 'Name','(UT) January Air/Soil T gradients');
 
 selstate = 'UT';
 selsites = siteIDs(strcmpi(states, 'UT'));
@@ -536,9 +600,10 @@ legend('Air', 'Soil (20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 title('Utah - January Tair/Tsoil');
 
 % -------------------------------------------------------------
-% FIG 8 - Look at aggregated Utah data only
+% FIG 10 - Jan Air/Soil T gradients - aggregated Utah data only
 fignum = fignum+1;    
 h = figure(fignum);
+set(h, 'Name','(UT-Agg) January Air/Soil T gradients');
 
 st_test = ismember(unique(soilClim(:,1)), selsites);
 % Aggregate the mean and sd
@@ -560,5 +625,46 @@ xlabel('Elevation(m)');
 ylabel('Mean temp (^oC)');
 legend('Air', 'Soil (20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 title('Utah - January Tair/Tsoil (aggregated)');
+
+
+% -------------------------------------------------------------
+% FIG 11 - January/July soil T gradients - Utah data only
+
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name','(UT) January/July Soil T gradients');
+% Plot January and July soil temps by elevation
+errorbar(elev(st_test), jan20cmSTmean(st_test),...
+    jan20cmSTsd(st_test), 'ko', 'MarkerFaceColor', 'w');
+hold on;
+errorbar(elev(st_test), jul20cmSTmean(st_test),...
+    jul20cmSTsd(st_test), 'ko', 'MarkerFaceColor', 'k');
+% Plot moist adiabatic lapse rate
+plot([1600 3400], [18, 9], ':k');
+legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
+xlabel('Elevation (m)');
+ylabel('20cm Ts (^oC)')
+
+% -------------------------------------------------------------
+% FIG 12 - January/July soil T gradients - AggregatedUtah data only
+
+% Aggregate the mean and sd
+%julAirTsdAgg = accumarray(aggindex, julAirTsd, [numel(sites) 1], @mean);
+jul20cmSTsdAgg = accumarray(aggindex, jul20cmSTsd, [numel(sites) 1], @mean);
+
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name','(UT-Agg) January/July Soil T gradients');
+% Plot January and July soil temps by elevation
+errorbar(elevAgg(st_test), jan20cmSTmeanAgg(st_test),...
+    jan20cmSTsdAgg(st_test), 'ko', 'MarkerFaceColor', 'w');
+hold on;
+errorbar(elevAgg(st_test), jul20cmSTmeanAgg(st_test),...
+    jul20cmSTsdAgg(st_test), 'ko', 'MarkerFaceColor', 'k');
+% Plot moist adiabatic lapse rate
+plot([1600 3400], [18, 9], ':k');
+legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
+xlabel('Elevation (m)');
+ylabel('20cm Ts (^oC)')
 
 junk = 99;

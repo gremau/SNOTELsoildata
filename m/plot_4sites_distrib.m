@@ -10,9 +10,11 @@ fignum = 0;     % used to increment figure number for plots
 addpath('/home/greg/data/programming/m_common/');
 
 % Set list of sites, sensor output(vwc or temp), and sensor depth
-siteIDs = [828, 333, 396, 583]; % elev/swe: hi/hi, low/hi, hi/low, low/low
+siteIDs = [828, 333, 452, 336]; % elev/swe: hi/hi, low/hi, hi/low, low/low
+% 828 = TrialLk, 333 = BenLomTrail, 452=DonkeyRes, 573=Big BendNV
 sensoroutput = 'vwc';
 sensordepth = 2; %(1=5cm, 2=20cm, 3=50cm);
+startwy = 2006;
 
 % Select TEMP or VWC data and set distribution bins and plot axes
 if strcmpi(sensoroutput, 'vwc');
@@ -46,9 +48,20 @@ means = zeros(16, 1);
 for i = 1:length(siteIDs);
     % Load hourly data from site  w/ loadsnotel:
     siteHourly = loadsnotel(siteIDs(i), 'hourly', 'exclude');
+    % Get rid of wateryears prior to startwy
+    wyexclude = siteHourly{10}>startwy-1;
+    for j = 1:10
+        siteHourly{j} = siteHourly{j}(wyexclude);
+    end
     % Parse out the desired sensor depth, normalize if plotting vwc
     if strcmpi(sensoroutput, 'vwc')
         sensordata = filterseries(siteHourly{sensorcolumn}, 'sigma', 25, 3);
+        % SPECIAL Case for Taylor Cyn - There is some bad data that makes it
+        % past filter and messes up normalization - remove it
+        if siteIDs(i) == 336 %811n for TaylorCyn, 336 for BigBend
+            test = sensordata<10; %18 for TaylorCyn, 10 for BigBend
+            sensordata(test)=nan;
+        end
         sensordata = smnormalize(sensordata, 1);
     else
         sensordata = siteHourly{sensorcolumn};

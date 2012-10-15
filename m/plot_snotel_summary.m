@@ -137,21 +137,36 @@ oct20cmSMmean = vwcData(:, 5);
 oct20cmSMsd = vwcData(:, 6);
 oct50cmSMmean = vwcData(:, 7);
 oct50cmSMsd = vwcData(:, 8);
-
+nov5cmSMmean = vwcData(:, 9);
+nov5cmSMsd = vwcData(:, 10);
+nov20cmSMmean = vwcData(:, 11);
+nov20cmSMsd = vwcData(:, 12);
+nov50cmSMmean = vwcData(:, 13);
+nov50cmSMsd = vwcData(:, 14);
 dec5cmSMmean = vwcData(:, 15);
 dec5cmSMsd = vwcData(:, 16);
 dec20cmSMmean = vwcData(:, 17);
 dec20cmSMsd = vwcData(:, 18);
 dec50cmSMmean = vwcData(:, 19);
 dec50cmSMsd = vwcData(:, 20);
-
+jan5cmSMmean = vwcData(:, 21);
+jan5cmSMsd = vwcData(:, 22);
+jan20cmSMmean = vwcData(:, 23);
+jan20cmSMsd = vwcData(:, 24);
+jan50cmSMmean = vwcData(:, 25);
+jan50cmSMsd = vwcData(:, 26);
 feb5cmSMmean = vwcData(:, 27);
 feb5cmSMsd = vwcData(:, 28);
 feb20cmSMmean = vwcData(:, 29);
 feb20cmSMsd = vwcData(:, 30);
 feb50cmSMmean = vwcData(:, 31);
 feb50cmSMsd = vwcData(:, 32);
-
+mar5cmSMmean = vwcData(:, 33);
+mar5cmSMsd = vwcData(:, 34);
+mar20cmSMmean = vwcData(:, 35);
+mar20cmSMsd = vwcData(:, 36);
+mar50cmSMmean = vwcData(:, 37);
+mar50cmSMsd = vwcData(:, 38);
 apr5cmSMmean = vwcData(:, 39);
 apr5cmSMsd = vwcData(:, 40);
 apr20cmSMmean = vwcData(:, 41);
@@ -364,6 +379,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(elev), ':k');
 vline(nanmean(elev(testsoil)), ':r');
+xlim([700 3700]); ylim([0 400]);
 title('Elevation');
 
 subplot (4, 2, 2)
@@ -375,6 +391,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(maat), ':k');
 vline(nanmean(maat(testsoil)), ':r');
+xlim([-5 15]); ylim([0 500]);
 title('Mean wateryear air T');
 
 subplot (4, 2, 3)
@@ -386,6 +403,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(accumprecip), ':k');
 vline(nanmean(accumprecip(testsoil)), ':r');
+xlim([-10 2500]); ylim([0 500]);
 title('Wateryear precip');
 
 subplot (4, 2, 4)
@@ -397,6 +415,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(JASprecip), ':k');
 vline(nanmean(JASprecip(testsoil)), ':r');
+xlim([-2 50]); ylim([0 700]);
 title('Summer Precip (Jul, Aug, Sep)');
 
 subplot (4, 2, 5)
@@ -408,6 +427,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(maxswe), ':k');
 vline(nanmean(maxswe(testsoil)), ':r');
+xlim([-2 2000]); ylim([0 400]);
 title('Peak SWE');
 
 subplot (4, 2, 6)
@@ -419,6 +439,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(totaldaysSC), ':k');
 vline(nanmean(totaldaysSC(testsoil)), ':r');
+xlim([-2 300]); ylim([0 500]);
 title('Total snowcovered days');
 
 subplot (4, 2, 7)
@@ -430,6 +451,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(onsetdoy), ':k');
 vline(nanmean(onsetdoy(testsoil)), ':r');
+xlim([-2 125]); ylim([0 700]);
 title('Snowpack onset day');
 
 subplot (4, 2, 8)
@@ -441,6 +463,7 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(meltdoy), ':k');
 vline(nanmean(meltdoy(testsoil)), ':r');
+xlim([100 350]); ylim([0 700]);
 title('Day of snowmelt');
 
 
@@ -862,117 +885,45 @@ elseif strcmpi(normalize, 'y')
     topEdge = 1; % define limits
     botEdge = 0; % define limits
     numBins = 10; % define number of bins
-    xaxlim = [0 1];
+    xaxlim = [-0.1 1];
     yaxlim = [0 1];
 end
     
 % And an xaxis to use
 xax = (linspace(botEdge, topEdge, numBins+1));
 
-subplot (2, 2, 1)
-x = preonset5cmSM; %split into x and y
-y = oct5cmSMmean;
-y2 = oct5cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanDec, binSdDec, '.g');
-hold on;
-x = preonset20cmSM; %split into x and y
-y = oct20cmSMmean;
-y2 = oct20cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanDec, binSdDec, '.b');
-x = preonset50cmSM; %split into x and y
-y = oct50cmSMmean;
-y2 = oct50cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanDec, binSdDec, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soilVWC (%)');
-ylabel('Mean VWC (%)');
-xlim(xaxlim); ylim(yaxlim);
-title('Oct VWC vs pre-snowpack VWC');
+% And months to plot
+months = ['Nov'; 'Jan'; 'Mar'];
 
-subplot (2, 2, 2)
-x = preonset5cmSM; %split into x and y
-y = dec5cmSMmean;
-y2 = dec5cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanDec, binSdDec, '.g');
-hold on;
-x = preonset20cmSM; %split into x and y
-y = dec20cmSMmean;
-y2 = dec20cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanDec, binSdDec, '.b');
-x = preonset50cmSM; %split into x and y
-y = dec50cmSMmean;
-y2 = dec50cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanDec, binSdDec, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soilVWC (%)');
-ylabel('Mean VWC (%)');
-xlim(xaxlim); ylim(yaxlim);
-title('Dec VWC vs pre-snowpack VWC');
-
-subplot (2, 2, 3);
-x = preonset5cmSM; %split into x and y
-y = feb5cmSMmean;
-y2 = feb5cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanFeb,binSdFeb] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.g');
-hold on;
-x = preonset20cmSM; %split into x and y
-y = feb20cmSMmean;
-y2 = feb20cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanFeb,binSdFeb] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.b');
-x = preonset50cmSM; %split into x and y
-y = feb50cmSMmean;
-y2 = feb50cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanFeb,binSdFeb] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanFeb, binSdFeb, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soilVWC (%)');
-ylabel('Mean VWC (%)');
-xlim(xaxlim); ylim(yaxlim);
-title('February VWC vs pre-snowpack VWC');
-
-subplot (2, 2, 4);
-x = preonset5cmSM; %split into x and y
-y = apr5cmSMmean;
-y2 = apr5cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanApr,binSdApr] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanApr, binSdApr, '.g');
-hold on;
-x = preonset20cmSM; %split into x and y
-y = apr20cmSMmean;
-y2 = apr20cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanApr,binSdApr] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanApr, binSdApr, '.b');
-x = preonset50cmSM; %split into x and y
-y = apr50cmSMmean;
-y2 = apr50cmSMsd;
-%[binMean1, binMean2] = bin(x, y, y2);
-[binMeanApr,binSdApr] = binseries(x, y, y2, topEdge, botEdge, numBins);
-errorbar(xax(1:numBins), binMeanApr, binSdApr, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soilVWC (%)');
-ylabel('Mean VWC (%)');
-xlim(xaxlim); ylim(yaxlim);
-title('April VWC vs pre-snowpack VWC');
-
+for i = 1:3;
+    subplot (3,1, i)
+    x = preonset5cmSM; %split into x and y
+    eval(['y = ' lower(months(i,:)) '5cmSMmean;']);
+    eval(['y2 = ' lower(months(i,:)) '5cmSMsd;']);
+    [binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'o',...
+        'Color', [0.7 0.7 0.7]);
+    hold on;
+    x = preonset20cmSM; %split into x and y
+    eval(['y = ' lower(months(i,:)) '20cmSMmean;']);
+    eval(['y2 = ' lower(months(i,:)) '20cmSMsd;']);
+    [binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'o',...
+        'Color', [0.4 0.4 0.4]);
+    x = preonset50cmSM; %split into x and y
+    eval(['y = ' lower(months(i,:)) '50cmSMmean;']);
+    eval(['y2 = ' lower(months(i,:)) '50cmSMsd;']);
+    [binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
+    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'ok');
+    xlabel('Wateryear pre-snowpack soilVWC (%)');
+    ylabel('Mean VWC (%)');
+    xlim(xaxlim); ylim(yaxlim);
+    title([months(i,:) ' VWC vs pre-snowpack VWC']);
+    if i==1
+        legend('5cm', '20cm', '50cm', 'Location', 'NorthWest');
+    end
+    
+end
 junk = 99;
 end
 

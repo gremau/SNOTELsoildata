@@ -2,7 +2,8 @@
 %
 % ver 3: 111130 GM
 %
-%
+% WARNING: This file is deprecated and has been replaced by
+% plot_tempgradients.scr
 % Was monthlysoiltempgradients_scr.m
 
 close all;      % clear any figures
@@ -60,9 +61,9 @@ sitesarray = sitesarray(testhavedata, :);
 
 % Change variables to something more useful
 % sites = sitesArray(:,1);
-elev = sitesArray(:,2);
-% ltprecip = nan * zeros(length(sites), 1);
-% ltswe = nan * zeros(length(sites), 1);
+elev = sitesarray(:,2);
+%ltprecip = nan * zeros(length(sites), 1);
+%ltswe = nan * zeros(length(sites), 1);
 
 % Add 30-year SWE and Precip for all sites remaining in sitesarray
 for i = 1:length(sitesarray(:,1));
@@ -101,22 +102,21 @@ for i = 1:length(sitesarray(:, 1));
     % from FIXGAPS routine on Matlab Central file exchange,
     % by R. Pawlowicz 6/Nov/99
 
-    Ts_filled = Ts;
-
-    bad = isnan(Ts);
-    good = find(~bad);
-
-    bad([1:(min(good)-1) (max(good)+1):end]) = 0;
-
-    Ts_filled(bad)=interp1(good, Ts(good), find(bad), 'pchip');
-    
-    Ts = Ts_filled;
+%     Ts_filled = Ts;
+% 
+%     bad = isnan(Ts);
+%     good = find(~bad);
+% 
+%     bad([1:(min(good)-1) (max(good)+1):end]) = 0;
+% 
+%     Ts_filled(bad)=interp1(good, Ts(good), find(bad), 'pchip');
+%     
+%     Ts = Ts_filled;
     %
     % Filter
     %Ts = filterseries(Ts, 'shift', 2.5);
     % FILTER Tsoil data (returns filtered and re-interpolated array) 
-    Ts_meandiff = filterseries(Ts, 'mean', 7);
-    Ts = filterseries(Ts_meandiff, 'shift', 5);
+    Ts = filterseries(Ts, 'sigma', 25, 3);
     
     % Generate decimal day and snowcover test arrays
     decday_h = datenum(strcat(m{2}, m{3}), 'yyyy-mm-ddHH:MM');
@@ -187,15 +187,14 @@ legend('February', 'July', 'Moist adiabatic lapse (5^oC/km)');
 xlabel('Elevation (m)');
 ylabel('Mean soil temp (^oC)')
 
-
 % Plot February and July soil temps by SWE
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Mean 5cm Ts, Feb and July, by mean MAX SWE');
-errorbar(ltswe, snowmeans(2,:), snowdev(2,:), 'b.');
+errorbar(sitesarray(:,3), snowmeans(2,:), snowdev(2,:), 'b.');
 hold on
-errorbar(ltswe, freemeans(7,:), freedev(7,:), 'r.');
-plot(ltswe, snowmeans(2,:), 'b.', elev, freemeans(7,:), 'r.')
+errorbar(sitesarray(:,3), freemeans(7,:), freedev(7,:), 'r.');
+plot(sitesarray(:,3), snowmeans(2,:), 'b.', elev, freemeans(7,:), 'r.')
 title('5cm Ts: Feb = blue, July = red');
 xlabel('SWE (mm)');
 ylabel('Mean degrees C')

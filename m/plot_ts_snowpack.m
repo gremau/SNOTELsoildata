@@ -146,16 +146,16 @@ set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
 
 % Set some plotting parameters
 plotorder = 1:5;
-months = ['dec';'jan';'feb';'mar';'apr'] ;
-polyorder = 3;
+months = ['Dec';'Jan';'Feb';'Mar';'Apr'] ;
+polyorder = 2;
 
 for i=plotorder
     subplot(3, 5, i);
-    eval(['x = ' months(i,:) 'SWEmean;']);
-    eval(['y = ' months(i,:) '5cmSTmean;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    eval(['y = ' lower(months(i,:)) '5cmSTmean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
@@ -168,11 +168,11 @@ for i=plotorder
     end
     
     subplot(3, 5, i+5)
-    eval(['x = ' months(i,:) 'SWEmean;']);
-    eval(['y = ' months(i,:) '20cmSTmean;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    eval(['y = ' lower(months(i,:)) '20cmSTmean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
@@ -184,11 +184,11 @@ for i=plotorder
     end
     
     subplot(3, 5, i+10);
-    eval(['x = ' months(i,:) 'SWEmean;']);
-    eval(['y = ' months(i,:) '50cmSTmean;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    eval(['y = ' lower(months(i,:)) '50cmSTmean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
@@ -212,11 +212,11 @@ set(h, 'Name', 'Mean monthly temp vs Median SWE - all sites/wateryears');
 
 for i=plotorder
     subplot(3, 5, i)
-    eval(['x = ' months(i,:) 'SWEmed;']);
-    eval(['y = ' months(i,:) '5cmSTmean;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmed;']);
+    eval(['y = ' lower(months(i,:)) '5cmSTmean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
@@ -229,11 +229,11 @@ for i=plotorder
     end
     
     subplot(3, 5, i+5)
-    eval(['x = ' months(i,:) 'SWEmed;']);
-    eval(['y = ' months(i,:) '20cmSTmean;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmed;']);
+    eval(['y = ' lower(months(i,:)) '20cmSTmean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
@@ -245,18 +245,18 @@ for i=plotorder
     end
     
     subplot(3, 5, i+10)
-    eval(['x = ' months(i,:) 'SWEmed;']);
-    eval(['y = ' months(i,:) '50cmSTmean;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmed;']);
+    eval(['y = ' lower(months(i,:)) '50cmSTmean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
     if i==1
         ylabel('50cm ^oC');
     elseif i==3
-        xlabel('Mean SWE');
+        xlabel('Median SWE');
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
