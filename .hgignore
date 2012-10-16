@@ -2,4 +2,4 @@
 syntax: glob
 
 *~
-obsolete_scripts/*
+obsolete/*

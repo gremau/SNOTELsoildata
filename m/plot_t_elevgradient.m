@@ -1,4 +1,4 @@
-% plot_t_elevgradients.m
+% plot_t_elevgradient.m
 %
 % Plots elevational gradients in air and soil temperature, and the offset
 % between the two, including comparisons of growing season vs winter months
@@ -30,9 +30,9 @@ tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
 % Get a subset of climData that corresponds with available soildata
-[matchtest, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
-soilClim = climData(matchtest, :);
-% matchtest2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
+[matchsoil, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
+soilClim = climData(matchsoil, :);
+% matchsoil2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
 
 % Ask user for month number and state
 % statesel = input(...
@@ -60,30 +60,30 @@ maat = soilClim(:, 74); % Mean wateryear air temp
 onsetdoy = soilClim(:, 6);
 meltdoy = soilClim(:, 7);
 totaldaysSC = soilClim(:, 9);
-octAirTmean = soilClim(:,50);
-octAirTsd = soilClim(:, 51);
-novAirTmean = soilClim(:, 52);
-novAirTsd = soilClim(:, 53);
-decAirTmean = soilClim(:, 54);
-decAirTsd = soilClim(:, 55);
-janAirTmean = soilClim(:, 56);
-janAirTsd = soilClim(:, 57);
-febAirTmean = soilClim(:, 58);
-febAirTsd = soilClim(:, 59);
-marAirTmean = soilClim(:, 60);
-marAirTsd = soilClim(:, 61);
-aprAirTmean = soilClim(:, 62);
-aprAirTsd = soilClim(:, 63);
-mayAirTmean = soilClim(:, 64);
-mayAirTsd = soilClim(:, 65);
-junAirTmean = soilClim(:, 66);
-junAirTsd = soilClim(:, 67);
-julAirTmean = soilClim(:, 68);
-julAirTsd = soilClim(:, 69);
-augAirTmean = soilClim(:, 70);
-augAirTsd = soilClim(:, 71);
-sepAirTmean = soilClim(:, 72);
-sepAirTsd = soilClim(:, 73);
+octTairMean = soilClim(:,50);
+octTairSd = soilClim(:, 51);
+novTairMean = soilClim(:, 52);
+novTairSd = soilClim(:, 53);
+decTairMean = soilClim(:, 54);
+decTairSd = soilClim(:, 55);
+janTairMean = soilClim(:, 56);
+janTairSd = soilClim(:, 57);
+febTairMean = soilClim(:, 58);
+febTairSd = soilClim(:, 59);
+marTairMean = soilClim(:, 60);
+marTairSd = soilClim(:, 61);
+aprTairMean = soilClim(:, 62);
+aprTairSd = soilClim(:, 63);
+mayTairMean = soilClim(:, 64);
+mayTairSd = soilClim(:, 65);
+junTairMean = soilClim(:, 66);
+junTairSd = soilClim(:, 67);
+julTairMean = soilClim(:, 68);
+julTairSd = soilClim(:, 69);
+augTairMean = soilClim(:, 70);
+augTairSd = soilClim(:, 71);
+sepTairMean = soilClim(:, 72);
+sepTairSd = soilClim(:, 73);
 
 elev = soilClim(:, 82);
 lat = soilClim(:, 83);
@@ -91,94 +91,94 @@ lon = soilClim(:, 84);
 ltMeanSWE = soilClim(:, 85);
 ltMeanPrecip = soilClim(:, 86);
 
-oct5cmSTmean = tsData(:, 3);
-oct5cmSTsd = tsData(:, 4);
-oct20cmSTmean = tsData(:, 5);
-oct20cmSTsd = tsData(:, 6);
-oct50cmSTmean = tsData(:, 7);
-oct50cmSTsd = tsData(:, 8);
-nov5cmSTmean = tsData(:, 9);
-nov5cmSTsd = tsData(:, 10);
-nov20cmSTmean = tsData(:, 11);
-nov20cmSTsd = tsData(:, 12);
-nov50cmSTmean = tsData(:, 13);
-nov50cmSTsd = tsData(:, 14);
-dec5cmSTmean = tsData(:, 15);
-dec5cmSTsd = tsData(:, 16);
-dec20cmSTmean = tsData(:, 17);
-dec20cmSTsd = tsData(:, 18);
-dec50cmSTmean = tsData(:, 19);
-dec50cmSTsd = tsData(:, 20);
-jan5cmSTmean = tsData(:, 21);
-jan5cmSTsd = tsData(:, 22);
-jan20cmSTmean = tsData(:, 23);
-jan20cmSTsd = tsData(:, 24);
-jan50cmSTmean = tsData(:, 25);
-jan50cmSTsd = tsData(:, 26);
-feb5cmSTmean = tsData(:, 27);
-feb5cmSTsd = tsData(:, 28);
-feb20cmSTmean = tsData(:, 29);
-feb20cmSTsd = tsData(:, 30);
-feb50cmSTmean = tsData(:, 31);
-feb50cmSTsd = tsData(:, 32);
-mar5cmSTmean = tsData(:, 33);
-mar5cmSTsd = tsData(:, 34);
-mar20cmSTmean = tsData(:, 35);
-mar20cmSTsd = tsData(:, 36);
-mar50cmSTmean = tsData(:, 37);
-mar50cmSTsd = tsData(:, 38);
-apr5cmSTmean = tsData(:, 39);
-apr5cmSTsd = tsData(:, 40);
-apr20cmSTmean = tsData(:, 41);
-apr20cmSTsd = tsData(:, 42);
-apr50cmSTmean = tsData(:, 43);
-apr50cmSTsd = tsData(:, 44);
-may5cmSTmean = tsData(:, 45);
-may5cmSTsd = tsData(:, 46);
-may20cmSTmean = tsData(:, 47);
-may20cmSTsd = tsData(:, 48);
-may50cmSTmean = tsData(:, 49);
-may50cmSTsd = tsData(:, 50);
-jun5cmSTmean = tsData(:, 51);
-jun5cmSTsd = tsData(:, 52);
-jun20cmSTmean = tsData(:, 53);
-jun20cmSTsd = tsData(:, 54);
-jun50cmSTmean = tsData(:, 55);
-jun50cmSTsd = tsData(:, 56);
-jul5cmSTmean = tsData(:, 57);
-jul5cmSTsd = tsData(:, 58);
-jul20cmSTmean = tsData(:, 59);
-jul20cmSTsd = tsData(:, 60);
-jul50cmSTmean = tsData(:, 61);
-jul50cmSTsd = tsData(:, 62);
-aug5cmSTmean = tsData(:, 63);
-aug5cmSTsd = tsData(:, 64);
-aug20cmSTmean = tsData(:, 65);
-aug20cmSTsd = tsData(:, 66);
-aug50cmSTmean = tsData(:, 67);
-aug50cmSTsd = tsData(:, 68);
-sep5cmSTmean = tsData(:, 69);
-sep5cmSTsd = tsData(:, 70);
-sep20cmSTmean = tsData(:, 71);
-sep20cmSTsd = tsData(:, 72);
-sep50cmSTmean = tsData(:, 73);
-sep50cmSTsd = tsData(:, 74);
+octTs5mean = tsData(:, 3);
+octTs5sd = tsData(:, 4);
+octTs20mean = tsData(:, 5);
+octTs20sd = tsData(:, 6);
+octTs50mean = tsData(:, 7);
+octTs50sd = tsData(:, 8);
+novTs5mean = tsData(:, 9);
+novTs5sd = tsData(:, 10);
+novTs20mean = tsData(:, 11);
+novTs20sd = tsData(:, 12);
+novTs50mean = tsData(:, 13);
+novTs50sd = tsData(:, 14);
+decTs5mean = tsData(:, 15);
+decTs5sd = tsData(:, 16);
+decTs20mean = tsData(:, 17);
+decTs20sd = tsData(:, 18);
+decTs50mean = tsData(:, 19);
+decTs50sd = tsData(:, 20);
+janTs5mean = tsData(:, 21);
+janTs5sd = tsData(:, 22);
+janTs20mean = tsData(:, 23);
+janTs20sd = tsData(:, 24);
+janTs50mean = tsData(:, 25);
+janTs50sd = tsData(:, 26);
+febTs5mean = tsData(:, 27);
+febTs5sd = tsData(:, 28);
+febTs20mean = tsData(:, 29);
+febTs20sd = tsData(:, 30);
+febTs50mean = tsData(:, 31);
+febTs50sd = tsData(:, 32);
+marTs5mean = tsData(:, 33);
+marTs5sd = tsData(:, 34);
+marTs20mean = tsData(:, 35);
+marTs20sd = tsData(:, 36);
+marTs50mean = tsData(:, 37);
+marTs50sd = tsData(:, 38);
+aprTs5mean = tsData(:, 39);
+aprTs5sd = tsData(:, 40);
+aprTs20mean = tsData(:, 41);
+aprTs20sd = tsData(:, 42);
+aprTs50mean = tsData(:, 43);
+aprTs50sd = tsData(:, 44);
+mayTs5mean = tsData(:, 45);
+mayTs5sd = tsData(:, 46);
+mayTs20mean = tsData(:, 47);
+mayTs20sd = tsData(:, 48);
+mayTs50mean = tsData(:, 49);
+mayTs50sd = tsData(:, 50);
+junTs5mean = tsData(:, 51);
+junTs5sd = tsData(:, 52);
+junTs20mean = tsData(:, 53);
+junTs20sd = tsData(:, 54);
+junTs50mean = tsData(:, 55);
+junTs50sd = tsData(:, 56);
+julTs5mean = tsData(:, 57);
+julTs5sd = tsData(:, 58);
+julTs20mean = tsData(:, 59);
+julTs20sd = tsData(:, 60);
+julTs50mean = tsData(:, 61);
+julTs50sd = tsData(:, 62);
+augTs5mean = tsData(:, 63);
+augTs5sd = tsData(:, 64);
+augTs20mean = tsData(:, 65);
+augTs20sd = tsData(:, 66);
+augTs50mean = tsData(:, 67);
+augTs50sd = tsData(:, 68);
+sepTs5mean = tsData(:, 69);
+sepTs5sd = tsData(:, 70);
+sepTs20mean = tsData(:, 71);
+sepTs20sd = tsData(:, 72);
+sepTs50mean = tsData(:, 73);
+sepTs50sd = tsData(:, 74);
 
 % Snowcovered soil temp means
-snowcovMeanST5cm = tsData(:, 105);
-snowcovStdST5cm = tsData(:, 106);
-snowcovMeanST20cm = tsData(:, 107);
-snowcovStdST20cm = tsData(:, 108);
-snowcovMeanST50cm = tsData(:, 109);
-snowcovStdST50cm = tsData(:, 110);
+snowcovTs5mean = tsData(:, 105);
+snowcovTs5sd = tsData(:, 106);
+snowcovTs20mean = tsData(:, 107);
+snowcovTs20sd = tsData(:, 108);
+snowcovTs50mean = tsData(:, 109);
+snowcovTs50sd = tsData(:, 110);
 
 % Snowfree soil temp means
-snowfreeMeanST5cm = tsData(:, 111);
-snowfreeStdST5cm = tsData(:, 112);
-snowfreeMeanST20cm = tsData(:, 113);
-snowfreeStdST20cm = tsData(:, 114);
-snowfreeMeanST50cm = tsData(:, 115);
-snowfreeStdST50cm = tsData(:, 116);
+snowfreeTs5mean = tsData(:, 111);
+snowfreeTs5sd = tsData(:, 112);
+snowfreeTs20mean = tsData(:, 113);
+snowfreeTs20sd = tsData(:, 114);
+snowfreeTs50mean = tsData(:, 115);
+snowfreeTs50sd = tsData(:, 116);
 
 % PLOTS
 %----------------------------------
@@ -188,9 +188,9 @@ h = figure(fignum);
 set(h, 'Name','Jan/July Air and soil temperature gradients, All SNOTEL');
 
 subplot (2, 2, 1)
-plot(elev, julAirTmean, 'ok', 'MarkerFaceColor', 'r');
+plot(elev, julTairMean, 'ok', 'MarkerFaceColor', 'r');
 hold on
-plot(elev, jul20cmSTmean, 'ok', 'MarkerFaceColor', ...
+plot(elev, julTs20mean, 'ok', 'MarkerFaceColor', ...
     [0.7 0.7 0.7]);
 xlabel('Elevation(m)');
 ylabel('Mean July temp (^oC)');
@@ -198,9 +198,9 @@ title('July');
 legend('Air', 'Soil(20cm)');
 
 subplot (2, 2, 2)
-plot(elev, janAirTmean, 'ok', 'MarkerFaceColor', 'b');
+plot(elev, janTairMean, 'ok', 'MarkerFaceColor', 'b');
 hold on
-plot(elev, jan20cmSTmean, 'ok', 'MarkerFaceColor', ...
+plot(elev, janTs20mean, 'ok', 'MarkerFaceColor', ...
     [0.7 0.7 0.7]);
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
@@ -211,15 +211,15 @@ legend('Air', 'Soil', 'Moist adiabatic lapse( 5^oC/km)');
 
 % Aggregate by wateryear using accumarray
 elevAgg = accumarray(aggindex, elev, [numel(sites) 1], @mean);
-julAirTmeanAgg = accumarray(aggindex, julAirTmean, [numel(sites) 1], @nanmean);
-jul20cmSTmeanAgg = accumarray(aggindex, jul20cmSTmean, [numel(sites) 1], @nanmean);
-janAirTmeanAgg = accumarray(aggindex, janAirTmean, [numel(sites) 1], @nanmean);
-jan20cmSTmeanAgg = accumarray(aggindex, jan20cmSTmean, [numel(sites) 1], @nanmean);
+julTairMeanAgg = accumarray(aggindex, julTairMean, [numel(sites) 1], @nanmean);
+julTs20meanAgg = accumarray(aggindex, julTs20mean, [numel(sites) 1], @nanmean);
+janTairMeanAgg = accumarray(aggindex, janTairMean, [numel(sites) 1], @nanmean);
+janTs20meanAgg = accumarray(aggindex, janTs20mean, [numel(sites) 1], @nanmean);
 
 subplot (2, 2, 3)
-plot(elevAgg, julAirTmeanAgg, 'ok', 'MarkerFaceColor', 'r');
+plot(elevAgg, julTairMeanAgg, 'ok', 'MarkerFaceColor', 'r');
 hold on
-plot(elevAgg, jul20cmSTmeanAgg, 'ok', 'MarkerFaceColor', ...
+plot(elevAgg, julTs20meanAgg, 'ok', 'MarkerFaceColor', ...
     [0.7 0.7 0.7]);
 xlabel('Elevation(m)');
 ylabel('Mean July temp (^oC)');
@@ -227,9 +227,9 @@ title('July (mean of all wateryears)');
 legend('Air', 'Soil(20cm)');
 
 subplot (2, 2, 4)
-plot(elevAgg, janAirTmeanAgg, 'ok', 'MarkerFaceColor', 'b');
+plot(elevAgg, janTairMeanAgg, 'ok', 'MarkerFaceColor', 'b');
 hold on
-plot(elevAgg, jan20cmSTmeanAgg, 'ok', 'MarkerFaceColor', ...
+plot(elevAgg, janTs20meanAgg, 'ok', 'MarkerFaceColor', ...
     [0.7 0.7 0.7]);
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
@@ -247,18 +247,18 @@ set(h, 'Name', 'Soil temperature elevation/swe gradients - All SNOTEL/years');
 
 % Plot Snowcovered and snow-free soil temps
 subplot(2,2,1);
-errorbar(elev, snowcovMeanST20cm, snowcovStdST20cm, 'b.');
+errorbar(elev, snowcovTs20mean, snowcovTs20sd, 'b.');
 hold on
-errorbar(elev, snowfreeMeanST20cm, snowfreeStdST20cm, 'r.');
+errorbar(elev, snowfreeTs20mean, snowfreeTs20sd, 'r.');
 title('Snowcovered and snowfree temperature');
 legend('Snow-covered', 'Snow-free');
 ylabel('20cm soil temp');
 xlabel('Elevation (m)');
 
 subplot(2,2,2);
-errorbar(maxswe, snowcovMeanST20cm, snowcovStdST20cm, 'b.');
+errorbar(maxswe, snowcovTs20mean, snowcovTs20sd, 'b.');
 hold on
-errorbar(maxswe, snowfreeMeanST20cm, snowfreeStdST20cm, 'r.');
+errorbar(maxswe, snowfreeTs20mean, snowfreeTs20sd, 'r.');
 title('Snowcovered and snowfree temperature');
 legend('Snow-covered', 'Snow-free');
 ylabel('20cm Ts (^oC)');
@@ -266,9 +266,9 @@ xlabel('Peak SWE (mm)');
 
 % Plot January and July soil temps by elevation
 subplot(2,2,3);
-errorbar(elev, jan20cmSTmean,jan20cmSTsd, 'ko', 'MarkerFaceColor', 'w');
+errorbar(elev, janTs20mean,janTs20sd, 'ko', 'MarkerFaceColor', 'w');
 hold on;
-errorbar(elev, jul20cmSTmean, jul20cmSTsd, 'ko', 'MarkerFaceColor', 'k');
+errorbar(elev, julTs20mean, julTs20sd, 'ko', 'MarkerFaceColor', 'k');
 % Plot moist adiabatic lapse rate
 plot([1600 3400], [18, 9], ':k');
 legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
@@ -277,9 +277,9 @@ ylabel('20cm Ts (^oC)')
 
 % Plot January and July soil temps by elevation
 subplot(2,2,4);
-errorbar(maxswe, jan20cmSTmean,jan20cmSTsd, 'ko', 'MarkerFaceColor', 'w');
+errorbar(maxswe, janTs20mean,janTs20sd, 'ko', 'MarkerFaceColor', 'w');
 hold on;
-errorbar(maxswe, jul20cmSTmean, jul20cmSTsd, 'ko', 'MarkerFaceColor', 'k');
+errorbar(maxswe, julTs20mean, julTs20sd, 'ko', 'MarkerFaceColor', 'k');
 % Plot moist adiabatic lapse rate
 legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
 xlabel('Peak SWE (mm)');
@@ -294,8 +294,8 @@ set(h, 'Name', 'Other landscape gradients');
 subplot (2,2,1)
 plot(elev, maat, '.', 'Color', [0.7 0.7 0.7]);
 hold on
-plot(elevAgg, janAirTmeanAgg, '.b');
-plot(elevAgg, julAirTmeanAgg, '.m');
+plot(elevAgg, janTairMeanAgg, '.b');
+plot(elevAgg, julTairMeanAgg, '.m');
 xlabel('Elevation(m)');
 ylabel('Mean T (^oC)');
 xlim([700 3700]);
@@ -320,8 +320,8 @@ latAgg = accumarray(aggindex, lat, [numel(sites) 1], @mean);
 plot(lat, maat, '.', 'Color', ...
     [0.7 0.7 0.7]);
 hold on
-plot(latAgg, julAirTmeanAgg, '.', 'Color', [0.4 0.4 0.4]);
-plot(latAgg, janAirTmeanAgg, '.k');
+plot(latAgg, julTairMeanAgg, '.', 'Color', [0.4 0.4 0.4]);
+plot(latAgg, janTairMeanAgg, '.k');
 xlabel('Latitude');
 ylabel('Mean T (^oC)');
 title('Mean temperature vs latitude');
@@ -353,8 +353,8 @@ polyorder = 1;
 for i=plotorder
     subplot(4, 3, i);
     x = elev;
-    eval(['y1 = ' months(i,:) 'AirTmean;']);
-    eval(['y2 = ' months(i,:) '5cmSTmean;']);
+    eval(['y1 = ' months(i,:) 'TairMean;']);
+    eval(['y2 = ' months(i,:) 'Ts5mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
 %     [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [0, 1500]);
@@ -371,8 +371,8 @@ for i=plotorder
     end
     
     subplot(4,3, i+3)
-    eval(['y1 = ' months(i+3,:) 'AirTmean;']);
-    eval(['y2 = ' months(i+3,:) '20cmSTmean;']);
+    eval(['y1 = ' months(i+3,:) 'TairMean;']);
+    eval(['y2 = ' months(i+3,:) 'Ts20mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
@@ -386,8 +386,8 @@ for i=plotorder
     end
     
     subplot(4,3, i+6);
-    eval(['y1 = ' months(i+6,:) 'AirTmean;']);
-    eval(['y2 = ' months(i+6,:) '50cmSTmean;']);
+    eval(['y1 = ' months(i+6,:) 'TairMean;']);
+    eval(['y2 = ' months(i+6,:) 'Ts50mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
@@ -401,8 +401,8 @@ for i=plotorder
     end
 
     subplot(4,3, i+9);
-    eval(['y1 = ' months(i+9,:) 'AirTmean;']);
-    eval(['y2 = ' months(i+9,:) '50cmSTmean;']);
+    eval(['y1 = ' months(i+9,:) 'TairMean;']);
+    eval(['y2 = ' months(i+9,:) 'Ts50mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
@@ -432,8 +432,8 @@ polyorder = 1;
 for i=plotorder
     subplot(3, 5, i);
     x = elev;
-    eval(['y1 = ' months(i,:) 'AirTmean;']);
-    eval(['y2 = ' months(i,:) '5cmSTmean;']);
+    eval(['y1 = ' months(i,:) 'TairMean;']);
+    eval(['y2 = ' months(i,:) 'Ts5mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
 %     [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [0, 1500]);
@@ -449,7 +449,7 @@ for i=plotorder
     end
     
     subplot(3, 5, i+5)
-    eval(['y2 = ' months(i,:) '20cmSTmean;']);
+    eval(['y2 = ' months(i,:) 'Ts20mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
@@ -462,7 +462,7 @@ for i=plotorder
     end
     
     subplot(3, 5, i+10);
-    eval(['y2 = ' months(i,:) '50cmSTmean;']);
+    eval(['y2 = ' months(i,:) 'Ts50mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
@@ -488,7 +488,7 @@ set(h, 'Name','Restricted gradients');
 swetest = ltMeanSWE<600 & ltMeanSWE>400;
 
 subplot (2, 2, 1)
-plot(ltMeanSWE(swetest), julAirTmean(swetest), '.k');
+plot(ltMeanSWE(swetest), julTairMean(swetest), '.k');
 xlabel('Mean peak SWE(mm)');
 ylabel('Mean July temp (Celsius)');
 title('Constant SWE - July air temp');
@@ -504,7 +504,7 @@ title('Constant SWE - elevation');
 temptest = elev<2550 & elev>2350;
 
 subplot (2, 2, 3)
-plot(elev(temptest), julAirTmean(temptest), '.k');
+plot(elev(temptest), julTairMean(temptest), '.k');
 xlabel('elevation(m)');
 ylabel('Mean July temperature (Celsius');
 title('Constant elevation - July temperature');
@@ -523,10 +523,10 @@ h = figure(fignum);
 set(h, 'Name','Dec Air/Soil gradient - All SNOTEL/years');
 
 subplot (1,2,1);
-plot(elev, decAirTmean, 'ok', 'MarkerFaceColor', ...
+plot(elev, decTairMean, 'ok', 'MarkerFaceColor', ...
     [0.7 0.7 0.7]);
 hold on
-plot(elev, dec20cmSTmean, 'ok', 'MarkerFaceColor', 'r');
+plot(elev, decTs20mean, 'ok', 'MarkerFaceColor', 'r');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -534,10 +534,10 @@ ylabel('Mean temp (Celsius)');
 legend('Air', 'Soil(20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 
 subplot (1,2,2);
-plot(elev, decAirTmean, 'ok', 'MarkerFaceColor', ...
+plot(elev, decTairMean, 'ok', 'MarkerFaceColor', ...
     [0.7 0.7 0.7]);
 hold on
-plot(elev, dec5cmSTmean, 'ok', 'MarkerFaceColor', 'r');
+plot(elev, decTs5mean, 'ok', 'MarkerFaceColor', 'r');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -552,10 +552,10 @@ h = figure(fignum);
 set(h, 'Name','Dec Air/Soil gradient and offset - All SNOTEL/years');
 
 subplot (1,2,1);
-errorbar(elev, decAirTmean, decAirTsd, ...
+errorbar(elev, decTairMean, decTairSd, ...
     'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
-errorbar(elev, dec20cmSTmean, dec20cmSTsd, ...
+errorbar(elev, decTs20mean, decTs20sd, ...
     'ok', 'MarkerFaceColor', 'r');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
@@ -565,7 +565,7 @@ legend('Air', 'Soil (20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 title('Air & soil temp.');
 
 subplot(1,2,2);
-offset = abs(decAirTmean - dec20cmSTmean);
+offset = abs(decTairMean - decTs20mean);
 plot(elev, offset(:,1), 'ok', 'MarkerFaceColor', 'b');
 xlabel('Elevation (m)');
 ylabel('^oC');
@@ -584,11 +584,11 @@ st_test = ismember(soilClim(:,1), selsites);
 % statetest = 
 
 subplot (1,1,1);
-errorbar(elev(st_test), janAirTmean(st_test), janAirTsd(st_test), ...
+errorbar(elev(st_test), janTairMean(st_test), janTairSd(st_test), ...
     'ok', 'MarkerFaceColor', [0.7 0.7 0.7], 'Color', [0.7 0.7 0.7], ...
     'MarkerEdgeColor', 'k');
 hold on
-errorbar(elev(st_test), jan20cmSTmean(st_test), jan20cmSTsd(st_test), ...
+errorbar(elev(st_test), janTs20mean(st_test), janTs20sd(st_test), ...
     'ok', 'MarkerFaceColor', 'r', 'Color', [0.7 0.7 0.7], ...
     'MarkerEdgeColor', 'k');
 % Plot moist adiabatic lapse rate
@@ -607,15 +607,15 @@ set(h, 'Name','(UT-Agg) January Air/Soil T gradients');
 
 st_test = ismember(unique(soilClim(:,1)), selsites);
 % Aggregate the mean and sd
-janAirTsdAgg = accumarray(aggindex, janAirTsd, [numel(sites) 1], @mean);
-jan20cmSTsdAgg = accumarray(aggindex, jan20cmSTsd, [numel(sites) 1], @mean);
+janTairSdAgg = accumarray(aggindex, janTairSd, [numel(sites) 1], @mean);
+janTs20sdAgg = accumarray(aggindex, janTs20sd, [numel(sites) 1], @mean);
 
 subplot (1,1,1);
-errorbar(elevAgg(st_test), janAirTmeanAgg(st_test), janAirTsdAgg(st_test), ...
+errorbar(elevAgg(st_test), janTairMeanAgg(st_test), janTairSdAgg(st_test), ...
     'ok', 'MarkerFaceColor', [0.7 0.7 0.7], 'Color', [0.7 0.7 0.7], ...
     'MarkerEdgeColor', 'k');
 hold on
-errorbar(elevAgg(st_test), jan20cmSTmeanAgg(st_test), jan20cmSTsdAgg(st_test), ...
+errorbar(elevAgg(st_test), janTs20meanAgg(st_test), janTs20sdAgg(st_test), ...
     'ok', 'MarkerFaceColor', 'r', 'Color', [0.7 0.7 0.7], ...
     'MarkerEdgeColor', 'k');
 % Plot moist adiabatic lapse rate
@@ -634,11 +634,11 @@ fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name','(UT) January/July Soil T gradients');
 % Plot January and July soil temps by elevation
-errorbar(elev(st_test), jan20cmSTmean(st_test),...
-    jan20cmSTsd(st_test), 'ko', 'MarkerFaceColor', 'w');
+errorbar(elev(st_test), janTs20mean(st_test),...
+    janTs20sd(st_test), 'ko', 'MarkerFaceColor', 'w');
 hold on;
-errorbar(elev(st_test), jul20cmSTmean(st_test),...
-    jul20cmSTsd(st_test), 'ko', 'MarkerFaceColor', 'k');
+errorbar(elev(st_test), julTs20mean(st_test),...
+    julTs20sd(st_test), 'ko', 'MarkerFaceColor', 'k');
 % Plot moist adiabatic lapse rate
 plot([1600 3400], [18, 9], ':k');
 legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
@@ -649,18 +649,18 @@ ylabel('20cm Ts (^oC)')
 % FIG 12 - January/July soil T gradients - AggregatedUtah data only
 
 % Aggregate the mean and sd
-%julAirTsdAgg = accumarray(aggindex, julAirTsd, [numel(sites) 1], @mean);
-jul20cmSTsdAgg = accumarray(aggindex, jul20cmSTsd, [numel(sites) 1], @mean);
+%julTairSdAgg = accumarray(aggindex, julTairSd, [numel(sites) 1], @mean);
+julTs20sdAgg = accumarray(aggindex, julTs20sd, [numel(sites) 1], @mean);
 
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name','(UT-Agg) January/July Soil T gradients');
 % Plot January and July soil temps by elevation
-errorbar(elevAgg(st_test), jan20cmSTmeanAgg(st_test),...
-    jan20cmSTsdAgg(st_test), 'ko', 'MarkerFaceColor', 'w');
+errorbar(elevAgg(st_test), janTs20meanAgg(st_test),...
+    janTs20sdAgg(st_test), 'ko', 'MarkerFaceColor', 'w');
 hold on;
-errorbar(elevAgg(st_test), jul20cmSTmeanAgg(st_test),...
-    jul20cmSTsdAgg(st_test), 'ko', 'MarkerFaceColor', 'k');
+errorbar(elevAgg(st_test), julTs20meanAgg(st_test),...
+    julTs20sdAgg(st_test), 'ko', 'MarkerFaceColor', 'k');
 % Plot moist adiabatic lapse rate
 plot([1600 3400], [18, 9], ':k');
 legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');

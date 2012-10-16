@@ -44,9 +44,9 @@ tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
 % Get a subset of climData that corresponds with available soildata
-[matchtest, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
-soilClim = climData(matchtest, :);
-% matchtest2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
+[matchsoil, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
+soilClim = climData(matchsoil, :);
+% matchsoil2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
 
 % Now assign variables
 octSWEmean = climData(:, 14)*25.4;
@@ -80,60 +80,60 @@ julSWEmean = soilClim(:, 41)*25.4;
 julSWEmed = soilClim(:, 42)*25.4;
 julSWEsd = soilClim(:, 43)*25.4;
 
-oct5cmSTmean = tsData(:, 3);
-oct5cmSTsd = tsData(:, 4);
-oct20cmSTmean = tsData(:, 5);
-oct20cmSTsd = tsData(:, 6);
-oct50cmSTmean = tsData(:, 7);
-oct50cmSTsd = tsData(:, 8);
-nov5cmSTmean = tsData(:, 9);
-nov5cmSTsd = tsData(:, 10);
-nov20cmSTmean = tsData(:, 11);
-nov20cmSTsd = tsData(:, 12);
-nov50cmSTmean = tsData(:, 13);
-nov50cmSTsd = tsData(:, 14);
-dec5cmSTmean = tsData(:, 15);
-dec5cmSTsd = tsData(:, 16);
-dec20cmSTmean = tsData(:, 17);
-dec20cmSTsd = tsData(:, 18);
-dec50cmSTmean = tsData(:, 19);
-dec50cmSTsd = tsData(:, 20);
-jan5cmSTmean = tsData(:, 21);
-jan5cmSTsd = tsData(:, 22);
-jan20cmSTmean = tsData(:, 23);
-jan20cmSTsd = tsData(:, 24);
-jan50cmSTmean = tsData(:, 25);
-jan50cmSTsd = tsData(:, 26);
-feb5cmSTmean = tsData(:, 27);
-feb5cmSTsd = tsData(:, 28);
-feb20cmSTmean = tsData(:, 29);
-feb20cmSTsd = tsData(:, 30);
-feb50cmSTmean = tsData(:, 31);
-feb50cmSTsd = tsData(:, 32);
-mar5cmSTmean = tsData(:, 33);
-mar5cmSTsd = tsData(:, 34);
-mar20cmSTmean = tsData(:, 35);
-mar20cmSTsd = tsData(:, 36);
-mar50cmSTmean = tsData(:, 37);
-mar50cmSTsd = tsData(:, 38);
-apr5cmSTmean = tsData(:, 39);
-apr5cmSTsd = tsData(:, 40);
-apr20cmSTmean = tsData(:, 41);
-apr20cmSTsd = tsData(:, 42);
-apr50cmSTmean = tsData(:, 43);
-apr50cmSTsd = tsData(:, 44);
-may5cmSTmean = tsData(:, 45);
-may5cmSTsd = tsData(:, 46);
-may20cmSTmean = tsData(:, 47);
-may20cmSTsd = tsData(:, 48);
-may50cmSTmean = tsData(:, 49);
-may50cmSTsd = tsData(:, 50);
-jun5cmSTmean = tsData(:, 51);
-jun5cmSTsd = tsData(:, 52);
-jun20cmSTmean = tsData(:, 53);
-jun20cmSTsd = tsData(:, 54);
-jun50cmSTmean = tsData(:, 55);
-jun50cmSTsd = tsData(:, 56);
+octTs5mean = tsData(:, 3);
+octTs5sd = tsData(:, 4);
+octTs20mean = tsData(:, 5);
+octTs20sd = tsData(:, 6);
+octTs50mean = tsData(:, 7);
+octTs50sd = tsData(:, 8);
+novTs5mean = tsData(:, 9);
+novTs5sd = tsData(:, 10);
+novTs20mean = tsData(:, 11);
+novTs20sd = tsData(:, 12);
+novTs50mean = tsData(:, 13);
+novTs50sd = tsData(:, 14);
+decTs5mean = tsData(:, 15);
+decTs5sd = tsData(:, 16);
+decTs20mean = tsData(:, 17);
+decTs20sd = tsData(:, 18);
+decTs50mean = tsData(:, 19);
+decTs50sd = tsData(:, 20);
+janTs5mean = tsData(:, 21);
+janTs5sd = tsData(:, 22);
+janTs20mean = tsData(:, 23);
+janTs20sd = tsData(:, 24);
+janTs50mean = tsData(:, 25);
+janTs50sd = tsData(:, 26);
+febTs5mean = tsData(:, 27);
+febTs5sd = tsData(:, 28);
+febTs20mean = tsData(:, 29);
+febTs20sd = tsData(:, 30);
+febTs50mean = tsData(:, 31);
+febTs50sd = tsData(:, 32);
+marTs5mean = tsData(:, 33);
+marTs5sd = tsData(:, 34);
+marTs20mean = tsData(:, 35);
+marTs20sd = tsData(:, 36);
+marTs50mean = tsData(:, 37);
+marTs50sd = tsData(:, 38);
+aprTs5mean = tsData(:, 39);
+aprTs5sd = tsData(:, 40);
+aprTs20mean = tsData(:, 41);
+aprTs20sd = tsData(:, 42);
+aprTs50mean = tsData(:, 43);
+aprTs50sd = tsData(:, 44);
+mayTs5mean = tsData(:, 45);
+mayTs5sd = tsData(:, 46);
+mayTs20mean = tsData(:, 47);
+mayTs20sd = tsData(:, 48);
+mayTs50mean = tsData(:, 49);
+mayTs50sd = tsData(:, 50);
+junTs5mean = tsData(:, 51);
+junTs5sd = tsData(:, 52);
+junTs20mean = tsData(:, 53);
+junTs20sd = tsData(:, 54);
+junTs50mean = tsData(:, 55);
+junTs50sd = tsData(:, 56);
 % These repeat through sept (end of wy)
 
 
@@ -152,7 +152,7 @@ polyorder = 2;
 for i=plotorder
     subplot(3, 5, i);
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
-    eval(['y = ' lower(months(i,:)) '5cmSTmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts5mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
@@ -169,7 +169,7 @@ for i=plotorder
     
     subplot(3, 5, i+5)
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
-    eval(['y = ' lower(months(i,:)) '20cmSTmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts20mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
@@ -185,7 +185,7 @@ for i=plotorder
     
     subplot(3, 5, i+10);
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
-    eval(['y = ' lower(months(i,:)) '50cmSTmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts50mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
@@ -213,7 +213,7 @@ set(h, 'Name', 'Mean monthly temp vs Median SWE - all sites/wateryears');
 for i=plotorder
     subplot(3, 5, i)
     eval(['x = ' lower(months(i,:)) 'SWEmed;']);
-    eval(['y = ' lower(months(i,:)) '5cmSTmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts5mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
@@ -230,7 +230,7 @@ for i=plotorder
     
     subplot(3, 5, i+5)
     eval(['x = ' lower(months(i,:)) 'SWEmed;']);
-    eval(['y = ' lower(months(i,:)) '20cmSTmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts20mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
@@ -246,7 +246,7 @@ for i=plotorder
     
     subplot(3, 5, i+10)
     eval(['x = ' lower(months(i,:)) 'SWEmed;']);
-    eval(['y = ' lower(months(i,:)) '50cmSTmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts50mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
     [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
@@ -269,7 +269,7 @@ fignum = fignum+1;
 h = figure(fignum);
 
 subplot 121;
-plot(janSWEmean, jan5cmSTmean, 'ob');
+plot(janSWEmean, janTs5mean, 'ob');
 xlabel('Mean SWE (mm)');
 ylabel('Soil T (^oC)');
 title('December soil temperatures');
@@ -277,7 +277,7 @@ legend('5cm one-month mean');
 
 % Mean month soil temp by SWE - 20cm
 subplot 122;
-plot(janSWEmean, jan20cmSTmean, 'ok');
+plot(janSWEmean, janTs20mean, 'ok');
 xlabel('Mean SWE (mm)');
 ylabel('Soil T (^oC)');
 legend('20cm one-month mean');
