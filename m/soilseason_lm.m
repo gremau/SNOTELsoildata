@@ -5,6 +5,7 @@ clear all;
 fignum = 1;
 
 % Add any needed tools
+addpath('/home/greg/data/code_resources/m_common/'); 
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 
 % Set processed data path
@@ -36,20 +37,20 @@ maxcontinSC = soilClim(:, 10);% Length of longest continuos snowpack
 numcontinSC = soilClim(:, 11);% # of continuous snowcovered periods
 accumprecip = soilClim(:, 12)*25.4;
 JASprecip = soilClim(:, 13);
-maat = climData(:, 74);
-maat_sd = climData(:, 75);
+maat = soilClim(:, 74);
+maat_sd = soilClim(:, 75);
 
-preonsetTair = climData(:, 76);
-preonsetTairSd = climData(:, 77);
-premeltTair = climData(:, 78);
-premeltTairSd = climData(:, 79);
-postmeltTair = climData(:, 80);
-postmeltTairSd = climData(:, 81);
-elev = climData(:, 82);
-lat = climData(:, 83);
-lon = climData(:, 84);
-ltMeanSWE = climData(:, 85);
-ltMeanPrecip = climData(:, 86);
+preonsetTair = soilClim(:, 76);
+preonsetTairSd = soilClim(:, 77);
+premeltTair = soilClim(:, 78);
+premeltTairSd = soilClim(:, 79);
+postmeltTair = soilClim(:, 80);
+postmeltTairSd = soilClim(:, 81);
+elev = soilClim(:, 82);
+lat = soilClim(:, 83);
+lon = soilClim(:, 84);
+ltMeanSWE = soilClim(:, 85);
+ltMeanPrecip = soilClim(:, 86);
 
 
 % Seasonal/yearly soil temp means
@@ -120,7 +121,7 @@ sites = unique(site_cl);
 % Set regression variables:
 
 % Yvars = {'mast20cm','mast20cm','mast20cm'};
-% Xvars = {'snowduration', 'meltdoy', 'totaldaysSC'};
+% Xvars = {'maat', 'totaldaysSC', 'maxswe'};
 
 % Yvars = {'julVWC20mean','augVWC20mean','jasVWC20mean'};
 % Xvars = {'meltdoy', 'meltdoy', 'meltdoy'};
@@ -131,8 +132,13 @@ sites = unique(site_cl);
 % Yvars = {'janVWC20mean','febVWC20mean','marVWC20mean'};
 % Xvars = {'preonsetVWC20', 'preonsetVWC20', 'preonsetVWC20'};
 
-Yvars = {'mast5cm','mast20cm','mast50cm'};
-Xvars = {'snowduration', 'snowduration', 'snowduration'};
+% diff5cm = mast5cm-maat; diff20cm = mast20cm-maat; diff50cm = mast50cm-maat;
+% Yvars = {'diff5cm','diff20cm','diff50cm'};
+% Xvars = {'onsetdoy', 'onsetdoy', 'onsetdoy'};
+
+diff5cm = mast5cm-maat; diff20cm = mast20cm-maat; diff50cm = mast50cm-maat;
+Yvars = {'diff5cm','diff5cm','diff5cm'};
+Xvars = {'maat', 'totaldaysSC', 'maxswe'};
 
 
 for i = 1:length(Yvars)
@@ -163,36 +169,62 @@ for i = 1:length(Yvars)
     h = figure(fignum);
     set(h, 'Name', ['Regressions: Y = ' Yvars{i} ', X = ' Xvars{i}]);
     
-    subplot(2, 3, 1);
+    subplot(3, 3, 1);
     plot(xmeans, slopes, 'ok');
     title('Slope');
+    hline(mean(slopes), ':k')
     xlabel('Site mean of x');
     
-    subplot(2, 3, 2);
+    subplot(3, 3, 2);
     plot(xmeans, yints, 'ob');
+    hline(mean(yints), ':b')
     title('Y - int');
     xlabel('Site mean of x');
     
-    subplot(2, 3, 3);
+    subplot(3, 3, 3);
     plot(xmeans, rsqs, 'or');
+    hline(mean(rsqs), ':r')
     title('R squared');
     xlabel('Site mean of x');
 
-    subplot(2, 3, 4);
-    plot(elevs, slopes, 'ok');
+    subplot (3, 3, 4)
+    plot(elevs, slopes, '.k');
     xlabel('Elev (m)');
     
-    
-    subplot(2, 3, 5);
-    plot(elevs, yints, 'ob');
+    subplot(3, 3, 5);
+    plot(elevs, yints, '.b');
     xlabel('Elev (m)');
     
-    subplot (2, 3, 6)
+    subplot(3, 3, 6);
+    plot(elevs, rsqs, '.r');
+    xlabel('Elev (m)');
+    
+    subplot (3, 3, 7)
+    xedges = linspace(min(slopes), max(slopes), 50);
+    slopeHist = histc(slopes, xedges);
+    bar(xedges, slopeHist, 'k');
+    vline(mean(slopes), ':k');
+    %xlim([-0.1 0.1]); 
+    ylim([0 35]);
+    title('Frequency of Slope values');
+    xlabel('Slope'); ylabel('n');
+        
+    subplot (3, 3, 8)
+    xedges = linspace(min(slopes), max(slopes), 50);
+    slopeHist = histc(slopes, xedges);
+    bar(xedges, slopeHist, 'k');
+    vline(mean(slopes), ':k');
+    %xlim([-0.1 0.1]); 
+    ylim([0 35]);
+    title('Frequency of Slope values');
+    xlabel('Slope'); ylabel('n');
+    
+    subplot (3, 3, 9)
     xedges = linspace(0, 1, 50);
     rsqHist = histc(rsqs, xedges);
     bar(xedges, rsqHist, 'k');
     vline(mean(rsqs), ':k');
-    xlim([-0.1 1.1]);
+    xlim([-0.1 1.1]);% ylim([0 35]);
     title('Frequency of R-sq values');
     xlabel('r^2'); ylabel('n');
     

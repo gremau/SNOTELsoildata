@@ -12,8 +12,9 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
-addpath('~/data/code_resources/m_common/');
+addpath('~/data/code_resources/m_common/nonlinear/');
 addpath('~/data/code_resources/m_common/nanstuff/');
+addpath('~/data/code_resources/m_common/');
 
 % Ask user for month number
 %monthsel = str2double(input('Which month (1-12)?: ', 's'));
@@ -49,9 +50,11 @@ soilClim = climData(matchsoil, :);
 % matchsoil2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
 
 % Now assign variables
-octSWEmean = climData(:, 14)*25.4;
-octSWEmed = climData(:, 15)*25.4;
-octSWEsd = climData(:, 16)*25.4;
+janTairMean = soilClim(:, 56);
+
+octSWEmean = soilClim(:, 14)*25.4;
+octSWEmed = soilClim(:, 15)*25.4;
+octSWEsd = soilClim(:, 16)*25.4;
 novSWEmean = soilClim(:, 17)*25.4;
 novSWEmed = soilClim(:, 18)*25.4;
 novSWEsd = soilClim(:, 19)*25.4;
@@ -188,7 +191,7 @@ for i=plotorder
     eval(['y = ' lower(months(i,:)) 'Ts50mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
+    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1500]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     xlim([0, 1500]); ylim([-10, 10]);
@@ -264,7 +267,7 @@ for i=plotorder
 end
 
 %--------------------------------------------------------
-% FIG 2 - Same as above, but tweaked for AGU 2011 poster
+% FIG 3 - Subset of above - this was in AGU 2011 poster
 fignum = fignum+1;    
 h = figure(fignum);
 
@@ -283,128 +286,203 @@ ylabel('Soil T (^oC)');
 legend('20cm one-month mean');
 %title([monthlabel ' 20cm temp vs ' monthlabel ' SWE']);
 
-%------------------------------------------------------
-% FIG 3 - Same as above, but plot for wasatch and uinta sites 
-uintaTest = ismember(monthMeans(:, 1), uintas);
-wasatchTest = ismember(monthMeans(:, 1), wasatch);
-
+%--------------------------------------------------------
+% FIG 4 - Like above - but try some new curve fitting
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name', ['Mean ' monthlabel ' Ts vs snowpack - Wasatch & Uintas']);
-% Mean month soil temp by SWE - 5cm
-subplot 221;
-plot(monthMeans(wasatchTest,7), monthMeans(wasatchTest,3), 'om');
-hold on;
-plot(monthMeans(uintaTest,7), monthMeans(uintaTest,3), 'ob');
-bothTest = wasatchTest | uintaTest;
-x = monthMeans(bothTest, 7);
-y = monthMeans(bothTest, 3);
-yNoNan = ~isnan(y);
-coefficients = polyfit(x(yNoNan), y(yNoNan), 2);
-pnFit = polyval(coefficients, (0:1:700));
-plot((0:1:700), pnFit,':k');
-xlabel('Mean SWE');
-ylabel('Mean 5cm soil temp (Celsius)');
-legend('Wasatch mtns', 'Uinta mtns');
-title([monthlabel ' 5cm soil temp vs ' monthlabel ' SWE']);
 
-% Mean month soil temp by snow depth - 5cm
-subplot 222;
-plot(monthMeans(wasatchTest,6), monthMeans(wasatchTest,3), 'om');
+%Maybe this is the right line to use
+% y = arrayfun(@(x) tmax*(1-exp(-x/tmax)) * exp(-50/tmax), 1:100)
+% or func = inline('b1*(1-exp(-x/b1)) * exp(-50/b1)')
+
+subplot 121;
+plot(janSWEmean, janTs5mean, 'ob');
+xlabel('Mean SWE (mm)');
+ylabel('Soil T (^oC)');
+title('December soil temperatures');
+legend('5cm one-month mean');
 hold on
-plot(monthMeans(uintaTest,6), monthMeans(uintaTest,3), 'ob');
-xlabel('Mean snow depth');
-%ylabel('Mean soil temp (Celsius)');
-title(['vs ' monthlabel ' snow depth']);
+
+% Logistic fit 2 (see others below)
+logist = inline('(b(1)./(1 + exp(b(2).*x))) - b(3)', 'b', 'x');
+beta_init = [-4 0.01 -1];
+coeffs = nlinfit(janSWEmean, janTs5mean, logist, beta_init);
+%K./(1+exp(-r*(t-t0)));
+plot(0:1500, logist(coeffs, 0:1500), '-r');
 
 % Mean month soil temp by SWE - 20cm
-subplot 223;
-plot(monthMeans(wasatchTest,7), monthMeans(wasatchTest,4), 'om');
+subplot 122;
+plot(janSWEmean, janTs20mean, 'ok');
+xlabel('Mean SWE (mm)');
+ylabel('Soil T (^oC)');
+legend('20cm one-month mean');
+%title([monthlabel ' 20cm temp vs ' monthlabel ' SWE']);
 hold on
-plot(monthMeans(uintaTest,7), monthMeans(uintaTest,4), 'ob');
-x = monthMeans(bothTest, 7);
-y = monthMeans(bothTest, 4);
+
+% Asymptotic fit
+% asymp = inline('a + b/x'); % asymptotic line
+%plot(1:1500, arrayfun(@(x) asymp(1, -11, x), 1:1500), ':k');
+
+% Bounded exponential
+boundedexp = inline('b(1)*(1 - b(2)*exp(-b(3).*x))', 'b', 'x');
+beta_init = [1.5 2 0.01];
+[coeffs, r, ~] = nlinfit(janSWEmean, janTs20mean, boundedexp, beta_init);
+rmse = sqrt(nansum(r.^2)/(length(janSWEmean)-1));
+disp(['Bounded exponential: ' num2str(coeffs) ' RMSE = ' num2str(rmse)]);
+plot(0:1500, boundedexp(coeffs, 0:1500), '--r');
+
+% Logistic fit -> K./(1+exp(-r*(t-t0)));
+logist = inline('(b(1)./(1 + exp(-b(2).*x))) - b(3)', 'b', 'x');
+beta_init = [1.5 0.01 1];
+[coeffs, r, ~] = nlinfit(janSWEmean, janTs20mean, logist, beta_init);
+rmse = sqrt(nansum(r.^2)/(length(janSWEmean)-1));
+disp(['Logistic function: ' num2str(coeffs) ' RMSE = ' num2str(rmse)]);
+plot(0:1500, logist(coeffs, 0:1500), '-r');
+
+%----------------------------------------------------------------------
+% FIG 5 - Plot a small subset of months/depths and use better fitlines
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
+
+% Set some plotting parameters
+plotorder = [1, 2];
+months = ['Dec';'Jan'] ;
+polyorder = 1;
+
+% Set up non-linear fits
+% nlfunc = inline('b(1)*(1 - b(2)*exp(-b(3).*x))', 'b', 'x');
+% beta_init = [1.5 2 0.01];
+% Logistic fit -> K./(1+exp(-r*(t-t0)));
+nlfunc = inline('(b(1)./(1 + exp(-b(2).*x))) - b(3)', 'b', 'x');
+beta_init = [1.5 0.01 1];
+
+for i=plotorder
+    subplot(2, 2, i);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts5mean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    
+    % Non-linear fit
+    [coeffs, r, ~] = nlinfit(x, y, nlfunc, beta_init);
+    rmse = sqrt(nansum(r.^2)/(length(x)-1));
+    rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
+    plot(0:1500, nlfunc(coeffs, 0:1500), '-k');
+    text(700, 7, ['RMSE = ' num2str(rmse, 2)]); % Mean Squared error values
+    text(700, 5.5, ['r^2 = ' num2str(rsq, 2)]); % r-squared
+    
+    xlim([0, 1200]); ylim([-8, 8]);
+    title(months(i,:));
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('5cm ^oC');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+    
+    subplot(2, 2, i+2)
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts20mean;']);
+    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    
+    % Non-linear fit
+    [coeffs, r, ~] = nlinfit(x, y, nlfunc, beta_init);
+    rmse = sqrt(nansum(r.^2)/(length(x)-1));
+    rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
+    plot(0:1500, nlfunc(coeffs, 0:1500), '-k');
+    text(700, 7, ['RMSE = ' num2str(rmse, 2)]); % Mean Squared error values
+    text(700, 5.5, ['r^2 = ' num2str(rsq, 2)]); % r-squared
+    
+    xlim([0, 1200]); ylim([-8, 8]);
+    xlabel('Mean SWE (mm)');
+    if i==1
+        ylabel('20cm ^oC');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+end
+
+
+%------------------------------------------------------
+% FIG 6 - Soil temp and offset - plot for wasatch and uinta sites 
+uintaTest = ismember(soilClim(:, 1), uintas);
+wasatchTest = ismember(soilClim(:, 1), wasatch);
+
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name', ['Mean January Ts vs snowpack - Wasatch & Uintas']);
+% Mean month soil temp by SWE - 5cm
+subplot 321;
+plot(janSWEmean(wasatchTest), janTs5mean(wasatchTest), 'om');
+hold on;
+plot(janSWEmean(uintaTest), janTs5mean(uintaTest), 'ob');
+bothTest = wasatchTest | uintaTest;
+x = janSWEmean(bothTest);
+y = janTs5mean(bothTest);
 yNoNan = ~isnan(y);
 coefficients = polyfit(x(yNoNan), y(yNoNan), 2);
 pnFit = polyval(coefficients, (0:1:700));
 plot((0:1:700), pnFit,':k');
 xlabel('Mean SWE');
-ylabel('Mean 20cm soil temp (Celsius)');
-title([monthlabel ' 20cm soil temp vs ' monthlabel ' SWE']);
+ylabel('5cm Ts (^oC)');
+ylim([-4, 4]);
+legend('Wasatch mtns', 'Uinta mtns');
+title(['January Ts vs January SWE']);
+
+% Mean month soil temp by SWE - 20cm
+subplot 323;
+plot(janSWEmean(wasatchTest), janTs20mean(wasatchTest), 'om');
+hold on;
+plot(janSWEmean(uintaTest), janTs20mean(uintaTest), 'ob');
+bothTest = wasatchTest | uintaTest;
+x = janSWEmean(bothTest);
+y = janTs20mean(bothTest);
+yNoNan = ~isnan(y);
+coefficients = polyfit(x(yNoNan), y(yNoNan), 2);
+pnFit = polyval(coefficients, (0:1:700));
+plot((0:1:700), pnFit,':k');
+ylim([-4, 4]);
+ylabel('20cm Ts (^oC)');
 
 % Mean month soil temp by snow depth - 20cm
-subplot 224;
-plot(monthMeans(wasatchTest,6), monthMeans(wasatchTest,4), 'om');
-hold on
-plot(monthMeans(uintaTest,6), monthMeans(uintaTest,4), 'ob');
-xlabel('Mean snow depth');
-%ylabel('Mean soil temp (Celsius)');
-title(['vs ' monthlabel ' snow depth']);
-
-%----------------------------------------------------------------------
-% FIG 4 - SoilT vs Air T
-fignum = fignum+1;    
-h = figure(fignum);
-set(h, 'Name',[monthlabel ' air vs soil temps - Wasatch and Uinta']);
-
-% Mean month soil temps vs air temps
-subplot 221;
-plot(monthMeans(wasatchTest, 8), monthMeans(wasatchTest, 3), 'om');
-hold on
-plot(monthMeans(uintaTest,8), monthMeans(uintaTest, 3), 'ob');
-xlabel('Mean AirT');
-ylabel('Mean SoilT');
-title([monthlabel ' 5cm Ts vs AirT']);
-
-subplot 222;
-plot(monthMeans(wasatchTest,8), monthMeans(wasatchTest, 4), 'om');
-hold on
-plot(monthMeans(uintaTest,8), monthMeans(uintaTest, 4), 'ob');
-xlabel('Mean AirT');
-ylabel('Mean SoilT');
-title([monthlabel ' 20cm Ts vs AirT']);
-
-%----------------------------------------------------------
-% FIG 5 - Offsets between AirT and SoilT
-offset = (monthMeans(:, 3) - monthMeans(:, 8));
-
-fignum = fignum+1;    
-h = figure(fignum);
-set(h, 'Name',['Air and soil T offset in ' monthlabel]);
-
-% Mean soil temps vs air temps
-subplot 221;
-plot(monthMeans(:, 7), offset(:), 'om');
-% hold on
-% plot(monthMeans(uintaTest,8), monthMeans(uintaTest, 3), 'ob');
-xlabel('SWE');
-ylabel('AirT-5cmSoilT');
-title([monthlabel ' Temperature offset vs SWE']);
-
-subplot 222;
-plot(monthMeans(:, 6), offset(:), 'om');
-% hold on
-% plot(monthMeans(uintaTest,8), monthMeans(uintaTest, 4), 'ob');
-xlabel('Snow Depth');
-ylabel('AirT-5cmSoilT');
-title([monthlabel ' Temperature offset vs Snow Depth']);
+subplot 325;
+plot(janSWEmean(wasatchTest), janTs50mean(wasatchTest), 'om');
+hold on;
+plot(janSWEmean(uintaTest), janTs50mean(uintaTest), 'ob');
+bothTest = wasatchTest | uintaTest;
+x = janSWEmean(bothTest);
+y = janTs50mean(bothTest);
+yNoNan = ~isnan(y);
+coefficients = polyfit(x(yNoNan), y(yNoNan), 2);
+pnFit = polyval(coefficients, (0:1:700));
+plot((0:1:700), pnFit,':k');
+ylim([-4, 4]);
+xlabel('Mean SWE');
+ylabel('50cm Ts (^oC)');
 
 % Mean month soil temps vs air temps
-subplot 223;
-plot(monthMeans(wasatchTest, 7), offset(wasatchTest, 1), 'om');
-hold on
-plot(monthMeans(uintaTest,7), offset(uintaTest, 1), 'ob');
-xlabel('SWE');
-ylabel('AirT-5cmSoilT');
-legend('Wasatch', 'Uintas');
-title([monthlabel ' Temperature offset vs SWE']);
+offset5 = janTs5mean - janTairMean;
+offset20 = janTs20mean - janTairMean;
+offset50 = janTs50mean - janTairMean;
 
-subplot 224;
-plot(monthMeans(wasatchTest, 6), offset(wasatchTest, 1), 'om');
+subplot 322;
+plot(janSWEmean(wasatchTest), offset5(wasatchTest), 'om');
 hold on
-plot(monthMeans(uintaTest, 6), offset(uintaTest, 1), 'ob');
-xlabel('Snow Depth');
-ylabel('AirT-5cmSoilT');
-title([monthlabel ' Temperature offset vs Snow Depth']);
+plot(janSWEmean(uintaTest), offset5(uintaTest), 'ob');
+title('Tsoil - Tair vs snowpack');
+
+subplot 324;
+plot(janSWEmean(wasatchTest), offset20(wasatchTest), 'om');
+hold on
+plot(janSWEmean(uintaTest), offset20(uintaTest), 'ob');
+
+subplot 326;
+plot(janSWEmean(wasatchTest), offset50(wasatchTest), 'om');
+hold on
+plot(janSWEmean(uintaTest), offset50(uintaTest), 'ob');
+xlabel('Mean SWE');
+
 
 junk = 99;
