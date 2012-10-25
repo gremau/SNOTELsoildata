@@ -12,8 +12,12 @@
 clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
-%addpath('../m/');
+
+% Add needed tools
+addpath('/home/greg/data/code_resources/m_common/');
+addpath('/home/greg/data/code_resources/m_common/linear/');
 addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/hline_vline/');
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/';
@@ -55,6 +59,7 @@ aggindex = [valindex ones(size(soilClim(:,1)))];
 
 %--------------------------------------------------------------
 % Assign variables
+sites_cl = soilClim(:,1);
 maxswe = soilClim(:,3)*25.4;
 maat = soilClim(:, 74); % Mean wateryear air temp
 onsetdoy = soilClim(:, 6);
@@ -294,8 +299,8 @@ set(h, 'Name', 'Other landscape gradients');
 subplot (2,2,1)
 plot(elev, maat, '.', 'Color', [0.7 0.7 0.7]);
 hold on
-plot(elevAgg, janTairMeanAgg, '.b');
 plot(elevAgg, julTairMeanAgg, '.m');
+plot(elevAgg, janTairMeanAgg, '.b');
 xlabel('Elevation(m)');
 ylabel('Mean T (^oC)');
 xlim([700 3700]);
@@ -363,6 +368,7 @@ for i=plotorder
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     title(months(i,:));
     xlim([800, 4000]); ylim([-15, 30]);
+    hline(0, '--k');
     set(gca, 'XTickLabel', '');
     if i==1
         ylabel('^oC')
@@ -378,6 +384,7 @@ for i=plotorder
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     title(months(i+3,:));
     xlim([800, 4000]); ylim([-15, 30]);
+    hline(0, '--k');
     set(gca, 'XTickLabel', '');
     if i==1
         ylabel('^oC')
@@ -393,6 +400,7 @@ for i=plotorder
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     title(months(i+6,:));
     xlim([800, 4000]); ylim([-15, 30]);
+    hline(0, '--k');
     set(gca, 'XTickLabel', '');
     if i==1
         ylabel('^oC')
@@ -408,6 +416,7 @@ for i=plotorder
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     title(months(i+9,:));
     xlim([800, 4000]); ylim([-15, 30]);
+    hline(0, '--k');
     if i==1
         ylabel('^oC')
     elseif i==2
@@ -441,6 +450,7 @@ for i=plotorder
 %     text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     xlim([800, 4000]); ylim([-10, 10]);
+    hline(0, '--k');
     set(gca, 'XTickLabel', '');
     if i==1
         ylabel('^oC')
@@ -454,6 +464,7 @@ for i=plotorder
     hold on;
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     xlim([800, 4000]); ylim([-10, 10]);
+    hline(0, '--k');
     set(gca, 'XTickLabel', '');
     if i==1
         ylabel('^oC')
@@ -467,6 +478,7 @@ for i=plotorder
     hold on;
     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     xlim([800, 4000]); ylim([-10, 10]);
+    hline(0, '--k');
     if i==1
         ylabel('^oC')
     elseif i==3
@@ -523,8 +535,7 @@ h = figure(fignum);
 set(h, 'Name','Dec Air/Soil gradient - All SNOTEL/years');
 
 subplot (1,2,1);
-plot(elev, decTairMean, 'ok', 'MarkerFaceColor', ...
-    [0.7 0.7 0.7]);
+plot(elev, decTairMean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
 plot(elev, decTs20mean, 'ok', 'MarkerFaceColor', 'r');
 % Plot moist adiabatic lapse rate
@@ -534,8 +545,7 @@ ylabel('Mean temp (Celsius)');
 legend('Air', 'Soil(20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 
 subplot (1,2,2);
-plot(elev, decTairMean, 'ok', 'MarkerFaceColor', ...
-    [0.7 0.7 0.7]);
+plot(elev, decTairMean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
 plot(elev, decTs5mean, 'ok', 'MarkerFaceColor', 'r');
 % Plot moist adiabatic lapse rate
@@ -552,11 +562,10 @@ h = figure(fignum);
 set(h, 'Name','Dec Air/Soil gradient and offset - All SNOTEL/years');
 
 subplot (1,2,1);
-errorbar(elev, decTairMean, decTairSd, ...
-    'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
+errorbar(elev, decTairMean, decTairSd, 'ok',...
+    'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
-errorbar(elev, decTs20mean, decTs20sd, ...
-    'ok', 'MarkerFaceColor', 'r');
+errorbar(elev, decTs20mean, decTs20sd, 'ok', 'MarkerFaceColor', 'r');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -578,10 +587,10 @@ fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name','(UT) January Air/Soil T gradients');
 
-selstate = 'UT';
-selsites = siteIDs(strcmpi(states, 'UT'));
-st_test = ismember(soilClim(:,1), selsites);
-% statetest = 
+% Get selected state site out of all data
+selectState = 'UT';
+selectIDs = siteIDs(strcmpi(states, selectState));
+st_test = ismember(sites_cl, selectIDs);
 
 subplot (1,1,1);
 errorbar(elev(st_test), janTairMean(st_test), janTairSd(st_test), ...
@@ -605,34 +614,54 @@ fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name','(UT-Agg) January Air/Soil T gradients');
 
-st_test = ismember(unique(soilClim(:,1)), selsites);
-% Aggregate the mean and sd
+% Aggregate the mean, sd, AND the sites_cl list
 janTairSdAgg = accumarray(aggindex, janTairSd, [numel(sites) 1], @mean);
 janTs20sdAgg = accumarray(aggindex, janTs20sd, [numel(sites) 1], @mean);
+sites_clAgg = accumarray(aggindex, sites_cl, [numel(sites) 1], @mean);
+
+% Get selected state site out of aggregated data
+st_testAgg = ismember(sites_clAgg, selectIDs);
+
+% Assign to x and y variables
+x = elevAgg(st_testAgg);
+y1 = janTairMeanAgg(st_testAgg);
+sd1 = janTairSdAgg(st_testAgg);
+y2 = janTs20meanAgg(st_testAgg);
+sd2 = janTs20sdAgg(st_testAgg)'
+
+% Mean StDev of Tair
+meanStdDev = nanmean(sd1);
 
 subplot (1,1,1);
-errorbar(elevAgg(st_test), janTairMeanAgg(st_test), janTairSdAgg(st_test), ...
-    'ok', 'MarkerFaceColor', [0.7 0.7 0.7], 'Color', [0.7 0.7 0.7], ...
+% Plot Jan mean Tair and regression line
+handles(1) = plot(x, y1, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
     'MarkerEdgeColor', 'k');
-hold on
-[~, rsq, xfit, yfit] = fitline(elevAgg(st_test), janTs20meanAgg(st_test)...
-    , 1, xrange);
-plot(xfit, yfit, ':k');
-errorbar(elevAgg(st_test), janTs20meanAgg(st_test), janTs20sdAgg(st_test), ...
-    'ok', 'MarkerFaceColor', 'r', 'Color', [0.7 0.7 0.7], ...
-    'MarkerEdgeColor', 'k');
-[~, rsq, xfit, yfit] = fitline(elevAgg(st_test), julTs20meanAgg(st_test)...
-    , 1, xrange);
-plot(xfit, yfit, ':k');
-text(1200, 6, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% handles(1) = errorbar(x,y1,sd1,'ok','MarkerFaceColor',[0.7 0.7 0.7],...
+%     'Color', [0.7 0.7 0.7], 'MarkerEdgeColor', 'k');
+hold on;
+xfit = linspace(1600, 3400);
+[b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k');
+text(1650, -7, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
+% Plot Jan mean Tsoil and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'r',...
+    'Color', [0.7 0.7 0.7], 'MarkerEdgeColor', 'k');
+xfit = linspace(1600, 3400);
+[b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k');
+text(1650, 3, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
 % Plot moist adiabatic lapse rate
-plot([900 3500], [4, -9], ':k')
+% plot([900 3500], [4, -9], ':k')
+% Plot example error bar
+handles(5) = errorbar(1600, -1.9, meanStdDev, 'ok',...
+    'MarkerFaceColor', [0.7 0.7 0.7], 'Color', [0.7 0.7 0.7]);
+
 xlim([1500 3500]);
 xlabel('Elevation(m)');
 ylabel('Mean temp (^oC)');
-legend('Air', 'Soil (20cm)', 'Moist adiabatic lapse( 5^oC/km)');
+legend(handles([1 3 5]), {'Tair', 'Tsoil (20cm)',...
+    'Representative \sigma Tair'});
 title('Utah - January Tair/Tsoil (aggregated)');
-
 
 % -------------------------------------------------------------
 % FIG 11 - January/July soil T gradients - Utah data only
@@ -656,25 +685,34 @@ ylabel('20cm Ts (^oC)')
 % FIG 12 - January/July soil T gradients - AggregatedUtah data only
 
 % Aggregate the mean and sd
-%julTairSdAgg = accumarray(aggindex, julTairSd, [numel(sites) 1], @mean);
 julTs20sdAgg = accumarray(aggindex, julTs20sd, [numel(sites) 1], @mean);
+
+% Assign x and y variables
+x = elevAgg(st_testAgg);
+y1 = janTs20meanAgg(st_testAgg);
+sd1 = janTs20sdAgg(st_testAgg)
+y2 = julTs20meanAgg(st_testAgg);
+sd2 = julTs20sdAgg(st_testAgg)
 
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name','(UT-Agg) January/July Soil T gradients');
-% Plot January and July soil temps by elevation
-errorbar(elevAgg(st_test), janTs20meanAgg(st_test),...
-    janTs20sdAgg(st_test), 'ko', 'MarkerFaceColor', 'w');
-[~, rsq, xfit, yfit] = fitline(elevAgg(st_test), janTs20meanAgg(st_test)...
-    , 1, xrange);
-plot(xfit, yfit, ':k');
-text(1200, 6, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+% Plot January Ts by elevation and regression
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'w');
 hold on;
-errorbar(elevAgg(st_test), julTs20meanAgg(st_test),...
-    julTs20sdAgg(st_test), 'ko', 'MarkerFaceColor', 'k');
+xfit = linspace(1600, 3400);
+[b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k');
+text(1650, 3, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
+% Plot July Ts by elevation and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k');
+[b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
+handles(4) = plot(xfit, polyval(b, xfit), '--k');
+text(1650, 18.5, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
 % Plot moist adiabatic lapse rate
-plot([1600 3400], [18, 9], ':k');
-legend('January', 'July', 'Moist adiabatic lapse (5^oC/km)');
+%plot([1600 3400], [18, 9], ':k');
+xlim([1500 3500]);
+legend(handles([1 3]), {'January', 'July'});
 xlabel('Elevation (m)');
 ylabel('20cm Ts (^oC)')
 

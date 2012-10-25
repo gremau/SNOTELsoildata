@@ -303,11 +303,20 @@ title('December soil temperatures');
 legend('5cm one-month mean');
 hold on
 
-% Logistic fit 2 (see others below)
-logist = inline('(b(1)./(1 + exp(b(2).*x))) - b(3)', 'b', 'x');
-beta_init = [-4 0.01 -1];
-coeffs = nlinfit(janSWEmean, janTs5mean, logist, beta_init);
-%K./(1+exp(-r*(t-t0)));
+% Bounded exponential
+boundedexp = inline('b(1)*(1 - b(2)*exp(-b(3).*x))', 'b', 'x');
+beta_init = [1.5 2 0.01];
+[coeffs, r, ~] = nlinfit(janSWEmean, janTs5mean, boundedexp, beta_init);
+rmse = sqrt(nansum(r.^2)/(length(janSWEmean)-1));
+disp(['Bounded exponential: ' num2str(coeffs) ' RMSE = ' num2str(rmse)]);
+plot(0:1500, boundedexp(coeffs, 0:1500), '--r');
+
+% Logistic fit -> K./(1+exp(-r*(t-t0)));
+logist = inline('(b(1)./(1 + exp(-b(2).*x))) - b(3)', 'b', 'x');
+beta_init = [1.5 0.01 1];
+[coeffs, r, ~] = nlinfit(janSWEmean, janTs5mean, logist, beta_init);
+rmse = sqrt(nansum(r.^2)/(length(janSWEmean)-1));
+disp(['Logistic function: ' num2str(coeffs) ' RMSE = ' num2str(rmse)]);
 plot(0:1500, logist(coeffs, 0:1500), '-r');
 
 % Mean month soil temp by SWE - 20cm
@@ -351,11 +360,12 @@ months = ['Dec';'Jan'] ;
 polyorder = 1;
 
 % Set up non-linear fits
-% nlfunc = inline('b(1)*(1 - b(2)*exp(-b(3).*x))', 'b', 'x');
-% beta_init = [1.5 2 0.01];
+% Bounded exponential
+nlfunc = inline('b(1)*(1 - b(2)*exp(-b(3).*x))', 'b', 'x');
+beta_init = [1.5 2 0.01];
 % Logistic fit -> K./(1+exp(-r*(t-t0)));
-nlfunc = inline('(b(1)./(1 + exp(-b(2).*x))) - b(3)', 'b', 'x');
-beta_init = [1.5 0.01 1];
+% nlfunc = inline('(b(1)./(1 + exp(-b(2).*x))) - b(3)', 'b', 'x');
+% beta_init = [1.5 0.01 1];
 
 for i=plotorder
     subplot(2, 2, i);

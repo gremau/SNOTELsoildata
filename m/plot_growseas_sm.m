@@ -11,8 +11,11 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 
-% access to nanmean, etc
+% Add any needed tools
+addpath('/home/greg/data/code_resources/m_common/'); 
 addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/linear/'); 
+addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
@@ -174,7 +177,6 @@ jasVWC50sd = vwcData(:, 98);
 % premeltTair = vwcData(:, 101);
 % postmeltTair = vwcData(:, 102);
 
-
 % Parse NORMALIZED soilwatersummary
 amjVWC5meanN = vwcDataN(:, 87);
 amjVWC5sdN = vwcDataN(:, 88);
@@ -193,7 +195,6 @@ jasVWC50sdN = vwcDataN(:, 98);
 % Get a subset of climData that corresponds with available soildata
 matchtest = ismember(climData(:, 1:2), soilsiteyears(:, 1:2), 'rows');
 matchsets = climData(matchtest, :);
-
 
 %----------------------------------------------------
 % FIG 1 - Plot soil moisture vs max swe snowmelt day
@@ -506,8 +507,51 @@ text(150, 0.75, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlim([0 1650]); ylim([0 1]);
 xlabel('Peak SWE (mm)');
 
+%----------------------------------------------------
+% FIG 6 - Plot August soil moisture vs snowmelt date
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Aug soil moisture vs snomelt date');
+
+% Left side - plot vs Snowmelt day
+% Set binning parameters
+topEdge = 305; % define limits
+botEdge = 145; % define limits
+numBins = 15; % define number of bins
+% And an xaxis to use
+xax = (linspace(botEdge, topEdge, numBins+1))+5;
+
+% 5cm
+x = meltdoy(matchtest); %split into x and y
+y = augVWC5mean;
+y2 = augVWC5sd;
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
+subplot(221);
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
+xlim([140 310]); %ylim([0 1]);
+xlabel('Snowmelt dowy');
+title('5cm VWC');
+
+y = augVWC20mean;
+y2 = augVWC20sd;
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
+subplot(222);
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
+xlim([140 310]);%ylim([0 1]);
+xlabel('Snowmelt dowy');
+title('20cm VWC');
+
+y = augVWC50mean;
+y2 = augVWC50sd;
+[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
+subplot(223);
+errorbar(xax(1:numBins), binMean, binStd, 'ok');
+xlim([140 310]);%ylim([0 1]);
+xlabel('Snowmelt dowy');
+title('50cm VWC');
+
 %--------------------------------------------------------------
-% FIG 6 - Regress snowpack vs growing season vwc for 3 sites
+% FIG 7 - Regress snowpack vs growing season vwc for 3 sites
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Regress vwc vs snowpack for 3 sites');
@@ -584,47 +628,4 @@ text(250, .45, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('Peak SWE'); ylabel('20cm VWC');
 title('Little Bear');
 
-%----------------------------------------------------
-% FIG 7 - Plot August soil moisture vs snowmelt date
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Aug soil moisture vs snomelt date');
 
-% Left side - plot vs Snowmelt day
-% Set binning parameters
-topEdge = 305; % define limits
-botEdge = 145; % define limits
-numBins = 15; % define number of bins
-% And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1))+5;
-
-% 5cm
-x = meltdoy(matchtest); %split into x and y
-y = augVWC5mean;
-y2 = augVWC5sd;
-[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(221);
-errorbar(xax(1:numBins), binMean, binStd, 'ok');
-xlim([140 310]); %ylim([0 1]);
-xlabel('Snowmelt dowy');
-title('5cm VWC');
-
-y = augVWC20mean;
-y2 = augVWC20sd;
-[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(222);
-errorbar(xax(1:numBins), binMean, binStd, 'ok');
-xlim([140 310]);%ylim([0 1]);
-xlabel('Snowmelt dowy');
-title('20cm VWC');
-
-y = augVWC50mean;
-y2 = augVWC50sd;
-[binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(223);
-errorbar(xax(1:numBins), binMean, binStd, 'ok');
-xlim([140 310]);%ylim([0 1]);
-xlabel('Snowmelt dowy');
-title('50cm VWC');
-
-end

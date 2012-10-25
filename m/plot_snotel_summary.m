@@ -446,6 +446,8 @@ vline(nanmean(totaldaysSC(testsoil)), ':r');
 xlim([-2 300]); ylim([0 500]);
 title('Total snowcovered days');
 
+ticklocs = [0, 25, 50, 75, 100, 125];
+tickmonths = ['Oct 1 '; 'Oct 25'; 'Nov 19'; 'Dec 14'; 'Jan 8 '; 'Feb 2 '];
 subplot (4, 2, 7)
 xedges = linspace(0, 130, 60);
 networkhist = histc(onsetdoy, xedges);
@@ -456,8 +458,12 @@ bar(xedges, soilhist, 'r');
 vline(nanmean(onsetdoy), ':k');
 vline(nanmean(onsetdoy(testsoil)), ':r');
 xlim([-2 125]); ylim([0 700]);
+set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
 title('Snowpack onset day');
 
+ticklocs = [100, 130, 160, 190, 220, 250, 280, 310, 340];
+tickmonths = ['Jan 9 '; 'Feb 8 '; 'Mar 10'; 'Apr 9 '; 'May 9 '; 'Jun 8 ';...
+    'Jul 8 '; 'Aug 7 '; 'Sep 6 '];
 subplot (4, 2, 8)
 xedges = linspace(0, 365, 60);
 networkhist = histc(meltdoy, xedges);
@@ -467,7 +473,8 @@ hold on;
 bar(xedges, soilhist, 'r');
 vline(nanmean(meltdoy), ':k');
 vline(nanmean(meltdoy(testsoil)), ':r');
-xlim([100 350]); ylim([0 700]);
+xlim([100 340]); ylim([0 700]);
+set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
 title('Day of snowmelt');
 
 
@@ -708,7 +715,8 @@ hold on;
 xrange = xlim(gca);
 [~, rsq, xfit, yfit] = fitline(site1dur, site1mast, 1, xrange);
 plot(xfit, yfit,':k');
-text(160, 4, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('Snowpack duration (days)'); ylabel('MAST');
 title('Trial Lake');
 
@@ -718,7 +726,8 @@ hold on;
 xrange = xlim(gca);
 [~, rsq, xfit, yfit] = fitline(site2dur, site2mast, 1, xrange);
 plot(xfit, yfit,':k');
-text(190, 5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('Snowpack duration (days)'); ylabel('MAST');
 title('Chalk Creek 1');
 
@@ -728,7 +737,8 @@ hold on;
 xrange = xlim(gca);
 [~, rsq, xfit, yfit] = fitline(site3dur, site3mast, 1, xrange);
 plot(xfit, yfit,':k');
-text(165, 8.5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('Snowpack duration (days)'); ylabel('MAST');
 title('Little Bear');
 
@@ -738,7 +748,8 @@ hold on;
 xrange = xlim(gca);
 [~, rsq, xfit, yfit] = fitline(site1maat, site1mast, 1, xrange);
 plot(xfit, yfit,':k');
-text(1, 2.7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('MAT'); ylabel('MAST');
 title('Trial Lake');
 
@@ -748,7 +759,8 @@ hold on;
 xrange = xlim(gca);
 [~, rsq, xfit, yfit] = fitline(site2maat, site2mast, 1, xrange);
 plot(xfit, yfit,':k');
-text(3.7, 4.5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('MAT'); ylabel('MAST');
 title('Chalk Creek 1');
 
@@ -758,7 +770,8 @@ hold on;
 xrange = xlim(gca);
 [~, rsq, xfit, yfit] = fitline(site3maat, site3mast, 1, xrange);
 plot(xfit, yfit,':k');
-text(7, 7.5, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('MAT'); ylabel('MAST');
 title('Little Bear');
 
@@ -876,7 +889,6 @@ title('February VWC vs pre-snowpack VWC');
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
-
 
 % Set binning parameters
 if strcmpi(normalize, 'n')

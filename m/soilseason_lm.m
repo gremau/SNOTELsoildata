@@ -6,7 +6,19 @@ fignum = 1;
 
 % Add any needed tools
 addpath('/home/greg/data/code_resources/m_common/'); 
+addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/linear/'); 
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
+
+% Use this site as an example:
+examplesite = 828;
+examplelabel = 'Trial Lake';
+% examplesite = 393;
+% examplelabel = 'Chalk Creek';
+% examplesite = 332;
+% examplelabel = 'Ben Lomond Peak';
+% examplesite = 333;
+% examplelabel = 'Ben Lomond Trail';
 
 % Set processed data path
 processeddatapath = '../processed_data/';
@@ -51,7 +63,6 @@ lat = soilClim(:, 83);
 lon = soilClim(:, 84);
 ltMeanSWE = soilClim(:, 85);
 ltMeanPrecip = soilClim(:, 86);
-
 
 % Seasonal/yearly soil temp means
 site_ts = tsData(:, 1);
@@ -117,11 +128,16 @@ augVWC50sd = vwcDataN(:, 68);
 
 sites = unique(site_cl);
 
+% PUBLICATION PLOTS   ------------------------------------------------
+diff20cm = mast20cm-maat;
+Yvars = {'mast20cm' 'diff20cm' 'jasVWC50mean','jasVWC50mean','jasVWC50mean'};
+Xvars = {'totaldaysSC' 'totaldaysSC' 'meltdoy', 'maxswe', 'JASprecip'};
 
+% EXPLORATORY ANALYSIS  ------------------------------------------------
 % Set regression variables:
 
 % Yvars = {'mast20cm','mast20cm','mast20cm'};
-% Xvars = {'maat', 'totaldaysSC', 'maxswe'};
+% Xvars = {'maat', 'totaldaysSC', 'snowduration'};
 
 % Yvars = {'julVWC20mean','augVWC20mean','jasVWC20mean'};
 % Xvars = {'meltdoy', 'meltdoy', 'meltdoy'};
@@ -136,36 +152,45 @@ sites = unique(site_cl);
 % Yvars = {'diff5cm','diff20cm','diff50cm'};
 % Xvars = {'onsetdoy', 'onsetdoy', 'onsetdoy'};
 
-diff5cm = mast5cm-maat; diff20cm = mast20cm-maat; diff50cm = mast50cm-maat;
-Yvars = {'diff5cm','diff5cm','diff5cm'};
-Xvars = {'maat', 'totaldaysSC', 'maxswe'};
-
+% diff5cm = mast5cm-maat; diff20cm = mast20cm-maat; diff50cm = mast50cm-maat;
+% Yvars = {'diff20cm','diff20cm','diff20cm'};
+% Xvars = {'maat', 'totaldaysSC', 'snowduration'};
 
 for i = 1:length(Yvars)
-    % Do a regression of MAST on snowcovered days at each site
+    % Gather regression results for all sites
     slopes = [];
     yints = [];
     rsqs = [];
+    pvals = [];
     xmeans = [];
     elevs = [];
+    siteIDs = [];
     for j = 1:length(sites)
         getsite = site_cl==sites(j);
         eval(['y = ' Yvars{i} '(getsite);']);
         eval(['x = ' Xvars{i} '(getsite);']);
+        x(:,2) = ones(numel(x), 1); % Regress needs 2nd constant x column
         % Only use sites with at least 3 datapoints after nan removal
-        nantest = isnan(x) | isnan(y);
+        nantest = isnan(x(:,1)) | isnan(y);
         if (sum(getsite) - sum(nantest)) > 2
-            [coefficients, rsq, ~, ~] = fitline(x, y, 1, [0, 1]);
-            slopes = [slopes; coefficients(1)];
-            yints = [yints; coefficients(2)];
-            rsqs = [rsqs; rsq];
-            xmeans = [xmeans; nanmean(x)];
+            %[coefficients, rsq, ~, ~] = fitline(x(:,1), y, 1, [0, 1]);
+            [b,bint,resid,rint,stats] = shregress(y, x);
+            slopes = [slopes; b(1)];%coefficients(1)];
+            %slopes(j, i) = b(1);
+            yints = [yints; b(2)];%coefficients(2)];
+            rsqs = [rsqs; stats(1)];%rsq];
+            pvals = [pvals; stats(3)];
+            xmeans = [xmeans; nanmean(x(:,1))];
             elevs = [elevs; mean(elev(getsite))];
+            siteIDs = [siteIDs; sites(j)];
         end
     end
     
+    % Spit out the results
+    regressTemp = [siteIDs elevs xmeans slopes yints rsqs pvals];
+    eval(['regress' num2str(i) 'dat = regressTemp;']);
     
-    % Plot the results of the regression analysis
+    % Fig 1, 3, 5 - Plot regression results for all sites
     h = figure(fignum);
     set(h, 'Name', ['Regressions: Y = ' Yvars{i} ', X = ' Xvars{i}]);
     
@@ -176,9 +201,9 @@ for i = 1:length(Yvars)
     xlabel('Site mean of x');
     
     subplot(3, 3, 2);
-    plot(xmeans, yints, 'ob');
-    hline(mean(yints), ':b')
-    title('Y - int');
+    plot(xmeans, pvals, 'ob');
+    hline(mean(pvals), ':b')
+    title('P-values');
     xlabel('Site mean of x');
     
     subplot(3, 3, 3);
@@ -192,41 +217,295 @@ for i = 1:length(Yvars)
     xlabel('Elev (m)');
     
     subplot(3, 3, 5);
-    plot(elevs, yints, '.b');
+    plot(elevs, pvals, '.b');
     xlabel('Elev (m)');
     
     subplot(3, 3, 6);
     plot(elevs, rsqs, '.r');
     xlabel('Elev (m)');
     
-    subplot (3, 3, 7)
+    subplot(3, 3, 7);
     xedges = linspace(min(slopes), max(slopes), 50);
     slopeHist = histc(slopes, xedges);
     bar(xedges, slopeHist, 'k');
-    vline(mean(slopes), ':k');
     %xlim([-0.1 0.1]); 
-    ylim([0 35]);
+    %ylim([0 35]);
+    vline(mean(slopes), '-b');
     title('Frequency of Slope values');
     xlabel('Slope'); ylabel('n');
         
-    subplot (3, 3, 8)
-    xedges = linspace(min(slopes), max(slopes), 50);
-    slopeHist = histc(slopes, xedges);
-    bar(xedges, slopeHist, 'k');
-    vline(mean(slopes), ':k');
+    subplot(3, 3, 8);
+    xedges = linspace(min(pvals), max(pvals), 50);
+    pHist = histc(pvals, xedges);
+    bar(xedges, pHist, 'k');
     %xlim([-0.1 0.1]); 
-    ylim([0 35]);
-    title('Frequency of Slope values');
-    xlabel('Slope'); ylabel('n');
+    %ylim([0 35]);
+    vline(mean(pvals), '-b');
+    title('Frequency of P values');
+    xlabel('p'); ylabel('n');
     
-    subplot (3, 3, 9)
+    subplot(3, 3, 9);
     xedges = linspace(0, 1, 50);
     rsqHist = histc(rsqs, xedges);
     bar(xedges, rsqHist, 'k');
-    vline(mean(rsqs), ':k');
     xlim([-0.1 1.1]);% ylim([0 35]);
+    vline(mean(rsqs), '-b');
     title('Frequency of R-sq values');
     xlabel('r^2'); ylabel('n');
     
     fignum = fignum + 1;
+    
+    %--------------------------------------------------------------
+    % FIG 2, 4, 6 - Plot the results for one example site
+    h = figure(fignum);
+    set(h, 'Name', ['Regression: Y = ' Yvars{i} ', X = ' Xvars{i} ...
+        ', Site = ' num2str(examplesite)]);
+    test = site_cl==examplesite;
+    % Be sure that the variables here are used for all sites above
+    eval(['ysite = ' Yvars{i} '(test);']);
+    eval(['xsite = ' Xvars{i} '(test);']);
+   
+    subplot(2, 1, 1)
+    plot(xsite, ysite, '.b');
+    hold on;
+    xrange = xlim(gca);
+    [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+    [b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+    plot(xfit, yfit,'--k');
+    text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+        ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)]); % r^2 & p
+    xlabel(Xvars{i}); ylabel(Yvars{i});
+    title(examplelabel);
+    
+    subplot(2, 1, 2);
+    xedges = linspace(min(slopes), max(slopes), 50);
+    slopeHist = histc(slopes, xedges);
+    bar(xedges, slopeHist, 'k');
+    %xlim([-0.1 0.1]);
+    %ylim([0 35]);
+    vline(mean(slopes), '-b');
+    title('Frequency of Slope values (all sites)');
+    xlabel('Slope'); ylabel('n');
+    
+    fignum = fignum + 1;
 end
+
+% PUBLICATION PLOTS   ------------------------------------------------
+% First plot regressions 1 and 2
+h = figure(fignum);
+examplesite = 828;
+examplelabel = 'Trial Lake';
+set(h, 'Name', ['Regressions: MAST and Offset on # snowcovered days.'...
+    ' Site = ' num2str(examplesite)]);
+test = site_cl==examplesite;
+
+% Example regression 1 - Set the x and y variables
+eval(['ysite = ' Yvars{1} '(test);']);
+eval(['xsite = ' Xvars{1} '(test);']);
+
+subplot(3, 4, [1 2 5 6])
+plot(xsite, ysite, '.b');
+hold on;
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k');
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)]); % r^2 & p
+xlabel(Xvars{1}); ylabel(Yvars{1});
+title(examplelabel);
+
+% Regression 1 - all sites
+% Slope histogram
+subplot(3, 4, 9);
+slopes = regress1dat(:, 4);
+xedges = linspace(min(slopes), max(slopes), 50);
+slopeHist = histc(slopes, xedges);
+bar(xedges, slopeHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(slopes), '-b');
+title('Frequency of slope values (all sites)');
+xlabel('Slope'); ylabel('n');
+
+% Pval histogram
+subplot(3, 4, 10);
+pvals = regress1dat(:, 7);
+xedges = linspace(min(pvals), max(pvals), 50);
+pvalHist = histc(pvals, xedges);
+bar(xedges, pvalHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(pvals), '-b');
+title('Frequency of P values (all sites)');
+xlabel('p'); ylabel('n');
+
+% Example regression 2 - Set the x and y variables
+eval(['ysite = ' Yvars{2} '(test);']);
+eval(['xsite = ' Xvars{2} '(test);']);
+subplot(3, 4, [3 4 7 8])
+plot(xsite, ysite, '.b');
+hold on;
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k');
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)]); % r^2 & p
+xlabel(Xvars{2}); ylabel(Yvars{2});
+title(examplelabel);
+
+% Regression 2 - all sites
+% Slope histogram
+subplot(3, 4, 11);
+slopes = regress2dat(:, 4);
+xedges = linspace(min(slopes), max(slopes), 50);
+slopeHist = histc(slopes, xedges);
+bar(xedges, slopeHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(slopes), '-b');
+title('Frequency of Slope values (all sites)');
+xlabel('Slope'); ylabel('n');
+
+% Pval histogram
+subplot(3, 4, 12);
+pvals = regress2dat(:, 7);
+xedges = linspace(min(pvals), max(pvals), 50);
+pvalHist = histc(pvals, xedges);
+bar(xedges, pvalHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(pvals), '-b');
+title('Frequency of P values (all sites)');
+xlabel('p'); ylabel('n');
+
+% Plot regressions 3, 4, 5 ---------------------------------------
+fignum = fignum + 1;
+h = figure(fignum);
+examplesite = 333;
+examplelabel = 'Ben Lomond Trail';
+set(h, 'Name', ['Regressions: Growing season vwc on SWE, melt day, and '...
+    'summer rain. Site = ' num2str(examplesite)]);
+test = site_cl==examplesite;
+
+% Example regression 3 - Set the x and y variables
+eval(['ysite = ' Yvars{3} '(test);']);
+eval(['xsite = ' Xvars{3} '(test);']);
+
+subplot(3, 6, [1 2 7 8])
+plot(xsite, ysite, '.b');
+hold on;
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k');
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)]); % r^2 & p
+xlabel(Xvars{3}); ylabel(Yvars{3});
+title(examplelabel);
+
+% Regression 3 - all sites
+% Slope histogram
+subplot(3, 6, 13);
+slopes = regress3dat(:, 4);
+xedges = linspace(min(slopes), max(slopes), 50);
+slopeHist = histc(slopes, xedges);
+bar(xedges, slopeHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(slopes), '-b');
+title('Frequency of slope values (all sites)');
+xlabel('Slope'); ylabel('n');
+
+% Pval histogram
+subplot(3, 6, 14);
+pvals = regress3dat(:, 7);
+xedges = linspace(min(pvals), max(pvals), 50);
+pvalHist = histc(pvals, xedges);
+bar(xedges, pvalHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(pvals), '-b');
+title('Frequency of P values (all sites)');
+xlabel('p'); ylabel('n');
+
+% Example regression 4 - Set the x and y variables
+eval(['ysite = ' Yvars{4} '(test);']);
+eval(['xsite = ' Xvars{4} '(test);']);
+subplot(3, 6, [3 4 9 10])
+plot(xsite, ysite, '.b');
+hold on;
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k');
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)]); % r^2 & p
+xlabel(Xvars{4}); ylabel(Yvars{4});
+title(examplelabel);
+
+% Regression 4 - all sites
+% Slope histogram
+subplot(3, 6, 15);
+slopes = regress4dat(:, 4);
+xedges = linspace(min(slopes), max(slopes), 50);
+slopeHist = histc(slopes, xedges);
+bar(xedges, slopeHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(slopes), '-b');
+title('Frequency of Slope values (all sites)');
+xlabel('Slope'); ylabel('n');
+
+% Pval histogram
+subplot(3, 6, 16);
+pvals = regress4dat(:, 7);
+xedges = linspace(min(pvals), max(pvals), 50);
+pvalHist = histc(pvals, xedges);
+bar(xedges, pvalHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(pvals), '-b');
+title('Frequency of P values (all sites)');
+xlabel('p'); ylabel('n');
+
+% Example regression 5 - Set the x and y variables
+eval(['ysite = ' Yvars{5} '(test);']);
+eval(['xsite = ' Xvars{5} '(test);']);
+subplot(3, 6, [5 6 11 12])
+plot(xsite, ysite, '.b');
+hold on;
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k');
+text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
+    ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)]); % r^2 & p
+xlabel(Xvars{5}); ylabel(Yvars{5});
+title(examplelabel);
+
+% Regression 5 - all sites
+% Slope histogram
+subplot(3, 6, 17);
+slopes = regress5dat(:, 4);
+xedges = linspace(min(slopes), max(slopes), 50);
+slopeHist = histc(slopes, xedges);
+bar(xedges, slopeHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(slopes), '-b');
+title('Frequency of Slope values (all sites)');
+xlabel('Slope'); ylabel('n');
+
+% Pval histogram
+subplot(3, 6, 18);
+pvals = regress5dat(:, 7);
+xedges = linspace(min(pvals), max(pvals), 50);
+pvalHist = histc(pvals, xedges);
+bar(xedges, pvalHist, 'k');
+%xlim([-0.1 0.1]);
+%ylim([0 35]);
+vline(mean(pvals), '-b');
+title('Frequency of P values (all sites)');
+xlabel('p'); ylabel('n');
