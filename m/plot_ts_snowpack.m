@@ -14,7 +14,7 @@ fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
 addpath('~/data/code_resources/m_common/nonlinear/');
 addpath('~/data/code_resources/m_common/nanstuff/');
-addpath('~/data/code_resources/m_common/');
+addpath('~/data/code_resources/m_common/hline_vline/');
 
 % Ask user for month number
 %monthsel = str2double(input('Which month (1-12)?: ', 's'));
@@ -353,6 +353,7 @@ plot(0:1500, logist(coeffs, 0:1500), '-r');
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
+set(h, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
 
 % Set some plotting parameters
 plotorder = [1, 2];
@@ -379,10 +380,14 @@ for i=plotorder
     rmse = sqrt(nansum(r.^2)/(length(x)-1));
     rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
     plot(0:1500, nlfunc(coeffs, 0:1500), '-k');
-    text(700, 7, ['RMSE = ' num2str(rmse, 2)]); % Mean Squared error values
-    text(700, 5.5, ['r^2 = ' num2str(rsq, 2)]); % r-squared
+    % Mean Squared error and r-squared values
+    text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
+    text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
+    % Plot horizontal zero line
+    hline(0, ':k');
     
-    xlim([0, 1200]); ylim([-8, 8]);
+    set(gca, 'position', [0.90 0.91 1.15 1.2] .* get(gca, 'position'));
+    xlim([0, 800]); ylim([-8, 8]);
     title(months(i,:));
     set(gca, 'XTickLabel', '');
     if i==1
@@ -402,10 +407,13 @@ for i=plotorder
     rmse = sqrt(nansum(r.^2)/(length(x)-1));
     rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
     plot(0:1500, nlfunc(coeffs, 0:1500), '-k');
-    text(700, 7, ['RMSE = ' num2str(rmse, 2)]); % Mean Squared error values
-    text(700, 5.5, ['r^2 = ' num2str(rsq, 2)]); % r-squared
+    text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
+    text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
+    % Plot horizontal zero line
+    hline(0, ':k');
     
-    xlim([0, 1200]); ylim([-8, 8]);
+    set(gca, 'position', [0.90 0.95 1.15 1.2] .* get(gca, 'position'));
+    xlim([0, 800]); ylim([-8, 8]);
     xlabel('Mean SWE (mm)');
     if i==1
         ylabel('20cm ^oC');
@@ -422,7 +430,7 @@ wasatchTest = ismember(soilClim(:, 1), wasatch);
 
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name', ['Mean January Ts vs snowpack - Wasatch & Uintas']);
+set(h, 'Name', 'Mean January Ts vs snowpack - Wasatch & Uintas');
 % Mean month soil temp by SWE - 5cm
 subplot 321;
 plot(janSWEmean(wasatchTest), janTs5mean(wasatchTest), 'om');
@@ -439,7 +447,7 @@ xlabel('Mean SWE');
 ylabel('5cm Ts (^oC)');
 ylim([-4, 4]);
 legend('Wasatch mtns', 'Uinta mtns');
-title(['January Ts vs January SWE']);
+title('January Ts vs January SWE');
 
 % Mean month soil temp by SWE - 20cm
 subplot 323;

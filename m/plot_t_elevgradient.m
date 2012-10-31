@@ -195,8 +195,7 @@ set(h, 'Name','Jan/July Air and soil temperature gradients, All SNOTEL');
 subplot (2, 2, 1)
 plot(elev, julTairMean, 'ok', 'MarkerFaceColor', 'r');
 hold on
-plot(elev, julTs20mean, 'ok', 'MarkerFaceColor', ...
-    [0.7 0.7 0.7]);
+plot(elev, julTs20mean, 'ok', 'MarkerFaceColor', 'k');
 xlabel('Elevation(m)');
 ylabel('Mean July temp (^oC)');
 title('July');
@@ -205,8 +204,7 @@ legend('Air', 'Soil(20cm)');
 subplot (2, 2, 2)
 plot(elev, janTairMean, 'ok', 'MarkerFaceColor', 'b');
 hold on
-plot(elev, janTs20mean, 'ok', 'MarkerFaceColor', ...
-    [0.7 0.7 0.7]);
+plot(elev, janTs20mean, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -224,8 +222,7 @@ janTs20meanAgg = accumarray(aggindex, janTs20mean, [numel(sites) 1], @nanmean);
 subplot (2, 2, 3)
 plot(elevAgg, julTairMeanAgg, 'ok', 'MarkerFaceColor', 'r');
 hold on
-plot(elevAgg, julTs20meanAgg, 'ok', 'MarkerFaceColor', ...
-    [0.7 0.7 0.7]);
+plot(elevAgg, julTs20meanAgg, 'ok', 'MarkerFaceColor', 'k');
 xlabel('Elevation(m)');
 ylabel('Mean July temp (^oC)');
 title('July (mean of all wateryears)');
@@ -234,8 +231,7 @@ legend('Air', 'Soil(20cm)');
 subplot (2, 2, 4)
 plot(elevAgg, janTairMeanAgg, 'ok', 'MarkerFaceColor', 'b');
 hold on
-plot(elevAgg, janTs20meanAgg, 'ok', 'MarkerFaceColor', ...
-    [0.7 0.7 0.7]);
+plot(elevAgg, janTs20meanAgg, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -537,7 +533,7 @@ set(h, 'Name','Dec Air/Soil gradient - All SNOTEL/years');
 subplot (1,2,1);
 plot(elev, decTairMean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
-plot(elev, decTs20mean, 'ok', 'MarkerFaceColor', 'r');
+plot(elev, decTs20mean, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -547,7 +543,7 @@ legend('Air', 'Soil(20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 subplot (1,2,2);
 plot(elev, decTairMean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
-plot(elev, decTs5mean, 'ok', 'MarkerFaceColor', 'r');
+plot(elev, decTs5mean, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -565,7 +561,7 @@ subplot (1,2,1);
 errorbar(elev, decTairMean, decTairSd, 'ok',...
     'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
-errorbar(elev, decTs20mean, decTs20sd, 'ok', 'MarkerFaceColor', 'r');
+errorbar(elev, decTs20mean, decTs20sd, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
@@ -598,7 +594,7 @@ errorbar(elev(st_test), janTairMean(st_test), janTairSd(st_test), ...
     'MarkerEdgeColor', 'k');
 hold on
 errorbar(elev(st_test), janTs20mean(st_test), janTs20sd(st_test), ...
-    'ok', 'MarkerFaceColor', 'r', 'Color', [0.7 0.7 0.7], ...
+    'ok', 'MarkerFaceColor', 'w', 'Color', [0.7 0.7 0.7], ...
     'MarkerEdgeColor', 'k');
 % Plot moist adiabatic lapse rate
 plot([900 3500], [4, -9], ':k')
@@ -627,41 +623,53 @@ x = elevAgg(st_testAgg);
 y1 = janTairMeanAgg(st_testAgg);
 sd1 = janTairSdAgg(st_testAgg);
 y2 = janTs20meanAgg(st_testAgg);
-sd2 = janTs20sdAgg(st_testAgg)'
+sd2 = janTs20sdAgg(st_testAgg);
 
 % Mean StDev of Tair
 meanStdDev = nanmean(sd1);
 
-subplot (1,1,1);
 % Plot Jan mean Tair and regression line
 handles(1) = plot(x, y1, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
     'MarkerEdgeColor', 'k');
-% handles(1) = errorbar(x,y1,sd1,'ok','MarkerFaceColor',[0.7 0.7 0.7],...
-%     'Color', [0.7 0.7 0.7], 'MarkerEdgeColor', 'k');
 hold on;
-xfit = linspace(1600, 3400);
+xfit = linspace(1692, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k');
-text(1650, -7, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
+if stats(3) < 0.01
+    text(1750, -7, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1750, -7, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
+
+% Plot Tair example error bar in an inset box
+handles(3) = errorbar(1625, -4.7, meanStdDev,'o',...
+    'MarkerFaceColor',[0.7 0.7 0.7], 'Color', [0.7 0.7 0.7]);
+% Create rectangle
+annotation(h, 'rectangle', [0.154 0.146 0.05 0.55], 'FaceColor','flat');
+
 % Plot Jan mean Tsoil and regression
-handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'r',...
-    'Color', [0.7 0.7 0.7], 'MarkerEdgeColor', 'k');
+handles(4) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'w',...
+    'Color', [0.5 0.5 0.5], 'MarkerEdgeColor', 'k');
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
-handles(2) = plot(xfit, polyval(b, xfit), '--k');
-text(1650, 3, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
-% Plot moist adiabatic lapse rate
-% plot([900 3500], [4, -9], ':k')
-% Plot example error bar
-handles(5) = errorbar(1600, -1.9, meanStdDev, 'ok',...
-    'MarkerFaceColor', [0.7 0.7 0.7], 'Color', [0.7 0.7 0.7]);
+handles(5) = plot(xfit, polyval(b, xfit), '--k');
+if stats(3) < 0.01
+    text(1750, 3, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1750, 3, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
 
 xlim([1500 3500]);
 xlabel('Elevation(m)');
-ylabel('Mean temp (^oC)');
-legend(handles([1 3 5]), {'Tair', 'Tsoil (20cm)',...
-    'Representative \sigma Tair'});
+ylabel('$\overline{\textrm{T}}$ ($^o$C)', 'interpreter', 'latex');
+legend(handles([1 3 4]), {'T$_{\textrm{air}}$',...
+    'T$_{\textrm{air}}$ $\overline{\sigma}$',...
+    'T$_{\textrm{soil}}$ (20cm)'}, 'interpreter', 'latex');
 title('Utah - January Tair/Tsoil (aggregated)');
+% Plot moist adiabatic lapse rate
+% plot([900 3500], [4, -9], ':k')
 
 % -------------------------------------------------------------
 % FIG 11 - January/July soil T gradients - Utah data only
@@ -690,9 +698,9 @@ julTs20sdAgg = accumarray(aggindex, julTs20sd, [numel(sites) 1], @mean);
 % Assign x and y variables
 x = elevAgg(st_testAgg);
 y1 = janTs20meanAgg(st_testAgg);
-sd1 = janTs20sdAgg(st_testAgg)
+sd1 = janTs20sdAgg(st_testAgg);
 y2 = julTs20meanAgg(st_testAgg);
-sd2 = julTs20sdAgg(st_testAgg)
+sd2 = julTs20sdAgg(st_testAgg);
 
 fignum = fignum+1;    
 h = figure(fignum);
@@ -703,17 +711,27 @@ hold on;
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k');
-text(1650, 3, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
+if stats(3) < 0.01
+    text(1650, 3, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1650, 3, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
 % Plot July Ts by elevation and regression
 handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k');
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
 handles(4) = plot(xfit, polyval(b, xfit), '--k');
-text(1650, 18.5, ['r^2 = ' num2str(stats(1),2) ', p = ' num2str(stats(3),2)]);
+if stats(3) < 0.01
+    text(1650, 18.5, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1650, 18.5, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
 % Plot moist adiabatic lapse rate
 %plot([1600 3400], [18, 9], ':k');
 xlim([1500 3500]);
 legend(handles([1 3]), {'January', 'July'});
 xlabel('Elevation (m)');
-ylabel('20cm Ts (^oC)')
+ylabel('20cm T_{soil} (^oC)')
 
 junk = 99;

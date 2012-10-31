@@ -36,9 +36,11 @@ testHigh_h = decday_h > highStart & decday_h < highEnd;
 figure1 = figure(1);
 set(figure1, 'Name', ['Site ' num2str(siteID) ' - ' ...
     ' 2 year comparison']);
+set(figure1, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
+
 % Ts and SWE
 subplot(2,2,1);
-plot(decday_d(testHigh_d), wteq(testHigh_d), 'b', 'LineWidth', 1.5);
+plot(decday_d(testHigh_d), wteq(testHigh_d), 'k', 'LineWidth', 1.5);
 xlim([highStart highEnd]); ylim([0 700]);
 ylabel('SWE (mm)');
 set(gca,'XTick', highTicks, 'XTickLabel', '',...
@@ -46,9 +48,8 @@ set(gca,'XTick', highTicks, 'XTickLabel', '',...
 title('2004-5');
 %
 subplot(2,2,2);
-plot(decday_d(testLow_d), wteq(testLow_d), 'b');
+plot(decday_d(testLow_d), wteq(testLow_d), 'k', 'LineWidth', 1.5);
 xlim([lowStart lowEnd]); ylim([0 700]);
-ylabel('SWE (mm)');
 set(gca,'XTick', lowTicks, 'XTickLabel', '', 'YTickLabel', '', ...
     'Position',[0.52 0.6 0.39 0.25]);
 title('2009-10');
@@ -57,14 +58,14 @@ subplot(2,2,3);
 plot(decday_d(testHigh_d), airT(testHigh_d), 'Color', [0.7,0.7,0.7],...
     'LineWidth', 1.5);
 hold on;
-plot(decday_h(testHigh_h), ts(testHigh_h), 'r');
+plot(decday_h(testHigh_h), ts(testHigh_h), 'k', 'LineWidth', 1.5);
 ylim([-25 22]); xlim([highStart highEnd]);
 % for some reason the axis changes randomly in the following lines so
 % be sure to set the xlimits (above)
 zeroline = line(get(gca, 'XLim'), [0, 0]);
 set(zeroline, 'Color', 'k', 'LineStyle', ':');
-legend('Air Temp', '24hr Mean Ts' );
-ylabel('Temp (^oC)');
+legend('T_{air}', 'T_{soil}' );
+ylabel('^oC');
 set(gca,'XTick', highTicks,'Position',[0.10 0.20 0.39 0.4]);
 datetick('x','mmm dd', 'keeplimits', 'keepticks');
 
@@ -72,11 +73,10 @@ subplot(2,2,4);
 plot(decday_d(testLow_d), airT(testLow_d), 'Color', [0.7,0.7,0.7],...
     'LineWidth', 1.5);
 hold on;
-plot(decday_h(testLow_h), ts(testLow_h), 'r');
+plot(decday_h(testLow_h), ts(testLow_h), 'k', 'LineWidth', 1.5);
 ylim([-25 22]); xlim([lowStart lowEnd]);
 zeroline = plot(get(gca, 'xlim'), [0, 0]);
 set(zeroline, 'Color', 'k', 'LineStyle', ':');
-ylabel('Temp (^oC)');
 set(gca,'XTick', lowTicks, 'YTickLabel', '',...
     'Position', [0.52 0.20 0.39 0.4]);
 datetick('x', 'mmm dd', 'keeplimits', 'keepticks');
@@ -86,7 +86,7 @@ clear all;
 % -----------------------------------------------------------------------
 % Examine the interannual variability in Ts and vwc at one site
 % Load hourly and daily data
-siteID = 828; % 828=TrialLake, 972=LouisMeadow, 432=CurrantCreek
+siteID = 432; % 828=TrialLake, 972=LouisMeadow, 432=CurrantCreek
               % 330=BeaverDivide, 333=BenLomTrail, 674=OrchardRangeID
               % 654=MudFlatID, 310=BaldyAZ, 720=RockCreek
 hourlyData = loadsnotel(siteID, 'hourly');
@@ -100,14 +100,15 @@ decday_d = datenum(dailyData{2}, 'yyyy-mm-dd');
 
 % Parse out some variables
 wteq = dailyData{4} * 25.4;
-%airT = dailyData{9};
+Tair = dailyData{9};
 ts = filterseries(hourlyData{8}, 'sigma', 25, 3); %{7}=5cm, {8}=20cm, etc
 vwc = filterseries(hourlyData{5}, 'sigma', 25, 3);
 
 % Overlap all years of Tair and Tsoil data (AGU 2011 poster)
-h = figure(2);
-set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
+figure2 = figure(2);
+set(figure2, 'Name', ['Site ' num2str(siteID) ' - ' ...
     ' 2 year comparison']);
+set(figure2, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
 
 % X Tick locations and labels
 ticklocs = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
@@ -115,7 +116,6 @@ tickmonths = ['Oct'; 'Nov'; 'Dec'; 'Jan'; 'Feb'; 'Mar'; 'Apr'; 'May';...
     'Jun';'Jul'; 'Aug'; 'Sep'; 'Oct'];
 
 subplot(3,1,1);
-hold on;
 % Initialize variables for calculating a mean timeseries
 wteqConcat = []; doyConcat = [];
 for i = 1:length(wyears_h)
@@ -124,57 +124,69 @@ for i = 1:length(wyears_h)
     wyWteq = wteq(dailytest);
     % Subtract of the initial datenum to get doy
     doys = decday_d(dailytest) - startdays(i);
-    plot(doys, wyWteq, 'Color', [0.7,0.7,0.7], ...
-        'LineWidth', 1.5);
+    plot(doys, wyWteq, 'Color', [0.7,0.7,0.7]);
+    hold on;
     wteqConcat = [wteqConcat; wyWteq]; % Concatenate yearly wteq
     doyConcat = [doyConcat; doys]; % And each years doy values
 end;
 doyConcat = [doyConcat ones(size(doyConcat))]; % Create accumarray index
 % Get a mean timeseries with accumarray and plot it
 wteqMean = accumarray(doyConcat, wteqConcat, ...
-    [numel(unique(doyConcat)) 1], @nanmean)
-plot(1:366, wteqMean, '-b', 'LineWidth', 2);
+    [numel(unique(doyConcat)) 1], @nanmean);
+plot(1:366, wteqMean, '-k', 'LineWidth', 2);
 % Set axes limits, tick locations, labels, position, etc
-xlim([0 367]); ylim([-5 1500]);
-ylabel('mm');
+xlim([0 367]); ylim([-5 450]);
+ylabel('SWE (mm)');
 set(gca,'XTick',ticklocs, 'XTickLabel', '',...
-    'Position', [0.13, 0.678, 0.775, 0.25]);
-title('Trial Lake');
+    'Position', get(gca, 'position') .* [1 .9 1 1.23]);
+title('Currant Creek, UT');
 %
 subplot(3,1,2);
-hold on;
-tsConcat = []; doyConcat = [];
+tsConcat = []; doyConcat = [];taConcat = []; doy_dConcat = [];
 for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
     wyTs = ts(hourlytest);
     doys = decday_h(hourlytest) - startdays(i);
-    plot(doys, wyTs, 'Color', [0.7,0.7,0.7],...
-        'LineWidth', 1.5);
+    plot(doys, wyTs, 'Color', [0.7,0.7,0.7]);
+    hold on;
     tsConcat = [tsConcat; wyTs];
     doyConcat = [doyConcat; doys];
+    %Do this for Tair also
+    dailytest = dailyData{21}==wyears_h(i);
+    wyTair = Tair(dailytest);
+    doys_d = decday_d(dailytest) - startdays(i);
+    taConcat = [taConcat; wyTair];
+    doy_dConcat = [doy_dConcat; doys_d];
 end;
+% Plot Tsoil mean
 [doyvals, ~, doyindex] = unique(doyConcat);
 doyConcat = [doyindex ones(size(doyindex))];
 tsMean = accumarray(doyConcat, tsConcat,...
     [numel(unique(doyConcat)) 1], @nanmean);
-plot(doyvals, tsMean, '-r');
+h1 = plot(doyvals, tsMean, '-k', 'Linewidth', 2);
+% Plot Tair mean
+[doyvals, ~, doyindex] = unique(doy_dConcat);
+doy_dConcat = [doyindex ones(size(doyindex))];
+taMean = accumarray(doy_dConcat, taConcat,...
+    [numel(unique(doy_dConcat)) 1], @nanmean);
+h2 = plot(doyvals, taMean, '--k', 'Linewidth', 2);
 % Set axes limits, tick locations, labels, position, etc
 zeroline = line(get(gca, 'XLim'), [0, 0]);
 set(zeroline, 'Color', 'k', 'LineStyle', ':');
-xlim([0 367]); ylim([-5 25]);
-ylabel('^oC');
+xlim([0 367]); ylim([-10 20]);
+ylabel('T (^oC)');
+legend([h1 h2], 'T_{soil}', 'T_{air}');
 set(gca,'XTick',ticklocs, 'XTickLabel', '',...
-    'Position', [0.13, 0.424, 0.775, 0.25]);
+    'Position', get(gca, 'position') .* [1 .9 1 1.23]);
 
 subplot(3,1,3);
-hold on;
 vwcConcat = []; doyConcat = [];
 for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
     wyVwc = vwc(hourlytest);
     doys = decday_h(hourlytest) - startdays(i);
-    plot(doys, vwc(hourlytest), 'Color', [0.7,0.7,0.7],...
-        'LineWidth', 1.5);
+    plot(doys, vwc(hourlytest), 'Color', [0.7,0.7,0.7]);
+    hold on;
     vwcConcat = [vwcConcat; wyVwc];
     doyConcat = [doyConcat; doys];
 end;
@@ -184,10 +196,10 @@ vwcMean = accumarray(doyConcat, vwcConcat,...
     [numel(unique(doyConcat)) 1], @nanmean);
 plot(doyvals, vwcMean, '-k', 'LineWidth', 2);
 % Set axes limits, tick locations, labels, position, etc
-xlim([0 367]); ylim([-5 45]);
+xlim([0 367]); ylim([-2 35]);
 ylabel('VWC (%)');
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths,...
-    'Position', [0.13, 0.172, 0.775, 0.25]);
+    'Position', get(gca, 'position') .* [1 .9 1 1.23]);
 
 
 % -----------------------------------------------------------------------
@@ -212,9 +224,9 @@ if strcmpi(sensoroutput, 'vwc');
     % xedges = 0:1:100; % raw sm data bins (0-100)
     % xmax = 75
     % If running NORMALIZED data with smnormalize
-    xedges = 0:0.01:1; % normalized vwc bins (0-1)
+    xedges = 0:0.02:1; % normalized vwc bins (0-1)
     xmax = 1; % these axes are good for normalized data
-    ymax = 0.125;
+    ymax = 0.25;
     disp('*** Running in normalized soil moisture data mode ***');
 elseif strcmpi(sensoroutput, 'temp');
     sensorcolumn = sensordepth + 6; % get proper column using sensordepth
@@ -226,7 +238,7 @@ end
 
 % Set up PLOT 1 - add each site's timeseries on iteration through following
 % loop
-h = figure(3);
+figure3 = figure(3);
 
 % Allocate for histogram and mean matrices - fill in following loop
 histograms = zeros(length(xedges), 16);
@@ -255,12 +267,14 @@ for i = 1:length(siteIDs);
     end
     
     % Create date arrays
-    datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}), 'yyyy-mm-ddHH:MM');
+    datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}),...
+        'yyyy-mm-ddHH:MM');
     datenum_h = datenum(datevec_h);
     
     % PLOT 1 - add the entire timeseries for site i
     ticklocations = linspace(min(datenum_h), max(datenum_h), 20);
-    set(h, 'Name', ['Site ' num2str(siteIDs(i)) ' - Full sensor timeseries']);
+    set(figure3, 'Name', ['Site ' num2str(siteIDs(i))...
+        ' - Full sensor timeseries']);
     subplot (4, 1, i)
     plot(datenum_h, sensordata, 'k');
     set(gca, 'XTick', ticklocations);
@@ -307,25 +321,35 @@ end
     clear testOND testJFM testAMJ testJAS;
 
 % PLOT 2. Plot quarterly distributions for all sites
-titles = {['Site ' num2str(siteIDs(1)) ' Oct-Dec'] ...
-    ['Site ' num2str(siteIDs(2)) ' Oct-Dec']...
-    ['Site ' num2str(siteIDs(3)) ' Oct-Dec']...
-    ['Site ' num2str(siteIDs(4)) ' Oct-Dec'] ...
-    'Jan-Mar' 'Jan-Mar' 'Jan-Mar' 'Jan-Mar' ...
-    'Apr-Jun' 'Apr-Jun' 'Apr-Jun' 'Apr-Jun' ...
-    'Jul-Sep' 'Jul-Sep' 'Jul-Sep' 'Jul-Sep'};
+titlelabels = {'Hi SWE/Hi Elev' 'Hi SWE/Low Elev' 'Low SWE/Hi Elev'...
+    'Low SWE/Low Elev'};
+monthlabels = {'Oct-Dec' '' '' '' 'Jan-Mar' '' '' '' 'Apr-Jun' '' '' ''...
+    'Jul-Sep'};
 
-h = figure(4);
-set(h, 'Name', ['4 SNOTEL Sites - ' sensoroutput ...
+figure4 = figure(4);
+set(figure4, 'Name', ['4 SNOTEL Sites - ' sensoroutput ...
     ' quarterly histograms - all years combined']);
+set(figure4, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
+
 % Loop through 16 subplots and plot histograms and means
 for i = 1:16;
     subplot (4, 4, i)
-    bar (xedges, histograms(:, i), 'g');
+    bar (xedges, histograms(:, i), 'Facecolor', [0.7 0.7 0.7]);
     hold on
-    plot([means(i) means(i)], [0 1], ':k');
+    plot([means(i) means(i)], [0 1], '--k');
     axis([xmin xmax 0 ymax]);
-    ylabel('Frequency');
-    title(titles{i});
+    set(gca, 'position', [0.925 0.925 1.15 1.19] .* get(gca, 'position'));
+    if i==1 || i==5 || i==9 || i==13;
+        ylabel('Frequency');
+        text(0.1, 0.8, monthlabels(i), 'Units', 'normalized');
+    else
+        set(gca, 'YtickLabel', '');
+    end
+    if i < 5
+        title({['Site ' num2str(siteIDs(i))];  titlelabels{i}});
+        set(gca, 'XtickLabel', '');
+    elseif i < 13
+        set(gca, 'XtickLabel', '');
+    end
 end
     

@@ -27,7 +27,8 @@ processeddatapath = '../processed_data/';
 % Load lists of sites with data in the daily/hourly data directory
 dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
 soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
-sites = unique(soilsites(:,1));
+allsites = unique(dailysites(:,1));
+soilsites = unique(soilsites(:,1));
 
 % LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
@@ -51,6 +52,18 @@ end
 matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 soilClim = climData(matchsoil, :);
 
+% Aggregation index for climData 
+[vals, ~, valindex] = unique(climData(:,1));
+climAggindex = [valindex ones(size(climData(:,1)))];
+
+% Aggregation index for soilClim data
+[vals, ~, valindex] = unique(soilClim(:,1));
+soilAggindex = [valindex ones(size(soilClim(:,1)))];
+
+% Unique elevations in climData
+elevAllAgg = accumarray(climAggindex, climData(:,82), [numel(allsites) 1], @mean);
+%Unique elevations in soilClim
+elevSoilAgg = accumarray(soilAggindex, soilClim(:,82), [numel(soilsites) 1], @mean);
 
 site_cl = climData(:, 1);
 year_cl = climData(:, 2);
@@ -64,7 +77,7 @@ totaldaysSC = climData(:, 9); % Total days, may vary from duration above
 maxcontinSC = climData(:, 10);% Length of longest continuos snowpack
 numcontinSC = climData(:, 11);% # of continuous snowcovered periods
 accumprecip = climData(:, 12)*25.4;
-JASprecip = climData(:, 13);
+JASprecip = climData(:, 13)*25.4;
 
 octSWEmean = climData(:, 14);
 octSWEmed = climData(:, 15);
@@ -309,9 +322,9 @@ h = figure(fignum);
 set(h, 'Name', 'Wateryear data scatter - all sites/years');
 
 subplot (4, 2, 1)
-plot(elev, elev, 'ok', 'MarkerFaceColor', 'k');
+plot(elevAllAgg, elevAllAgg, 'ok', 'MarkerFaceColor', 'k');
 hold on;
-plot(elev(testsoil), elev(testsoil)+100, 'or');
+plot(elevSoilAgg, elevSoilAgg+100, 'or');
 ylabel('Elevation (m)');
 legend('Intermountain west', 'Soil sites (+100m)');
 title('Elevation');
@@ -330,6 +343,7 @@ hold on;
 testsoil = ismember(site_cl, soilsites);
 plot(elev(testsoil), accumprecip(testsoil), 'or');
 ylabel('Annual precip (mm)');
+text(0.6, 0.7, 'Annual precip', 'Units', 'normalized');
 title('Wateryear precip');
 
 subplot (4, 2, 4)
@@ -373,18 +387,21 @@ testsoil = ismember(site_cl, soilsites);
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Wateryear data histograms - all sites/years');
+set(h, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
 
 subplot (4, 2, 1)
 xedges = linspace(500, 4000, 60);
-networkhist = histc(elev, xedges);
-soilhist = histc(elev(testsoil), xedges);
+networkhist = histc(elevAllAgg, xedges);
+soilhist = histc(elevSoilAgg, xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(elev), ':k');
-vline(nanmean(elev(testsoil)), ':r');
-xlim([700 3700]); ylim([0 400]);
-title('Elevation');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+xlim([700 3700]); ylim([0 40]);
+vline(nanmean(elevAllAgg), '--k');
+h = vline(nanmean(elevSoilAgg), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+text(0.05, 0.4, 'Elevation (m)', 'Units', 'normalized');
+ylabel('Frequency');
 
 subplot (4, 2, 2)
 xedges = linspace(-5, 20, 60);
@@ -392,11 +409,12 @@ networkhist = histc(maat, xedges);
 soilhist = histc(maat(testsoil), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(maat), ':k');
-vline(nanmean(maat(testsoil)), ':r');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+vline(nanmean(maat), '--k');
+h=vline(nanmean(maat(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-5 15]); ylim([0 500]);
-title('Mean wateryear air T');
+text(0.55, 0.4, 'Mean annual Tair (^oC)', 'Units', 'normalized');
 
 subplot (4, 2, 3)
 xedges = linspace(0, 2500, 60);
@@ -404,23 +422,26 @@ networkhist = histc(accumprecip, xedges);
 soilhist = histc(accumprecip(testsoil), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(accumprecip), ':k');
-vline(nanmean(accumprecip(testsoil)), ':r');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+vline(nanmean(accumprecip), '--k');
+h=vline(nanmean(accumprecip(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-10 2500]); ylim([0 500]);
-title('Wateryear precip');
+text(0.55, 0.4, 'Annual precip (mm)', 'Units', 'normalized');
+ylabel('Frequency');
 
 subplot (4, 2, 4)
-xedges = linspace(0, 70, 60);
+xedges = linspace(0, 1000, 60);
 networkhist = histc(JASprecip, xedges);
 soilhist = histc(JASprecip(testsoil), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(JASprecip), ':k');
-vline(nanmean(JASprecip(testsoil)), ':r');
-xlim([-2 50]); ylim([0 700]);
-title('Summer Precip (Jul, Aug, Sep)');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+vline(nanmean(JASprecip), '--k');
+h=vline(nanmean(JASprecip(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+xlim([-2 1000]); ylim([0 400]);
+text(0.535, 0.4, 'Jul+Aug+Sep precip (mm)', 'Units', 'normalized');
 
 subplot (4, 2, 5)
 xedges = linspace(100, 2000, 60);
@@ -428,11 +449,13 @@ networkhist = histc(maxswe, xedges);
 soilhist = histc(maxswe(testsoil), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(maxswe), ':k');
-vline(nanmean(maxswe(testsoil)), ':r');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+vline(nanmean(maxswe), '--k');
+h=vline(nanmean(maxswe(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 2000]); ylim([0 400]);
-title('Peak SWE');
+text(0.55, 0.4, 'Peak SWE (mm)', 'Units', 'normalized');
+ylabel('Frequency');
 
 subplot (4, 2, 6)
 xedges = linspace(0, 365, 60);
@@ -440,43 +463,46 @@ networkhist = histc(totaldaysSC, xedges);
 soilhist = histc(totaldaysSC(testsoil), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(totaldaysSC), ':k');
-vline(nanmean(totaldaysSC(testsoil)), ':r');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+vline(nanmean(totaldaysSC), '--k');
+h=vline(nanmean(totaldaysSC(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 300]); ylim([0 500]);
-title('Total snowcovered days');
+text(0.05, 0.4, 'Total snowcovered days', 'Units', 'normalized');
 
-ticklocs = [0, 25, 50, 75, 100, 125];
-tickmonths = ['Oct 1 '; 'Oct 25'; 'Nov 19'; 'Dec 14'; 'Jan 8 '; 'Feb 2 '];
+ticklocs = [0, 32, 62, 93, 121];
+tickmonths = ['Oct 1 '; 'Nov 1 '; 'Dec 1 '; 'Jan 1 '; 'Feb 1 '];
 subplot (4, 2, 7)
 xedges = linspace(0, 130, 60);
 networkhist = histc(onsetdoy, xedges);
 soilhist = histc(onsetdoy(testsoil), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(onsetdoy), ':k');
-vline(nanmean(onsetdoy(testsoil)), ':r');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+vline(nanmean(onsetdoy), '--k');
+h=vline(nanmean(onsetdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 125]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
-title('Snowpack onset day');
+text(0.55, 0.4, 'Snowpack onset day', 'Units', 'normalized');
+ylabel('Frequency');
 
-ticklocs = [100, 130, 160, 190, 220, 250, 280, 310, 340];
-tickmonths = ['Jan 9 '; 'Feb 8 '; 'Mar 10'; 'Apr 9 '; 'May 9 '; 'Jun 8 ';...
-    'Jul 8 '; 'Aug 7 '; 'Sep 6 '];
+ticklocs = [122, 150, 181, 211, 242, 272, 303, 334];
+tickmonths = ['Feb 1 '; 'Mar 1 '; 'Apr 1 '; 'May 1 '; 'Jun 1 ';...
+    'Jul 1 '; 'Aug 1 '; 'Sep 1 '];
 subplot (4, 2, 8)
 xedges = linspace(0, 365, 60);
 networkhist = histc(meltdoy, xedges);
 soilhist = histc(meltdoy(testsoil), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
-bar(xedges, soilhist, 'r');
-vline(nanmean(meltdoy), ':k');
-vline(nanmean(meltdoy(testsoil)), ':r');
+bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
+set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
+vline(nanmean(meltdoy), '--k');
+h=vline(nanmean(meltdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([100 340]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
-title('Day of snowmelt');
-
+text(0.05, 0.4, 'Day of snowmelt', 'Units', 'normalized');
 
 % %------------------------------------------------------------------
 % % FIG 3 - 2d histogram of some data above (just as an example)
@@ -889,6 +915,7 @@ title('February VWC vs pre-snowpack VWC');
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
+set(h, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
 
 % Set binning parameters
 if strcmpi(normalize, 'n')
@@ -901,12 +928,12 @@ elseif strcmpi(normalize, 'y')
     topEdge = 1; % define limits
     botEdge = 0; % define limits
     numBins = 10; % define number of bins
-    xaxlim = [-0.1 1];
+    xaxlim = [0 1];
     yaxlim = [0 1];
 end
     
 % And an xaxis to use
-xax = (linspace(botEdge, topEdge, numBins+1));
+xax = (linspace(topEdge/numBins, topEdge, numBins) - (topEdge/numBins)/2);
 
 % And months to plot
 months = ['Nov'; 'Jan'; 'Mar'];
@@ -917,26 +944,35 @@ for i = 1:3;
     eval(['y = ' lower(months(i,:)) 'VWC5mean;']);
     eval(['y2 = ' lower(months(i,:)) 'VWC5sd;']);
     [binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'o',...
-        'Color', [0.7 0.7 0.7]);
+    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'o', 'MarkerSize', 8,...
+        'Color', [0.6 0.6 0.6], 'MarkerFaceColor', [0.6 0.6 0.6]);
     hold on;
     x = preonsetVWC20; %split into x and y
     eval(['y = ' lower(months(i,:)) 'VWC20mean;']);
     eval(['y2 = ' lower(months(i,:)) 'VWC20sd;']);
     [binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'o',...
-        'Color', [0.4 0.4 0.4]);
+    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'o', 'MarkerSize', 8,...
+        'Color', [0.3 0.3 0.3], 'MarkerFaceColor', [0.3 0.3 0.3]);
     x = preonsetVWC50; %split into x and y
     eval(['y = ' lower(months(i,:)) 'VWC50mean;']);
     eval(['y2 = ' lower(months(i,:)) 'VWC50sd;']);
     [binMeanDec, binSdDec] = binseries(x, y, y2, topEdge, botEdge, numBins);
-    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'ok');
-    xlabel('Wateryear pre-snowpack soilVWC (%)');
-    ylabel('Mean VWC (%)');
+    errorbar(xax(1:numBins), binMeanDec, binSdDec, 'ok',...
+        'MarkerFaceColor', 'k', 'MarkerSize', 8);
+    % Plot 1:1 line
+    plot(0:45, 0:45, ':k');
+    pos = get(gca,'position'); % get subplot axis position
+    set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
+    ylabel([months(i,:) ' VWC (normalized)']);
     xlim(xaxlim); ylim(yaxlim);
-    title([months(i,:) ' VWC vs pre-snowpack VWC']);
     if i==1
         legend('5cm', '20cm', '50cm', 'Location', 'NorthWest');
+        title('Month mean VWC vs pre-snowpack VWC');
+        set(gca, 'XTickLabels', '');
+    elseif i < 3
+        set(gca, 'XTickLabels', '');
+    elseif i==3
+        xlabel('Pre-snowpack VWC (normalized)');
     end
     
 end
