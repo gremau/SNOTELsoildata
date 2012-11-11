@@ -31,20 +31,20 @@ allsites = unique(dailysites(:,1));
 soilsites = unique(soilsites(:,1));
 
 % LOAD the data (can switch between daily/hourly data here)
-climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
-tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 % Soil water content data
 if strcmpi(normalize, 'y')
     vwcData = csvread([processeddatapath ...
-        'wyear_soilwatersummary_hourly_smnorm.txt']);
+        'wyear_soilwatersummary_hourly_smnorm.txt'], 1,0);
 %     vwcData = csvread([processeddatapath ...
-%         'wyear_soilwatersummary_daily_smnorm.txt']);
+%         'wyear_soilwatersummary_daily_smnorm.txt'], 1,0);
 else
     vwcData = csvread([processeddatapath...
-        'wyear_soilwatersummary_hourly.txt']);
+        'wyear_soilwatersummary_hourly.txt'], 1,0);
 %     vwcData = csvread([processeddatapath...
-%         'wyear_soilwatersummary_daily.txt']);
+%         'wyear_soilwatersummary_daily.txt'], 1,0);
 end
 
 % climData includes more than just soil sites, 

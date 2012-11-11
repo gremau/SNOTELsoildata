@@ -11,6 +11,12 @@
 % 1: Use daily or hourly soil data (Ts and VWC)
 % 2: Normalize soil moisture data (after filtering)
 %
+% IMPORTANT - this file outputs datafiles with headers. The headers are
+% found in a separate file (headersClim, headersTsoil, headersVWC.txt). If
+% new variables are added to the output, it is important to add them to the
+% header file, in the correct order so that they are put into the header.
+%
+%
 % Feb 20, 2012
 %
 clear;          % clear memory
@@ -261,9 +267,18 @@ end
     
 clear i j dailydata wyear_c wyeartest_c monthtest slice;
 
-% Write the climate data file
-csvwrite([processeddatapath 'wyear_climatesummary.txt'], climatesummary);
+% Column headers
+fid = fopen([processeddatapath 'headersClim.txt']);
+headers = textscan(fid, '%s', 'delimiter', '\n', 'headerlines', 1);
+fclose(fid);
+climateheader = headers{1}'; 
+clear headers;
 
+% Write the header and climate data to a file
+outid = fopen([processeddatapath 'wyear_climatesummary.txt'], 'wt');
+fprintf(outid, '%s,', climateheader{:}); fprintf(outid, '\n');
+fclose(outid);
+dlmwrite([processeddatapath 'wyear_climatesummary.txt'], climatesummary, '-append');
 
 % *** BEGIN SOIL CALCULATIONS ******************************************
 % Both soiltempsummary and soilwatersummary are generated in one loop, with
@@ -554,11 +569,32 @@ for i = 1:length(soilsiteslist)
     soiltempsummary(i, 134) = postmelt50cmSTsd;
 end
 
-% Write the soil data files
+% VWC Column headers
+fid = fopen([processeddatapath 'headersVWC.txt']);
+headers = textscan(fid, '%s', 'delimiter', '\n', 'headerlines', 1);
+fclose(fid);
+VWCheader = headers{1}';
+clear headers;
+% Tsoil Column headers
+fid = fopen([processeddatapath 'headersTsoil.txt']);
+headers = textscan(fid, '%s', 'delimiter', '\n', 'headerlines', 1);
+fclose(fid);
+Tsoilheader = headers{1}'; 
+
+% Create the soil data filenames
 soilwaterfn = ['wyear_soilwatersummary_' soilinput normstr '.txt'];
 soiltempfn = ['wyear_soiltempsummary_' soilinput '.txt'];
-csvwrite([processeddatapath soilwaterfn], soilwatersummary);
-csvwrite([processeddatapath soiltempfn], soiltempsummary);
+
+% Write the header and data to a file
+outid = fopen([processeddatapath soilwaterfn], 'wt');
+fprintf(outid, '%s,', VWCheader{:}); fprintf(outid, '\n');
+fclose(outid);
+dlmwrite([processeddatapath soilwaterfn], soilwatersummary, '-append');
+
+outid = fopen([processeddatapath soiltempfn], 'wt');
+fprintf(outid, '%s,', Tsoilheader{:}); fprintf(outid, '\n');
+fclose(outid);
+dlmwrite([processeddatapath soiltempfn], soiltempsummary, '-append');
 
 junk = 99;
 

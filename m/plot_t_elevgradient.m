@@ -29,7 +29,7 @@ soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
 sites = unique(soilsites(:,1));
 
 % LOAD the data (can switch between daily/hourly data here)
-climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
+climData = dlmread([processeddatapath 'wyear_climatesummary.txt'], ',', 1, 0);
 tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
