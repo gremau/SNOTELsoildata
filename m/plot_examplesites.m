@@ -36,7 +36,7 @@ testHigh_h = decday_h > highStart & decday_h < highEnd;
 figure1 = figure(1);
 set(figure1, 'Name', ['Site ' num2str(siteID) ' - ' ...
     ' 2 year comparison']);
-set(figure1, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
+set(figure1, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
 
 % Ts and SWE
 subplot(2,2,1);
@@ -108,7 +108,7 @@ vwc = filterseries(hourlyData{5}, 'sigma', 25, 3);
 figure2 = figure(2);
 set(figure2, 'Name', ['Site ' num2str(siteID) ' - ' ...
     ' 2 year comparison']);
-set(figure2, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
+set(figure2, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 18);
 
 % X Tick locations and labels
 ticklocs = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
@@ -124,7 +124,7 @@ for i = 1:length(wyears_h)
     wyWteq = wteq(dailytest);
     % Subtract of the initial datenum to get doy
     doys = decday_d(dailytest) - startdays(i);
-    plot(doys, wyWteq, 'Color', [0.7,0.7,0.7]);
+    plot(doys, wyWteq, 'Color', [0.7,0.7,0.7], 'Linewidth', 1.5);
     hold on;
     wteqConcat = [wteqConcat; wyWteq]; % Concatenate yearly wteq
     doyConcat = [doyConcat; doys]; % And each years doy values
@@ -147,7 +147,7 @@ for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
     wyTs = ts(hourlytest);
     doys = decday_h(hourlytest) - startdays(i);
-    plot(doys, wyTs, 'Color', [0.7,0.7,0.7]);
+    plot(doys, wyTs, 'Color', [0.7,0.7,0.7], 'Linewidth', 1.5);
     hold on;
     tsConcat = [tsConcat; wyTs];
     doyConcat = [doyConcat; doys];
@@ -185,7 +185,7 @@ for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
     wyVwc = vwc(hourlytest);
     doys = decday_h(hourlytest) - startdays(i);
-    plot(doys, vwc(hourlytest), 'Color', [0.7,0.7,0.7]);
+    plot(doys, vwc(hourlytest), 'Color', [0.7,0.7,0.7], 'Linewidth', 1.5);
     hold on;
     vwcConcat = [vwcConcat; wyVwc];
     doyConcat = [doyConcat; doys];
@@ -329,7 +329,7 @@ monthlabels = {'Oct-Dec' '' '' '' 'Jan-Mar' '' '' '' 'Apr-Jun' '' '' ''...
 figure4 = figure(4);
 set(figure4, 'Name', ['4 SNOTEL Sites - ' sensoroutput ...
     ' quarterly histograms - all years combined']);
-set(figure4, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
+set(figure4, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
 
 % Loop through 16 subplots and plot histograms and means
 for i = 1:16;

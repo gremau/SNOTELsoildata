@@ -29,8 +29,8 @@ soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
 sites = unique(soilsites(:,1));
 
 % LOAD the data (can switch between daily/hourly data here)
-climData = dlmread([processeddatapath 'wyear_climatesummary.txt'], ',', 1, 0);
-tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+climData = dlmread([processeddatapath 'wyear_climatesummary.txt'], ',', 1,0);
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
 % Get a subset of climData that corresponds with available soildata
@@ -608,7 +608,8 @@ title('Utah - January Tair/Tsoil');
 % FIG 10 - Jan Air/Soil T gradients - aggregated Utah data only
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name','(UT-Agg) January Air/Soil T gradients');
+set(h, 'Name','(UT-Agg) January Air/Soil T gradients',...
+    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
 
 % Aggregate the mean, sd, AND the sites_cl list
 janTairSdAgg = accumarray(aggindex, janTairSd, [numel(sites) 1], @mean);
@@ -630,7 +631,7 @@ meanStdDev = nanmean(sd1);
 
 % Plot Jan mean Tair and regression line
 handles(1) = plot(x, y1, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
-    'MarkerEdgeColor', 'k');
+    'MarkerEdgeColor', 'k','MarkerSize', 8);
 hold on;
 xfit = linspace(1692, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
@@ -644,13 +645,14 @@ end
 
 % Plot Tair example error bar in an inset box
 handles(3) = errorbar(1625, -4.7, meanStdDev,'o',...
-    'MarkerFaceColor',[0.7 0.7 0.7], 'Color', [0.7 0.7 0.7]);
+    'MarkerFaceColor',[0.7 0.7 0.7], 'Color', [0.7 0.7 0.7],...
+    'MarkerSize', 8);
 % Create rectangle
 annotation(h, 'rectangle', [0.154 0.146 0.05 0.55], 'FaceColor','flat');
 
 % Plot Jan mean Tsoil and regression
 handles(4) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'w',...
-    'Color', [0.5 0.5 0.5], 'MarkerEdgeColor', 'k');
+    'Color', [0.5 0.5 0.5], 'MarkerEdgeColor', 'k','MarkerSize', 8);
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
 handles(5) = plot(xfit, polyval(b, xfit), '--k');
@@ -663,10 +665,9 @@ end
 
 xlim([1500 3500]);
 xlabel('Elevation(m)');
-ylabel('$\overline{\textrm{T}}$ ($^o$C)', 'interpreter', 'latex');
-legend(handles([1 3 4]), {'T$_{\textrm{air}}$',...
-    'T$_{\textrm{air}}$ $\overline{\sigma}$',...
-    'T$_{\textrm{soil}}$ (20cm)'}, 'interpreter', 'latex');
+ylabel('^oC');
+legend(handles([1 4]), {'T_{air}',...
+    'T_{soil} (20cm)'});
 title('Utah - January Tair/Tsoil (aggregated)');
 % Plot moist adiabatic lapse rate
 % plot([900 3500], [4, -9], ':k')
@@ -704,9 +705,11 @@ sd2 = julTs20sdAgg(st_testAgg);
 
 fignum = fignum+1;    
 h = figure(fignum);
-set(h, 'Name','(UT-Agg) January/July Soil T gradients');
+set(h, 'Name','(UT-Agg) January/July Soil T gradients',...
+    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
 % Plot January Ts by elevation and regression
-handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'w');
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'w',...
+    'MarkerSize', 8);
 hold on;
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
@@ -718,7 +721,8 @@ else
         ', p = ' num2str(stats(3),2)]);
 end
 % Plot July Ts by elevation and regression
-handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k');
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
+    'MarkerSize', 8);
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
 handles(4) = plot(xfit, polyval(b, xfit), '--k');
 if stats(3) < 0.01

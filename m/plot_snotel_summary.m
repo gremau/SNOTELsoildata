@@ -201,6 +201,24 @@ mayVWC20mean = vwcData(:, 47);
 mayVWC20sd = vwcData(:, 48);
 mayVWC50mean = vwcData(:, 49);
 mayVWC50sd = vwcData(:, 50);
+junVWC5mean = vwcData(:, 51);
+junVWC5sd = vwcData(:, 52);
+junVWC20mean = vwcData(:, 53);
+junVWC20sd = vwcData(:, 54);
+junVWC50mean = vwcData(:, 55);
+junVWC50sd = vwcData(:, 56);
+julVWC5mean = vwcData(:, 57);
+julVWC5sd = vwcData(:, 58);
+julVWC20mean = vwcData(:, 59);
+julVWC20sd = vwcData(:, 60);
+julVWC50mean = vwcData(:, 61);
+julVWC50sd = vwcData(:, 62);
+augVWC5mean = vwcData(:, 63);
+augVWC5sd = vwcData(:, 64);
+augVWC20mean = vwcData(:, 65);
+augVWC20sd = vwcData(:, 66);
+augVWC50mean = vwcData(:, 67);
+augVWC50sd = vwcData(:, 68);
 
 % These repeat through sept (end of wy)
 ondVWC5mean = vwcData(:, 75);

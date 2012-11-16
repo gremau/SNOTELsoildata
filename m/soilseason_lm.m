@@ -24,11 +24,11 @@ examplelabel = 'Trial Lake';
 processeddatapath = '../processed_data/';
 
 % LOAD the data (can switch between daily/hourly data here)
-climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
-tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
-% tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
+climData = csvread([processeddatapath 'wyear_climatesummary.txt'],1,0);
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'],1,0);
+% tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt'],1,0);
 vwcDataN = csvread([processeddatapath ...
-    'wyear_soilwatersummary_hourly_smnorm.txt']);
+    'wyear_soilwatersummary_hourly_smnorm.txt'],1,0);
 
 % Get a subset of climData that corresponds with available soildata
 [matchsoil, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
@@ -566,6 +566,121 @@ bar(xedges, pvalHist, 'k');
 xlim([-0.1 1.1]);
 %ylim([0 35]);
 vline(mean(pvals), '-r'); vline(0.5, ':k');
+text(0.45, 0.7, ['Combined p = ' num2str(pStouff(pvals),2)],...
+    'Units', 'normalized');
+%title('Frequency of P values (all sites)');
+xlabel('p');% ylabel('n');
+
+%##########################################################################
+% NEW fig - same as above but only low JAS Precip sites
+% Plot regressions 3, 4, 5 ---------------------------------------
+fignum = fignum + 1;
+h = figure(fignum);
+
+set(h, 'Name', ['Regressions: Growing season vwc on SWE, melt day, and '...
+    'summer rain. Slope/p of low precip sites']);
+
+% Regression 3 - all sites
+lowsites = regress5dat(regress5dat(:,3) < 275, 1);
+lowtest = ismember(regress3dat(:,1), lowsites)
+slopes = regress3dat(:, 4);
+pvals = regress3dat(:, 7);
+% Slope histogram
+subplot(2, 3, 1);
+xedges = linspace(min(slopes), max(slopes), 20);
+slopeHist = histc(slopes, xedges);
+slopeHistLow = histc(slopes(lowtest), xedges);
+bar(xedges, slopeHist, 'k');
+hold on;
+bar(xedges, slopeHistLow, 'b');
+xlim([-0.06 0.06]);
+%ylim([0 35]);
+vline(mean(slopes),'--k');vline(mean(slopes(sigtest)),'--b');vline(0,':k');
+title('JAS soil moisture vs melt day');
+xlabel('Slope');% ylabel('n');
+
+% Pval histogram
+subplot(2, 3, 4);
+xedges = linspace(min(pvals), max(pvals), 20);
+pvalHist = histc(pvals, xedges);
+pvalHistLow = histc(pvals(lowtest), xedges);
+bar(xedges, pvalHist, 'k');
+hold on;
+bar(xedges, pvalHistLow, 'b');
+xlim([-0.1 1.1]);
+%ylim([0 35]);
+vline(mean(pvals), '--k'); vline(mean(pvals(lowtest)), '--b');
+vline(0.5, ':k');
+text(0.45, 0.7, ['Combined p = ' num2str(pStouff(pvals),2)],...
+    'Units', 'normalized');
+%title('Frequency of P values (all sites)');
+xlabel('p');% ylabel('n');
+
+% Regression 4 - all sites
+lowtest = ismember(regress4dat(:,1), lowsites)
+slopes = regress4dat(:, 4);
+pvals = regress4dat(:, 7);
+% Slope histogram
+subplot(2, 3, 2);
+xedges = linspace(min(slopes), max(slopes), 20);
+slopeHist = histc(slopes, xedges);
+slopeHistLow = histc(slopes(lowtest), xedges);
+bar(xedges, slopeHist, 'k');
+hold on;
+bar(xedges, slopeHistLow, 'b');
+xlim([-0.06 0.06]);
+%ylim([0 35]);
+vline(mean(slopes),'--k');vline(mean(slopes(sigtest)),'--b');vline(0,':k');
+title('JAS soil moisture vs peak SWE');
+xlabel('Slope');% ylabel('n');
+
+% Pval histogram
+subplot(2, 3, 5);
+xedges = linspace(min(pvals), max(pvals), 20);
+pvalHist = histc(pvals, xedges);
+pvalHistLow = histc(pvals(lowtest), xedges);
+bar(xedges, pvalHist, 'k');
+hold on;
+bar(xedges, pvalHistLow, 'b');
+xlim([-0.1 1.1]);
+%ylim([0 35]);
+vline(mean(pvals), '--k'); vline(mean(pvals(lowtest)), '--b');
+vline(0.5, ':k');
+text(0.45, 0.7, ['Combined p = ' num2str(pStouff(pvals),2)],...
+    'Units', 'normalized');
+%title('Frequency of P values (all sites)');
+xlabel('p');% ylabel('n');
+
+% Regression 5 - all sites
+lowtest = ismember(regress5dat(:,1), lowsites)
+slopes = regress5dat(:, 4);
+pvals = regress5dat(:, 7);
+% Slope histogram
+subplot(2, 3, 3);
+xedges = linspace(min(slopes), max(slopes), 20);
+slopeHist = histc(slopes, xedges);
+slopeHistLow = histc(slopes(lowtest), xedges);
+bar(xedges, slopeHist, 'k');
+hold on;
+bar(xedges, slopeHistLow, 'b');
+xlim([-0.06 0.06]);
+%ylim([0 35]);
+vline(mean(slopes),'--k');vline(mean(slopes(sigtest)),'--b');vline(0,':k');
+title('JAS soil moisture vs JAS Precip');
+xlabel('Slope');% ylabel('n');
+
+% Pval histogram
+subplot(2, 3, 6);
+xedges = linspace(min(pvals), max(pvals), 20);
+pvalHist = histc(pvals, xedges);
+pvalHistLow = histc(pvals(lowtest), xedges);
+bar(xedges, pvalHist, 'k');
+hold on;
+bar(xedges, pvalHistLow, 'b');
+xlim([-0.1 1.1]);
+%ylim([0 35]);
+vline(mean(pvals), '--k'); vline(mean(pvals(lowtest)), '--b');
+vline(0.5, ':k');
 text(0.45, 0.7, ['Combined p = ' num2str(pStouff(pvals),2)],...
     'Units', 'normalized');
 %title('Frequency of P values (all sites)');

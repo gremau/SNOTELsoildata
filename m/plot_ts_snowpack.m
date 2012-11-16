@@ -40,8 +40,8 @@ uintas = wasatchUintaCell{2}(uintaTest);
 clear wasatchTest uintaTest wasatchUintaCell;
 
 % LOAD the data (can switch between daily/hourly data here)
-climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
-tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
 % Get a subset of climData that corresponds with available soildata
@@ -353,7 +353,7 @@ plot(0:1500, logist(coeffs, 0:1500), '-r');
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
-set(h, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
+set(h, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
 
 % Set some plotting parameters
 plotorder = [1, 2];

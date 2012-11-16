@@ -21,14 +21,15 @@ addpath('/home/greg/data/code_resources/m_common/hline_vline/');
 rawdatapath = '../rawdata/soilsensors_hourly/';
 processeddatapath = '../processed_data/';
 
-climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
-vwcData = csvread([processeddatapath 'wyear_soilwatersummary_hourly.txt']);
+climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
+vwcData = csvread([processeddatapath 'wyear_soilwatersummary_hourly.txt'], 1,0);
 vwcDataN = csvread([processeddatapath ...
-    'wyear_soilwatersummary_hourly_smnorm.txt']);
-soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt']);
+    'wyear_soilwatersummary_hourly_smnorm.txt'], 1,0);
+soiltempdata = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
 soilsiteyears = dlmread([rawdatapath 'filelist.txt'], ',');
 soilsites = unique(soilsiteyears(:, 1));
 
+% Parse climate data
 site_cl = climData(:, 1);
 year_cl = climData(:, 2);
 maxswe = climData(:, 3)*25.4;
@@ -42,7 +43,6 @@ maxcontinSC = climData(:, 10);% Length of longest continuos snowpack
 numcontinSC = climData(:, 11);% # of continuous snowcovered periods
 accumprecip = climData(:, 12)*25.4;
 JASprecip = climData(:, 13);
-
 octSWEmean = climData(:, 14);
 octSWEmed = climData(:, 15);
 octSWEsd = climData(:, 16);
@@ -75,6 +75,8 @@ julSWEmed = climData(:, 42);
 julSWEsd = climData(:, 43);
 
 octTairMean = climData(:, 50);
+site_sw = vwcData(:, 1);
+year_sw = vwcData(:, 2);
 octTairSd = climData(:, 51);
 novTairMean = climData(:, 52);
 novTairSd = climData(:, 53);
@@ -100,7 +102,6 @@ sepTairMean = climData(:, 72);
 sepTairSd = climData(:, 73);
 maat = climData(:, 74);
 sdAnnTair = climData(:, 75);
-
 preonsetTair = climData(:, 76);
 preonsetTairSd = climData(:, 77);
 premeltTair = climData(:, 78);
@@ -114,35 +115,80 @@ ltMeanSWE = climData(:, 85);
 ltMeanPrecip = climData(:, 86);
 
 % Parse soilwatersummary
-site_sw = vwcData(:, 1);
-year_sw = vwcData(:, 2);
-octVWC5mean = vwcData(:, 3);
-octVWC5sd = vwcData(:, 4);
-octVWC20mean = vwcData(:, 5);
-octVWC20sd = vwcData(:, 6);
-octVWC50mean = vwcData(:, 7);
-octVWC50sd = vwcData(:, 8);
-
-febVWC5mean = vwcData(:, 27);
-febVWC5sd = vwcData(:, 28);
-febVWC20mean = vwcData(:, 29);
-febVWC20sd = vwcData(:, 30);
-febVWC50mean = vwcData(:, 31);
-febVWC50sd = vwcData(:, 32);
-
-mayVWC5mean = vwcData(:, 45);
-mayVWC5sd = vwcData(:, 46);
-mayVWC20mean = vwcData(:, 47);
-mayVWC20sd = vwcData(:, 48);
-mayVWC50mean = vwcData(:, 49);
-mayVWC50sd = vwcData(:, 50);
-
-augVWC5mean = vwcData(:, 63);
-augVWC5sd = vwcData(:, 64);
-augVWC20mean = vwcData(:, 65);
-augVWC20sd = vwcData(:, 66);
-augVWC50mean = vwcData(:, 67);
-augVWC50sd = vwcData(:, 68);
+site_sw = vwcDataN(:, 1);
+year_sw = vwcDataN(:, 2);
+octVWC5mean = vwcDataN(:, 3);
+octVWC5sd = vwcDataN(:, 4);
+octVWC20mean = vwcDataN(:, 5);
+octVWC20sd = vwcDataN(:, 6);
+octVWC50mean = vwcDataN(:, 7);
+octVWC50sd = vwcDataN(:, 8);
+novVWC5mean = vwcDataN(:, 9);
+novVWC5sd = vwcDataN(:, 10);
+novVWC20mean = vwcDataN(:, 11);
+novVWC20sd = vwcDataN(:, 12);
+novVWC50mean = vwcDataN(:, 13);
+novVWC50sd = vwcDataN(:, 14);
+decVWC5mean = vwcDataN(:, 15);
+decVWC5sd = vwcDataN(:, 16);
+decVWC20mean = vwcDataN(:, 17);
+decVWC20sd = vwcDataN(:, 18);
+decVWC50mean = vwcDataN(:, 19);
+decVWC50sd = vwcDataN(:, 20);
+janVWC5mean = vwcDataN(:, 21);
+janVWC5sd = vwcDataN(:, 22);
+janVWC20mean = vwcDataN(:, 23);
+janVWC20sd = vwcDataN(:, 24);
+janVWC50mean = vwcDataN(:, 25);
+janVWC50sd = vwcDataN(:, 26);
+febVWC5mean = vwcDataN(:, 27);
+febVWC5sd = vwcDataN(:, 28);
+febVWC20mean = vwcDataN(:, 29);
+febVWC20sd = vwcDataN(:, 30);
+febVWC50mean = vwcDataN(:, 31);
+febVWC50sd = vwcDataN(:, 32);
+marVWC5mean = vwcDataN(:, 33);
+marVWC5sd = vwcDataN(:, 34);
+marVWC20mean = vwcDataN(:, 35);
+marVWC20sd = vwcDataN(:, 36);
+marVWC50mean = vwcDataN(:, 37);
+marVWC50sd = vwcDataN(:, 38);
+aprVWC5mean = vwcDataN(:, 39);
+aprVWC5sd = vwcDataN(:, 40);
+aprVWC20mean = vwcDataN(:, 41);
+aprVWC20sd = vwcDataN(:, 42);
+aprVWC50mean = vwcDataN(:, 43);
+aprVWC50sd = vwcDataN(:, 44);
+mayVWC5mean = vwcDataN(:, 45);
+mayVWC5sd = vwcDataN(:, 46);
+mayVWC20mean = vwcDataN(:, 47);
+mayVWC20sd = vwcDataN(:, 48);
+mayVWC50mean = vwcDataN(:, 49);
+mayVWC50sd = vwcDataN(:, 50);
+junVWC5mean = vwcDataN(:, 51);
+junVWC5sd = vwcDataN(:, 52);
+junVWC20mean = vwcDataN(:, 53);
+junVWC20sd = vwcDataN(:, 54);
+junVWC50mean = vwcDataN(:, 55);
+junVWC50sd = vwcDataN(:, 56);
+julVWC5mean = vwcDataN(:, 57);
+julVWC5sd = vwcDataN(:, 58);
+julVWC20mean = vwcDataN(:, 59);
+julVWC20sd = vwcDataN(:, 60);
+julVWC50mean = vwcDataN(:, 61);
+julVWC50sd = vwcDataN(:, 62);
+augVWC5mean = vwcDataN(:, 63);
+augVWC5sd = vwcDataN(:, 64);
+augVWC20mean = vwcDataN(:, 65);
+augVWC20sd = vwcDataN(:, 66);
+augVWC50mean = vwcDataN(:, 67);
+augVWC50sd = vwcDataN(:, 68);
+sepVWC5mean = vwcDataN(:, 69);
+sepVWC5sd = vwcDataN(:, 70);
+sepVWC20mean = vwcDataN(:, 71);
+sepVWC20sd = vwcDataN(:, 72);
+sepVWC50mean = vwcDataN(:, 73);
+sepVWC50sd = vwcDataN(:, 74);
 
 % These repeat through sept (end of wy)
 ondVWC5mean = vwcData(:, 75);
@@ -627,5 +673,98 @@ plot(xfit, yfit,':k');
 text(250, .45, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('Peak SWE'); ylabel('20cm VWC');
 title('Little Bear');
+
+% -----------------------------------------------------------
+% FIG 4 - Month soil water content vs elevation
+fignum = fignum+1;    
+h = figure(fignum);
+set(h, 'Name', 'Mean monthly 20cm VWC vs elevation - All SNOTEL/years');
+
+% Set some plotting parameters
+plotorder = 1:3;
+months = ['oct';'nov';'dec';'jan';'feb';'mar';'apr';'may';...
+    'jun';'jul';'aug';'sep'] ;
+polyorder = 1;
+
+for i=plotorder
+    subplot(4, 3, i);
+    x = elev(matchtest);
+    eval(['y1 = ' months(i,:) 'VWC20mean;']);
+    %eval(['y2 = ' months(i,:) 'Ts5mean;']);
+    plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [800, 3600]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized'); % r^2 values
+    %plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
+    title(months(i,:));
+    xlim([800, 3600]); ylim([0, 1]);
+    hline(0, '--k');
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('^oC')
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+    
+    subplot(4,3, i+3)
+    eval(['y1 = ' months(i+3,:) 'VWC20mean;']);
+    %eval(['y2 = ' months(i+3,:) 'Ts20mean;']);
+    plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [800, 3600]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized'); % r^2 values
+%     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
+    title(months(i+3,:));
+    xlim([800, 3600]); ylim([0, 1]);
+    hline(0, '--k');
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('^oC')
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+    
+    subplot(4,3, i+6);
+    eval(['y1 = ' months(i+6,:) 'VWC20mean;']);
+    %eval(['y2 = ' months(i+6,:) 'Ts50mean;']);
+    plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [800, 3600]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized'); % r^2 values
+%     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
+    title(months(i+6,:));
+    xlim([800, 3600]); ylim([0, 1]);
+    hline(0, '--k');
+    set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('^oC')
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+
+    subplot(4,3, i+9);
+    eval(['y1 = ' months(i+9,:) 'VWC20mean;']);
+    %eval(['y2 = ' months(i+9,:) 'Ts50mean;']);
+    plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
+    hold on;
+    [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [800, 3600]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized'); % r^2 values
+%     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
+    title(months(i+9,:));
+    xlim([800, 3600]); ylim([0, 1]);
+    hline(0, '--k');
+    if i==1
+        ylabel('^oC')
+    elseif i==2
+        xlabel('Elevation (m)');
+        set(gca, 'YTickLabel', '');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+end
 
 
