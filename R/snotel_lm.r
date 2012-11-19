@@ -47,43 +47,85 @@ summary(reg3)
 # (Intercept)        2.48089    0.08520   29.12   <2e-16 ***
 # climData.sub$maat  0.60769    0.01767   34.38   <2e-16 ***                  
 
+# Is MAST better predicted by a 2 term model of MAT and totaldaysSC?
+reg4 <- lm(soilTData$mast20cm ~ climData.sub$maat + climData.sub$totaldaysSC)
+summary(reg4)
+#                           Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               7.475158   0.301050   24.83   <2e-16 ***
+# climData.sub$maat         0.336754   0.021595   15.59   <2e-16 ***
+# climData.sub$totaldaysSC -0.019561   0.001166  -16.77   <2e-16 ***
+# Multiple R-squared: 0.5745,	Adjusted R-squared: 0.5738 
+# F-statistic: 782.6 on 2 and 1159 DF,  p-value: < 2.2e-16 
+#
+# So, both are highly significant here and have opposing slopes. The model is
+# significant too, and I checked all depths and got the same result. r2 is a
+# bit higher for 50cm depth
+
+
+
 # What about the difference (MAST-MAT)?
 diff <- (soilTData$mast20cm - climData.sub$maat)
-reg4 <-lm (diff ~ climData.sub$totaldaysSC)
+reg5 <-lm (diff ~ climData.sub$totaldaysSC)
 plot(climData.sub$totaldaysSC, diff)
-abline(reg4)
-summary(reg4)
+abline(reg5)
+summary(reg5)
 # Interesting, totaldaysSC is highly significant, intercept isn't. Slope is
-# weak and has high uncertainty.
+# weak and has high uncertainty. Maybe because it goes to 0?
 #                           Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)              -0.072132   0.234126  -0.308 0.758068    
 # climData.sub$totaldaysSC  0.004271   0.001172   3.643 0.000281 ***
 
-reg5 <-lm (diff ~ climData.sub$maat)
+reg6 <-lm (diff ~ climData.sub$maat)
 plot(climData.sub$maat, diff)
-abline(reg5)
-summary(reg5)
+abline(reg6)
+summary(reg6)
 # This looks good, maat is highly significant
 #                   Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)        2.48089    0.08520   29.12   <2e-16 ***
 # climData.sub$maat -0.39231    0.01767  -22.20   <2e-16 ***
 
 # How about a 2 term model with MAT and totaldays SC
-reg6 <- lm(diff ~ climData.sub$totaldaysSC + climData.sub$maat)
-summary(reg6)
-# This looks good, both terms are highly significant
+reg7 <- lm(diff ~ climData.sub$totaldaysSC + climData.sub$maat)
+summary(reg7)
 # (Intercept)               7.475158   0.301050   24.83   <2e-16 ***
 # climData.sub$totaldaysSC -0.019561   0.001166  -16.77   <2e-16 ***
 # climData.sub$maat        -0.663246   0.021595  -30.71   <2e-16 ***
-layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
-plot(reg6) #(I don't know what these diagnostics mean!)
+# Multiple R-squared: 0.4549,	Adjusted R-squared: 0.454 
+# F-statistic: 483.7 on 2 and 1159 DF,  p-value: < 2.2e-16
+# This looks good, both terms are highly significant and the model is
+# significant too. Checked other depths and they look good also, 50cm model
+# may fit a bit better again
 # However, maat and totalSCdays are highly correlated (see reg1). now what?
 
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(reg7) #(I don't know what these diagnostics mean!)
+
 # Look at the interaction
-reg7 <-lm (diff ~ climData.sub$totaldaysSC + climData.sub$maat + 
+reg8 <-lm (diff ~ climData.sub$totaldaysSC + climData.sub$maat + 
 	   climData.sub$totaldaysSC*climData.sub$maat)
-summary(reg7)
+summary(reg8)
 # Interaction term doesn't look very significant (p=0.075)
+
+
+# What about a complicated model with meltdoy and onsetdoy?
+reg9 <- lm(diff ~ climData.sub$totaldaysSC + climData.sub$maat + 
+	  climData.sub$meltdoy + climData.sub$onsetdoy)
+#                           Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               8.573531   0.475752  18.021  < 2e-16 ***
+# climData.sub$totaldaysSC -0.013619   0.002105  -6.469 1.46e-10 ***
+# climData.sub$maat        -0.697586   0.019862 -35.121  < 2e-16 ***
+# climData.sub$meltdoy     -0.009992   0.002896  -3.451  0.00058 ***
+# climData.sub$onsetdoy     0.005221   0.002369   2.204  0.02774 *  
+# Residual standard error: 1.017 on 1146 degrees of freedom
+#   (439 observations deleted due to missingness)
+# Multiple R-squared: 0.5321,	Adjusted R-squared: 0.5305 
+# F-statistic: 325.8 on 4 and 1146 DF,  p-value: < 2.2e-16 
+#
+# Crap - all are significant, but I did correlations between them all and
+# they are all sifnificantly correlated (even onsetdoy and meltdoy!)
+# Maybe we can lump all the snow parameters into one?
+
+
 
 # What about pcr - principle components regression
 library(pls)
@@ -106,10 +148,31 @@ summary(xxy.pcr)
 # Not quite sure what the validation means but it looks like one predictor,
 # and it could be either one (I switched order in X and got same result),
 # explains 99.38% of the variance?
+#
+# Actually I think this means that the predictor is a combination of MAT and
+# total snowcovered days.
 
-# Well that was a bit inconclusive, so what about trying this on individual
-#sites?
+# Try a more complicated PCR
+x <- cbind(climData.sub$totaldaysSC, climData.sub$maat, climData.sub$meltdoy,
+	   climData.sub$onsetdoy, climData.sub$maxswe)
+natest <- (is.na(x[,1]) | is.na(x[,2]) | is.na(x[,3]) | is.na(x[,4]) | 
+			       is.na(x[,1]))
+x <- x[!natest,]
+y <- as.matrix(diff)[!natest,]
+xxxxxy.pcr <- pcr(y ~ x, ncomp = 5, method = "svdpc", validation='CV')
+summary(xxxxxy.pcr)
+# VALIDATION: RMSEP
+# Cross-validated using 10 random segments.
+#        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps
+# CV           1.485    1.477    1.476    1.455    1.436    1.022
+# adjCV        1.485    1.476    1.476    1.455    1.435    1.022
+# 
+# TRAINING: % variance explained
+#    1 comps  2 comps  3 comps  4 comps  5 comps
+# X   86.220   94.334   97.722   99.911   100.00
+# y    1.216    1.524    4.683    7.252    53.32
 
+# Seems a little inconclusive. What about doing this on all sites?
 climData.sub <- climData.sub[order(climData.sub$siteClim, 
 				   climData.sub$yearClim),]
 soilTData <- soilTData[order(soilTData$siteTsoil, 
