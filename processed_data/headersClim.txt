@@ -1,4 +1,4 @@
-# Climate summary data headers (86 total)
+# Climate summary data headers (90 total)
 siteClim
 yearClim
 maxswe
@@ -12,6 +12,10 @@ maxcontinSC
 numcontinSC
 accumprecip
 JASprecip
+junPrecip
+julPrecip
+augPrecip
+sepPrecip
 octSWEmean
 octSWEmed
 octSWEsd

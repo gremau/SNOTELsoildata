@@ -142,7 +142,7 @@ sites = unique(site_cl);
 
 % PUBLICATION PLOTS   ------------------------------------------------
 diff5cm = mast5cm-maat; diff20cm = mast20cm-maat; diff50cm = mast50cm-maat;
-Yvars = {'mast50cm' 'diff50cm' 'jasVWC50mean','jasVWC50mean','jasVWC50mean'};
+Yvars = {'mast50cm' 'diff50cm' 'jasVWC20mean','jasVWC20mean','jasVWC20mean'};
 Xvars = {'totaldaysSC' 'totaldaysSC' 'meltdoy', 'maxswe', 'JASprecip'};
 
 % EXPLORATORY ANALYSIS  ------------------------------------------------

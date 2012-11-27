@@ -65,36 +65,36 @@ maat = soilClim(:, 74); % Mean wateryear air temp
 onsetdoy = soilClim(:, 6);
 meltdoy = soilClim(:, 7);
 totaldaysSC = soilClim(:, 9);
-octTairMean = soilClim(:,50);
-octTairSd = soilClim(:, 51);
-novTairMean = soilClim(:, 52);
-novTairSd = soilClim(:, 53);
-decTairMean = soilClim(:, 54);
-decTairSd = soilClim(:, 55);
-janTairMean = soilClim(:, 56);
-janTairSd = soilClim(:, 57);
-febTairMean = soilClim(:, 58);
-febTairSd = soilClim(:, 59);
-marTairMean = soilClim(:, 60);
-marTairSd = soilClim(:, 61);
-aprTairMean = soilClim(:, 62);
-aprTairSd = soilClim(:, 63);
-mayTairMean = soilClim(:, 64);
-mayTairSd = soilClim(:, 65);
-junTairMean = soilClim(:, 66);
-junTairSd = soilClim(:, 67);
-julTairMean = soilClim(:, 68);
-julTairSd = soilClim(:, 69);
-augTairMean = soilClim(:, 70);
-augTairSd = soilClim(:, 71);
-sepTairMean = soilClim(:, 72);
-sepTairSd = soilClim(:, 73);
+octTairMean = soilClim(:, 54);
+octTairSd = soilClim(:, 55);
+novTairMean = soilClim(:, 56);
+novTairSd = soilClim(:, 57);
+decTairMean = soilClim(:, 58);
+decTairSd = soilClim(:, 59);
+janTairMean = soilClim(:, 60);
+janTairSd = soilClim(:, 61);
+febTairMean = soilClim(:, 62);
+febTairSd = soilClim(:, 63);
+marTairMean = soilClim(:, 64);
+marTairSd = soilClim(:, 65);
+aprTairMean = soilClim(:, 66);
+aprTairSd = soilClim(:, 67);
+mayTairMean = soilClim(:, 68);
+mayTairSd = soilClim(:, 69);
+junTairMean = soilClim(:, 70);
+junTairSd = soilClim(:, 71);
+julTairMean = soilClim(:, 72);
+julTairSd = soilClim(:, 73);
+augTairMean = soilClim(:, 74);
+augTairSd = soilClim(:, 75);
+sepTairMean = soilClim(:, 76);
+sepTairSd = soilClim(:, 77);
 
-elev = soilClim(:, 82);
-lat = soilClim(:, 83);
-lon = soilClim(:, 84);
-ltMeanSWE = soilClim(:, 85);
-ltMeanPrecip = soilClim(:, 86);
+elev = soilClim(:, 86);
+lat = soilClim(:, 87);
+lon = soilClim(:, 88);
+ltMeanSWE = soilClim(:, 89);
+ltMeanPrecip = soilClim(:, 90);
 
 octTs5mean = tsData(:, 3);
 octTs5sd = tsData(:, 4);
@@ -607,9 +607,10 @@ title('Utah - January Tair/Tsoil');
 % -------------------------------------------------------------
 % FIG 10 - Jan Air/Soil T gradients - aggregated Utah data only
 fignum = fignum+1;    
-h = figure(fignum);
+h = figure('position',[100 0 650 600],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
 set(h, 'Name','(UT-Agg) January Air/Soil T gradients',...
-    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
+    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 
 % Aggregate the mean, sd, AND the sites_cl list
 janTairSdAgg = accumarray(aggindex, janTairSd, [numel(sites) 1], @mean);
@@ -631,7 +632,7 @@ meanStdDev = nanmean(sd1);
 
 % Plot Jan mean Tair and regression line
 handles(1) = plot(x, y1, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
-    'MarkerEdgeColor', 'k','MarkerSize', 8);
+    'MarkerEdgeColor', 'k','MarkerSize', 10);
 hold on;
 xfit = linspace(1692, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
@@ -646,13 +647,13 @@ end
 % Plot Tair example error bar in an inset box
 handles(3) = errorbar(1625, -4.7, meanStdDev,'o',...
     'MarkerFaceColor',[0.7 0.7 0.7], 'Color', [0.7 0.7 0.7],...
-    'MarkerSize', 8);
+    'MarkerEdgeColor', 'k', 'MarkerSize', 10);
 % Create rectangle
 annotation(h, 'rectangle', [0.154 0.146 0.05 0.55], 'FaceColor','flat');
 
 % Plot Jan mean Tsoil and regression
 handles(4) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'w',...
-    'Color', [0.5 0.5 0.5], 'MarkerEdgeColor', 'k','MarkerSize', 8);
+    'Color', [0.5 0.5 0.5], 'MarkerEdgeColor', 'k','MarkerSize', 10);
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
 handles(5) = plot(xfit, polyval(b, xfit), '--k');
@@ -668,9 +669,12 @@ xlabel('Elevation(m)');
 ylabel('^oC');
 legend(handles([1 4]), {'T_{air}',...
     'T_{soil} (20cm)'});
-title('Utah - January Tair/Tsoil (aggregated)');
+%title('Utah - January Tair/Tsoil (aggregated)');
 % Plot moist adiabatic lapse rate
 % plot([900 3500], [4, -9], ':k')
+
+figpath = '../figures/';
+print(h,'-depsc2','-painters',[figpath 'figD.eps']) 
 
 % -------------------------------------------------------------
 % FIG 11 - January/July soil T gradients - Utah data only
@@ -704,31 +708,32 @@ y2 = julTs20meanAgg(st_testAgg);
 sd2 = julTs20sdAgg(st_testAgg);
 
 fignum = fignum+1;    
-h = figure(fignum);
+h = figure('position',[100 0 650 600],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
 set(h, 'Name','(UT-Agg) January/July Soil T gradients',...
-    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
+    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 % Plot January Ts by elevation and regression
 handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'w',...
-    'MarkerSize', 8);
+    'MarkerSize', 10);
 hold on;
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k');
 if stats(3) < 0.01
-    text(1650, 3, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+    text(1650, 3.1, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
-    text(1650, 3, ['r^2 = ' num2str(stats(1),2)...
+    text(1650, 3.1, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
 % Plot July Ts by elevation and regression
 handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
-    'MarkerSize', 8);
+    'MarkerSize', 10);
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
 handles(4) = plot(xfit, polyval(b, xfit), '--k');
 if stats(3) < 0.01
-    text(1650, 18.5, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+    text(1650, 9.5, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
-    text(1650, 18.5, ['r^2 = ' num2str(stats(1),2)...
+    text(1650, 9.5, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
 % Plot moist adiabatic lapse rate
@@ -737,5 +742,8 @@ xlim([1500 3500]);
 legend(handles([1 3]), {'January', 'July'});
 xlabel('Elevation (m)');
 ylabel('20cm T_{soil} (^oC)')
+
+figpath = '../figures/';
+print(h,'-depsc2','-painters',[figpath 'figC.eps']) 
 
 junk = 99;

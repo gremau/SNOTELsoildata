@@ -52,36 +52,36 @@ soilClim = climData(matchsoil, :);
 % Now assign variables
 janTairMean = soilClim(:, 56);
 
-octSWEmean = soilClim(:, 14)*25.4;
-octSWEmed = soilClim(:, 15)*25.4;
-octSWEsd = soilClim(:, 16)*25.4;
-novSWEmean = soilClim(:, 17)*25.4;
-novSWEmed = soilClim(:, 18)*25.4;
-novSWEsd = soilClim(:, 19)*25.4;
-decSWEmean = soilClim(:, 20)*25.4;
-decSWEmed = soilClim(:, 21)*25.4;
-decSWEsd = soilClim(:, 22)*25.4;
-janSWEmean = soilClim(:, 23)*25.4;
-janSWEmed = soilClim(:, 24)*25.4;
-janSWEsd = soilClim(:, 25)*25.4;
-febSWEmean = soilClim(:, 26)*25.4;
-febSWEmed = soilClim(:, 27)*25.4;
-febSWEsd = soilClim(:, 28)*25.4;
-marSWEmean = soilClim(:, 29)*25.4;
-marSWEmed = soilClim(:, 30)*25.4;
-marSWEsd = soilClim(:, 31)*25.4;
-aprSWEmean = soilClim(:, 32)*25.4;
-aprSWEmed = soilClim(:, 33)*25.4;
-aprSWEsd = soilClim(:, 34)*25.4;
-maySWEmean = soilClim(:, 35)*25.4;
-maySWEmed = soilClim(:, 36)*25.4;
-maySWEsd = soilClim(:, 37)*25.4;
-junSWEmean = soilClim(:, 38)*25.4;
-junSWEmed = soilClim(:, 39)*25.4;
-junSWEsd = soilClim(:, 40)*25.4;
-julSWEmean = soilClim(:, 41)*25.4;
-julSWEmed = soilClim(:, 42)*25.4;
-julSWEsd = soilClim(:, 43)*25.4;
+octSWEmean = soilClim(:, 18)*25.4;
+octSWEmed = soilClim(:, 19)*25.4;
+octSWEsd = soilClim(:, 20)*25.4;
+novSWEmean = soilClim(:, 21)*25.4;
+novSWEmed = soilClim(:, 22)*25.4;
+novSWEsd = soilClim(:, 23)*25.4;
+decSWEmean = soilClim(:, 24)*25.4;
+decSWEmed = soilClim(:, 25)*25.4;
+decSWEsd = soilClim(:, 26)*25.4;
+janSWEmean = soilClim(:, 27)*25.4;
+janSWEmed = soilClim(:, 28)*25.4;
+janSWEsd = soilClim(:, 29)*25.4;
+febSWEmean = soilClim(:, 30)*25.4;
+febSWEmed = soilClim(:, 31)*25.4;
+febSWEsd = soilClim(:, 32)*25.4;
+marSWEmean = soilClim(:, 33)*25.4;
+marSWEmed = soilClim(:, 34)*25.4;
+marSWEsd = soilClim(:, 35)*25.4;
+aprSWEmean = soilClim(:, 36)*25.4;
+aprSWEmed = soilClim(:, 37)*25.4;
+aprSWEsd = soilClim(:, 38)*25.4;
+maySWEmean = soilClim(:, 39)*25.4;
+maySWEmed = soilClim(:, 40)*25.4;
+maySWEsd = soilClim(:, 41)*25.4;
+junSWEmean = soilClim(:, 42)*25.4;
+junSWEmed = soilClim(:, 43)*25.4;
+junSWEsd = soilClim(:, 44)*25.4;
+julSWEmean = soilClim(:, 45)*25.4;
+julSWEmed = soilClim(:, 46)*25.4;
+julSWEsd = soilClim(:, 47)*25.4;
 
 octTs5mean = tsData(:, 3);
 octTs5sd = tsData(:, 4);
@@ -351,9 +351,10 @@ plot(0:1500, logist(coeffs, 0:1500), '-r');
 %----------------------------------------------------------------------
 % FIG 5 - Plot a small subset of months/depths and use better fitlines
 fignum = fignum+1;    
-h = figure(fignum);
+h = figure('position',[100 0 1000 800],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
 set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
-set(h, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 16);
+set(h, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 
 % Set some plotting parameters
 plotorder = [1, 2];
@@ -372,7 +373,7 @@ for i=plotorder
     subplot(2, 2, i);
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
     eval(['y = ' lower(months(i,:)) 'Ts5mean;']);
-    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    plot(x, y, '.', 'Color', [0.5,0.5,0.5], 'markersize', 10);
     hold on;
     
     % Non-linear fit
@@ -384,14 +385,16 @@ for i=plotorder
     text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
     text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
     % Plot horizontal zero line
-    hline(0, ':k');
+    l = hline(0, ':k');
+    set(l, 'linewidth', 1.5);
     
     set(gca, 'position', [0.90 0.91 1.15 1.2] .* get(gca, 'position'));
-    xlim([0, 800]); ylim([-8, 8]);
-    title(months(i,:));
+    xlim([0, 700]); ylim([-6, 6]);
+    title(months(i,:), 'Fontsize', 20, 'Fontangle', 'italic');
     set(gca, 'XTickLabel', '');
     if i==1
         ylabel('5cm ^oC');
+        set(gca,'Ytick', [-4,-2,0,2,4,6]);
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
@@ -399,7 +402,7 @@ for i=plotorder
     subplot(2, 2, i+2)
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
     eval(['y = ' lower(months(i,:)) 'Ts20mean;']);
-    plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
+    plot(x, y, '.', 'Color', [0.5,0.5,0.5], 'markersize', 10);
     hold on;
     
     % Non-linear fit
@@ -410,10 +413,11 @@ for i=plotorder
     text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
     text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
     % Plot horizontal zero line
-    hline(0, ':k');
+    l = hline(0, ':k');
+    set(l, 'linewidth', 1.5);
     
     set(gca, 'position', [0.90 0.95 1.15 1.2] .* get(gca, 'position'));
-    xlim([0, 800]); ylim([-8, 8]);
+    xlim([0, 700]); ylim([-6, 6]);
     xlabel('Mean SWE (mm)');
     if i==1
         ylabel('20cm ^oC');
@@ -421,7 +425,8 @@ for i=plotorder
         set(gca, 'YTickLabel', '');
     end
 end
-
+figpath = '../figures/';
+print(h,'-depsc2','-painters',[figpath 'figG.eps']) 
 
 %------------------------------------------------------
 % FIG 6 - Soil temp and offset - plot for wasatch and uinta sites 

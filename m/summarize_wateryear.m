@@ -181,13 +181,22 @@ for i = 1:length(climatesummary)
     accumprecip = precip(length(precip));
     climatesummary(i, 12) = accumprecip; % accumulated precip
     if length(precip) > 355 % Allow for 10 days missing precip data
-        climatesummary(i, 13) = accumprecip - precip(182); % JAS precip
+        JASprecip = accumprecip - precip(274); % JAS precip
+        junprecip = precip(274)-precip(243);
+        julprecip = precip(305)-precip(273);
+        augprecip = precip(336)-precip(305);
+        septprecip = accumprecip-precip(336);
+        climatesummary(i,13) = JASprecip;
+        climatesummary(i, 14) = junprecip;
+        climatesummary(i, 15) = julprecip;
+        climatesummary(i, 16) = augprecip;
+        climatesummary(i,17) = septprecip;
     else
-        climatesummary(i, 13) = NaN;
+        climatesummary(i, 13:17) = NaN;
     end
     
     % Monthly average SWE
-    colindex1 = 14:3:47;
+    colindex1 = 18:3:51;
     % Get average SWE from data
     wteq = dailydata{4}(wyeartest_c);
     for j = 1:12;
@@ -203,7 +212,7 @@ for i = 1:length(climatesummary)
     clear monthtest;
     
     % Monthly average air temps
-    colindex2 = 50:2:72;
+    colindex2 = 54:2:76;
     % Get TAVG from data
     avgAirT = dailydata{9}(wyeartest_c);
     for j = 1:12;
@@ -214,8 +223,8 @@ for i = 1:length(climatesummary)
         climatesummary(i, colindex2(j) + 1) = tempstd;
     end
     clear monthtest;
-    climatesummary(i, 74) = nanmean(nancheck(avgAirT)); % MAT
-    climatesummary(i, 75) = nanstd(nancheck(avgAirT)); % MAT - sd
+    climatesummary(i, 78) = nanmean(nancheck(avgAirT)); % MAT
+    climatesummary(i, 79) = nanstd(nancheck(avgAirT)); % MAT - sd
     
     % Calculate air temp during the two-week transitions 
     % before onset of snowpack an at snowmelt
@@ -251,18 +260,18 @@ for i = 1:length(climatesummary)
         postmeltAirT = nanmean(nancheck(dailydata{9}(postmelttest)));
         postmeltAirTsd = nanstd(nancheck(dailydata{9}(postmelttest)));
     end
-    climatesummary(i, 76) = preonsetAirT;
-    climatesummary(i, 77) = preonsetAirTsd;
-    climatesummary(i, 78) = premeltAirT;
-    climatesummary(i, 79) = premeltAirTsd;
-    climatesummary(i, 80) = postmeltAirT;
-    climatesummary(i, 81) = postmeltAirTsd;
+    climatesummary(i, 80) = preonsetAirT;
+    climatesummary(i, 81) = preonsetAirTsd;
+    climatesummary(i, 82) = premeltAirT;
+    climatesummary(i, 83) = premeltAirTsd;
+    climatesummary(i, 84) = postmeltAirT;
+    climatesummary(i, 85) = postmeltAirTsd;
     % Assign elev, lat, lon, avgSWE, avgPrecip from values set above
-    climatesummary(i, 82) = inventoryrow(4)*0.3048; % elev
-    climatesummary(i, 83) = inventoryrow(2); % lat
-    climatesummary(i, 84) = inventoryrow(3); % lon
-    climatesummary(i, 85) = avgSWEvalue;
-    climatesummary(i, 86) = avgPrecipvalue;
+    climatesummary(i, 86) = inventoryrow(4)*0.3048; % elev
+    climatesummary(i, 87) = inventoryrow(2); % lat
+    climatesummary(i, 88) = inventoryrow(3); % lon
+    climatesummary(i, 89) = avgSWEvalue;
+    climatesummary(i, 90) = avgPrecipvalue;
 end
     
 clear i j dailydata wyear_c wyeartest_c monthtest slice;

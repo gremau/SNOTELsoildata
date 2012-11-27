@@ -61,9 +61,9 @@ climAggindex = [valindex ones(size(climData(:,1)))];
 soilAggindex = [valindex ones(size(soilClim(:,1)))];
 
 % Unique elevations in climData
-elevAllAgg = accumarray(climAggindex, climData(:,82), [numel(allsites) 1], @mean);
+elevAllAgg = accumarray(climAggindex, climData(:,86), [numel(allsites) 1], @mean);
 %Unique elevations in soilClim
-elevSoilAgg = accumarray(soilAggindex, soilClim(:,82), [numel(soilsites) 1], @mean);
+elevSoilAgg = accumarray(soilAggindex, soilClim(:,86), [numel(soilsites) 1], @mean);
 
 site_cl = climData(:, 1);
 year_cl = climData(:, 2);
@@ -79,75 +79,75 @@ numcontinSC = climData(:, 11);% # of continuous snowcovered periods
 accumprecip = climData(:, 12)*25.4;
 JASprecip = climData(:, 13)*25.4;
 
-octSWEmean = climData(:, 14);
-octSWEmed = climData(:, 15);
-octSWEsd = climData(:, 16);
-novSWEmean = climData(:, 17);
-novSWEmed = climData(:, 18);
-novSWEsd = climData(:, 19);
-decSWEmean = climData(:, 20);
-decSWEmed = climData(:, 21);
-decSWEsd = climData(:, 22);
-janSWEmean = climData(:, 23);
-janSWEmed = climData(:, 24);
-janSWEsd = climData(:, 25);
-febSWEmean = climData(:, 26);
-febSWEmed = climData(:, 27);
-febSWEsd = climData(:, 28);
-marSWEmean = climData(:, 29);
-marSWEmed = climData(:, 30);
-marSWEsd = climData(:, 31);
-aprSWEmean = climData(:, 32);
-aprSWEmed = climData(:, 33);
-aprSWEsd = climData(:, 34);
-maySWEmean = climData(:, 35);
-maySWEmed = climData(:, 36);
-maySWEsd = climData(:, 37);
-junSWEmean = climData(:, 38);
-junSWEmed = climData(:, 39);
-junSWEsd = climData(:, 40);
-julSWEmean = climData(:, 41);
-julSWEmed = climData(:, 42);
-julSWEsd = climData(:, 43);
+octSWEmean = climData(:, 18);
+octSWEmed = climData(:, 19);
+octSWEsd = climData(:, 20);
+novSWEmean = climData(:, 21);
+novSWEmed = climData(:, 22);
+novSWEsd = climData(:, 23);
+decSWEmean = climData(:, 24);
+decSWEmed = climData(:, 25);
+decSWEsd = climData(:, 26);
+janSWEmean = climData(:, 27);
+janSWEmed = climData(:, 28);
+janSWEsd = climData(:, 29);
+febSWEmean = climData(:, 30);
+febSWEmed = climData(:, 31);
+febSWEsd = climData(:, 32);
+marSWEmean = climData(:, 33);
+marSWEmed = climData(:, 34);
+marSWEsd = climData(:, 35);
+aprSWEmean = climData(:, 36);
+aprSWEmed = climData(:, 37);
+aprSWEsd = climData(:, 38);
+maySWEmean = climData(:, 39);
+maySWEmed = climData(:, 40);
+maySWEsd = climData(:, 41);
+junSWEmean = climData(:, 42);
+junSWEmed = climData(:, 43);
+junSWEsd = climData(:, 44);
+julSWEmean = climData(:, 45);
+julSWEmed = climData(:, 46);
+julSWEsd = climData(:, 47);
 
-octTairMean = climData(:, 50);
-octTairSd = climData(:, 51);
-novTairMean = climData(:, 52);
-novTairSd = climData(:, 53);
-decTairMean = climData(:, 54);
-decTairSd = climData(:, 55);
-janTairMean = climData(:, 56);
-janTairSd = climData(:, 57);
-febTairMean = climData(:, 58);
-febTairSd = climData(:, 59);
-marTairMean = climData(:, 60);
-marTairSd = climData(:, 61);
-aprTairMean = climData(:, 62);
-aprTairSd = climData(:, 63);
-mayTairMean = climData(:, 64);
-mayTairSd = climData(:, 65);
-junTairMean = climData(:, 66);
-junTairSd = climData(:, 67);
-julTairMean = climData(:, 68);
-julTairSd = climData(:, 69);
-augTairMean = climData(:, 70);
-augTairSd = climData(:, 71);
-sepTairMean = climData(:, 72);
-sepTairSd = climData(:, 73);
-maat = climData(:, 74);
-maat_sd = climData(:, 75);
+octTairMean = climData(:, 54);
+octTairSd = climData(:, 55);
+novTairMean = climData(:, 56);
+novTairSd = climData(:, 57);
+decTairMean = climData(:, 58);
+decTairSd = climData(:, 59);
+janTairMean = climData(:, 60);
+janTairSd = climData(:, 61);
+febTairMean = climData(:, 62);
+febTairSd = climData(:, 63);
+marTairMean = climData(:, 64);
+marTairSd = climData(:, 65);
+aprTairMean = climData(:, 66);
+aprTairSd = climData(:, 67);
+mayTairMean = climData(:, 68);
+mayTairSd = climData(:, 69);
+junTairMean = climData(:, 70);
+junTairSd = climData(:, 71);
+julTairMean = climData(:, 72);
+julTairSd = climData(:, 73);
+augTairMean = climData(:, 74);
+augTairSd = climData(:, 75);
+sepTairMean = climData(:, 76);
+sepTairSd = climData(:, 77);
+maat = climData(:, 78);
+maat_sd = climData(:, 79);
 
-preonsetTair = climData(:, 76);
-preonsetTairSd = climData(:, 77);
-premeltTair = climData(:, 78);
-premeltTairSd = climData(:, 79);
-postmeltTair = climData(:, 80);
-postmeltTairSd = climData(:, 81);
-elev = climData(:, 82);
-lat = climData(:, 83);
-lon = climData(:, 84);
-ltMeanSWE = climData(:, 85);
-ltMeanPrecip = climData(:, 86);
+preonsetTair = climData(:, 80);
+preonsetTairSd = climData(:, 81);
+premeltTair = climData(:, 82);
+premeltTairSd = climData(:, 83);
+postmeltTair = climData(:, 84);
+postmeltTairSd = climData(:, 85);
+elev = climData(:, 86);
+lat = climData(:, 87);
+lon = climData(:, 88);
+ltMeanSWE = climData(:, 89);
+ltMeanPrecip = climData(:, 90);
 
 % Parse soilwatersummary
 site_sw = vwcData(:, 1);
@@ -403,9 +403,10 @@ title('Day of snowmelt');
 % FIG 2 - Histograms of entire network and soil subset
 testsoil = ismember(site_cl, soilsites);
 fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Wateryear data histograms - all sites/years');
-set(h, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 16);
+fig = figure('position',[100 0 1200 800],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(fig, 'Name', 'Wateryear data histograms - all sites/years');
+set(fig, 'DefaultAxesFontSize',14, 'DefaultTextFontSize', 15);
 
 subplot (4, 2, 1)
 xedges = linspace(500, 4000, 60);
@@ -449,7 +450,7 @@ text(0.55, 0.4, 'Annual precip (mm)', 'Units', 'normalized');
 ylabel('Frequency');
 
 subplot (4, 2, 4)
-xedges = linspace(0, 1000, 60);
+xedges = linspace(0, 800, 60);
 networkhist = histc(JASprecip, xedges);
 soilhist = histc(JASprecip(testsoil), xedges);
 bar(xedges, networkhist, 'k');
@@ -458,8 +459,9 @@ bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 vline(nanmean(JASprecip), '--k');
 h=vline(nanmean(JASprecip(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
-xlim([-2 1000]); ylim([0 400]);
-text(0.535, 0.4, 'Jul+Aug+Sep precip (mm)', 'Units', 'normalized');
+xlim([-20 570]); ylim([0 600]);
+text(0.535, 0.5, ['Jul+Aug+Sep' 10  'precip (mm)'],...
+    'Units', 'normalized');
 
 subplot (4, 2, 5)
 xedges = linspace(100, 2000, 60);
@@ -521,6 +523,9 @@ h=vline(nanmean(meltdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([100 340]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
 text(0.05, 0.4, 'Day of snowmelt', 'Units', 'normalized');
+
+figpath = '../figures/';
+print(fig,'-depsc2','-painters',[figpath 'figA.eps']) 
 
 % %------------------------------------------------------------------
 % % FIG 3 - 2d histogram of some data above (just as an example)
@@ -931,9 +936,10 @@ title('February VWC vs pre-snowpack VWC');
 % FIG 10 - Plot winter soil moisture vs onset soil moisture
 % Same as above, but binned, using only 20cm data
 fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
-set(h, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
+fig= figure('position',[100 0 400 800],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(fig, 'Name', 'Winter VWC vs pre-snowpack VWC');
+set(fig, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
 
 % Set binning parameters
 if strcmpi(normalize, 'n')
@@ -994,6 +1000,63 @@ for i = 1:3;
     end
     
 end
+
+figpath = '../figures/';
+print(fig,'-depsc2','-painters',[figpath 'figI.eps'])
+
+%----------------------------------------------------
+% FIG 11 - Plot winter soil moisture vs onset soil moisture
+% Same as above, but binned, using only 20cm data
+fignum = fignum+1;
+fig= figure('position',[100 0 600 500],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(fig, 'Name', 'Winter VWC vs pre-snowpack VWC');
+set(fig, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
+
+% Set binning parameters
+if strcmpi(normalize, 'n')
+    topEdge = 45; % define limits
+    botEdge = 0; % define limits
+    numBins = 10; % define number of bins
+    xaxlim = [0 45];
+    yaxlim = [0 45];
+elseif strcmpi(normalize, 'y')
+    topEdge = 1; % define limits
+    botEdge = 0; % define limits
+    numBins = 10; % define number of bins
+    xaxlim = [0 1];
+    yaxlim = [0 1];
+end
+    
+% And an xaxis to use
+xax = (linspace(topEdge/numBins, topEdge, numBins) - (topEdge/numBins)/2);
+
+% And months and colors to plot
+months = ['Nov'; 'Feb'; 'Apr'];
+colors = {'k';[0.3 0.3 0.3]; [0.6 0.6 0.6]};
+
+for i = 1:3;
+    x = preonsetVWC20; %split into x and y
+    eval(['y = ' lower(months(i,:)) 'VWC20mean;']);
+    eval(['y2 = ' lower(months(i,:)) 'VWC20sd;']);
+    [binMean, binSd] = binseries(x, y, y2, topEdge, botEdge, numBins);
+    errorbar(xax(1:numBins), binMean, binSd, 'o', 'MarkerSize', 10,...
+        'Color', colors{i}, 'MarkerFaceColor', colors{i});
+    hold on;
+end
+% Plot 1:1 line
+plot(0:45, 0:45, ':k', 'linewidth', 1.5);
+pos = get(gca,'position'); % get subplot axis position
+%set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
+ylabel('Mean VWC');
+xlim(xaxlim); ylim(yaxlim);
+legend('November', 'February', 'April', 'Location', 'Southeast');
+xlabel('Fall VWC (20cm - normalized)');
+
+
+figpath = '../figures/';
+print(fig,'-depsc2','-painters',[figpath 'figI2.eps'])
+
 junk = 99;
 end
 

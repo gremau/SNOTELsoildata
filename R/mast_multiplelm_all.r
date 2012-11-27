@@ -1,19 +1,4 @@
-datapath = '../processed_data/'
-# Load a few datafiles
-climData <- read.csv(paste(datapath, 'wyear_climatesummary.txt', sep=''))
-soilTData <- read.csv(paste(datapath, 'wyear_soiltempsummary_hourly.txt',
-			    sep=''))
-soilVWCData <- read.csv(paste(datapath, 'wyear_soilwatersummary_hourly.txt',
-			      sep=''))
-
-# Get subset of climData that matches the soil data using merge
-climrows <- data.frame(siteID=climData$siteClim,year=climData$year)
-climrows$included_clim <- TRUE
-soilrows <- data.frame(siteID=soilTData$siteTsoil,year=soilTData$year)
-soilrows$included_soil <- TRUE
-finder <- merge(climrows, soilrows, all=TRUE)
-remove <- !is.na(finder$included_soil)
-climData.sub <- subset(climData, remove)
+source('getdata.r')
 
 # We're interested in whether MAST and MAST-MAT are related to mean
 # annual air temperature or duration of snowcover (todaldaysSC). First
@@ -36,6 +21,9 @@ summary(reg2)
 #                          Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)              11.30053    0.18971   59.57   <2e-16 ***
 # climData.sub$totaldaysSC -0.03163    0.00095  -33.30   <2e-16 ***
+# Multiple R-squared: 0.4838,	Adjusted R-squared: 0.4834 
+# F-statistic:  1109 on 1 and 1183 DF,  p-value: < 2.2e-16
+AIC(reg2) # 3803.425
 
 # Is MAST predicted by MAT?
 reg3 <- lm(soilTData$mast20cm ~ climData.sub$maat)
@@ -46,9 +34,12 @@ summary(reg3)
 #                   Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)        2.48089    0.08520   29.12   <2e-16 ***
 # climData.sub$maat  0.60769    0.01767   34.38   <2e-16 ***                  
+# Multiple R-squared: 0.5015,	Adjusted R-squared: 0.5011 
+# F-statistic:  1182 on 1 and 1175 DF,  p-value: < 2.2e-1
+AIC(reg3) # 3847.411
 
 # Is MAST better predicted by a 2 term model of MAT and totaldaysSC?
-reg4 <- lm(soilTData$mast20cm ~ climData.sub$maat + climData.sub$totaldaysSC)
+reg4 <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC)
 summary(reg4)
 #                           Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)               7.475158   0.301050   24.83   <2e-16 ***
@@ -60,7 +51,53 @@ summary(reg4)
 # So, both are highly significant here and have opposing slopes. The model is
 # significant too, and I checked all depths and got the same result. r2 is a
 # bit higher for 50cm depth
+AIC(reg4) # 3515.17
 
+# What if we toss in some other parameters
+regX <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$meltdoy)
+AIC(regX) # 3510.032
+regX <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$onsetdoy)
+AIC(regX) # 3513.686
+regX <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$maxswe)
+AIC(regX) # 3515.88
+regX <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$meltdoy+climData.sub$onsetdoy)
+AIC(regX) # 3506.315
+regX <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$meltdoy+climData.sub$maxswe)
+AIC(regX) # 3506.785
+regX <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$meltdoy+climData.sub$onsetdoy+climData.sub$maxswe)
+AIC(regX) # 3504.815
+regX <- lm(soilTData$mast20cm ~ climData.sub$maat+
+	   +climData.sub$meltdoy+climData.sub$onsetdoy)
+AIC(regX) # 3535.027
+
+
+# This is getting pretty complex, but all these seem to influence the fit of the model. Try drop1:
+drop1(regX, test='F')
+#                          Df Sum of Sq    RSS    AIC  F value    Pr(>F)    
+# <none>                                1372.2 205.20                       
+# climData.sub$maat         1   244.838 1617.0 393.98 206.2636 < 2.2e-16 ***
+# climData.sub$totaldaysSC  1    40.907 1413.1 237.34  34.4620 5.673e-09 ***
+# climData.sub$meltdoy      1    14.687 1386.9 215.57  12.3728 0.0004525 ***
+# climData.sub$onsetdoy     1     4.697 1376.9 207.17   3.9566 0.0469237 *  
+# climData.sub$maxswe       1     4.140 1376.3 206.70   3.4876 0.0620841 .
+# So... we could probably drop maxswe without much problem
+
+# Now lets see if site effects matter
+regSite <- lm(soilTData$mast20cm ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$meltdoy+climData.sub$onsetdoy
+	   +as.factor(climData.sub$siteClim))
+# Multiple R-squared: 0.9248,	Adjusted R-squared: 0.9072 
+# F-statistic: 52.58 on 220 and 941 DF,  p-value: < 2.2e-16
+AIC(regSite) # 1937.815
+# Damn, so site is also a big player. Interestingly, adding site makes the
+# effect of totaldaysSC disappear. Shows up in drop1 too. Not sure how to
+# interpret this yet.
 
 
 # What about the difference (MAST-MAT)?
@@ -74,6 +111,7 @@ summary(reg5)
 #                           Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)              -0.072132   0.234126  -0.308 0.758068    
 # climData.sub$totaldaysSC  0.004271   0.001172   3.643 0.000281 ***
+AIC(reg5) # 4205.112
 
 reg6 <-lm (diff ~ climData.sub$maat)
 plot(climData.sub$maat, diff)
@@ -83,6 +121,7 @@ summary(reg6)
 #                   Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)        2.48089    0.08520   29.12   <2e-16 ***
 # climData.sub$maat -0.39231    0.01767  -22.20   <2e-16 ***
+AIC(reg6) # 3847.411
 
 # How about a 2 term model with MAT and totaldays SC
 reg7 <- lm(diff ~ climData.sub$totaldaysSC + climData.sub$maat)
@@ -92,9 +131,22 @@ summary(reg7)
 # climData.sub$maat        -0.663246   0.021595  -30.71   <2e-16 ***
 # Multiple R-squared: 0.4549,	Adjusted R-squared: 0.454 
 # F-statistic: 483.7 on 2 and 1159 DF,  p-value: < 2.2e-16
+AIC(reg7) # 3515.17
 # This looks good, both terms are highly significant and the model is
 # significant too. Checked other depths and they look good also, 50cm model
 # may fit a bit better again
+# Try a few others
+regX <- lm(diff ~ climData.sub$totaldaysSC+climData.sub$maat
+	   +climData.sub$meltdoy)
+AIC(regX) #3510.32
+regX <- lm(diff ~ climData.sub$totaldaysSC+climData.sub$maat
+	   +climData.sub$meltdoy+climData.sub$onsetdoy)
+AIC(regX) #3506.315
+regX <- lm(diff ~ climData.sub$totaldaysSC+climData.sub$maat
+	   +climData.sub$meltdoy+climData.sub$onsetdoy+climData.sub$maxswe)
+AIC(regX) #3504.815
+
+# So the story is about the same for diff - best fit is 4 or 5 parameters
 # However, maat and totalSCdays are highly correlated (see reg1). now what?
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
@@ -107,9 +159,11 @@ summary(reg8)
 # Interaction term doesn't look very significant (p=0.075)
 
 
-# What about a complicated model with meltdoy and onsetdoy?
+# What about a complicated model with meltdoy and onsetdoy (like with MAST)?
 reg9 <- lm(diff ~ climData.sub$totaldaysSC + climData.sub$maat + 
 	  climData.sub$meltdoy + climData.sub$onsetdoy)
+summary(reg9)
+# NOTE: this is for diff at 50cm - 20cm looks similar
 #                           Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)               8.573531   0.475752  18.021  < 2e-16 ***
 # climData.sub$totaldaysSC -0.013619   0.002105  -6.469 1.46e-10 ***
@@ -120,12 +174,20 @@ reg9 <- lm(diff ~ climData.sub$totaldaysSC + climData.sub$maat +
 #   (439 observations deleted due to missingness)
 # Multiple R-squared: 0.5321,	Adjusted R-squared: 0.5305 
 # F-statistic: 325.8 on 4 and 1146 DF,  p-value: < 2.2e-16 
-#
+AIC(reg9) # 3312.676
 # Crap - all are significant, but I did correlations between them all and
 # they are all sifnificantly correlated (even onsetdoy and meltdoy!)
 # Maybe we can lump all the snow parameters into one?
 
-
+# Now lets see if site effects matter
+regSiteD <- lm(diff ~ climData.sub$maat+climData.sub$totaldaysSC
+	   +climData.sub$meltdoy+climData.sub$onsetdoy
+	   +as.factor(climData.sub$siteClim))
+# Multiple R-squared: 0.9036,	Adjusted R-squared: 0.8811 
+# F-statistic:  40.1 on 220 and 941 DF,  p-value: < 2.2e-16
+AIC(regSiteD) # 1937.815
+# OK - site is also a big player with diff too (same AIC value, wow!).
+# totaldaysSC dropped out here too. 
 
 # What about pcr - principle components regression
 library(pls)
@@ -154,9 +216,9 @@ summary(xxy.pcr)
 
 # Try a more complicated PCR
 x <- cbind(climData.sub$totaldaysSC, climData.sub$maat, climData.sub$meltdoy,
-	   climData.sub$onsetdoy, climData.sub$maxswe)
+	   climData.sub$onsetdoy, climData.sub$siteClim)
 natest <- (is.na(x[,1]) | is.na(x[,2]) | is.na(x[,3]) | is.na(x[,4]) | 
-			       is.na(x[,1]))
+			       is.na(x[,5]))
 x <- x[!natest,]
 y <- as.matrix(diff)[!natest,]
 xxxxxy.pcr <- pcr(y ~ x, ncomp = 5, method = "svdpc", validation='CV')
@@ -228,9 +290,3 @@ for (i in 1:length(sites)) {
 	regdat[i,-(1:2)] <- NA
     }
 }
-
-
-plot(density(regdat$scdSlope, na.rm=TRUE))
-plot(density(regdat$scdPval, na.rm=TRUE))
-plot(density(regdat$lmSlope1, na.rm=TRUE))
-plot(density(regdat$modelPval, na.rm=TRUE))
