@@ -48,7 +48,7 @@ else
 end
 
 % climData includes more than just soil sites, 
-% Get a subset that corresponds with available soildata
+% Get a subset corresponding to the sites and years in tsData
 matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 soilClim = climData(matchsoil, :);
 
@@ -61,9 +61,9 @@ climAggindex = [valindex ones(size(climData(:,1)))];
 soilAggindex = [valindex ones(size(soilClim(:,1)))];
 
 % Unique elevations in climData
-elevAllAgg = accumarray(climAggindex, climData(:,86), [numel(allsites) 1], @mean);
+elevAllAgg = accumarray(climAggindex, climData(:,88), [numel(allsites) 1], @mean);
 %Unique elevations in soilClim
-elevSoilAgg = accumarray(soilAggindex, soilClim(:,86), [numel(soilsites) 1], @mean);
+elevSoilAgg = accumarray(soilAggindex, soilClim(:,88), [numel(soilsites) 1], @mean);
 
 site_cl = climData(:, 1);
 year_cl = climData(:, 2);
@@ -134,20 +134,22 @@ augTairMean = climData(:, 74);
 augTairSd = climData(:, 75);
 sepTairMean = climData(:, 76);
 sepTairSd = climData(:, 77);
-maat = climData(:, 78);
-maat_sd = climData(:, 79);
+freemat = climData(:, 78);
+scovmat = climData(:, 79);
+maat = climData(:, 80);
+maat_sd = climData(:, 81);
 
-preonsetTair = climData(:, 80);
-preonsetTairSd = climData(:, 81);
-premeltTair = climData(:, 82);
-premeltTairSd = climData(:, 83);
-postmeltTair = climData(:, 84);
-postmeltTairSd = climData(:, 85);
-elev = climData(:, 86);
-lat = climData(:, 87);
-lon = climData(:, 88);
-ltMeanSWE = climData(:, 89);
-ltMeanPrecip = climData(:, 90);
+preonsetTair = climData(:, 82);
+preonsetTairSd = climData(:, 83);
+premeltTair = climData(:, 84);
+premeltTairSd = climData(:, 85);
+postmeltTair = climData(:, 86);
+postmeltTairSd = climData(:, 87);
+elev = climData(:, 88);
+lat = climData(:, 89);
+lon = climData(:, 90);
+ltMeanSWE = climData(:, 91);
+ltMeanPrecip = climData(:, 92);
 
 % Parse soilwatersummary
 site_sw = vwcData(:, 1);
@@ -194,7 +196,6 @@ aprVWC20mean = vwcData(:, 41);
 aprVWC20sd = vwcData(:, 42);
 aprVWC50mean = vwcData(:, 43);
 aprVWC50sd = vwcData(:, 44);
-
 mayVWC5mean = vwcData(:, 45);
 mayVWC5sd = vwcData(:, 46);
 mayVWC20mean = vwcData(:, 47);
@@ -332,7 +333,8 @@ postmeltTs5sd = tsData(:, 126);
 %------------------------------------------------------------------
 % FIG 1 - Plot data for entire network and soil subset
 
-% Get the subset that is 
+% Get the soil site subset of the climate data - note that this includes
+% all climate years - so it is different than the soilClim dataset
 testsoil = ismember(site_cl, soilsites);
 
 fignum = fignum+1;
@@ -401,7 +403,7 @@ title('Day of snowmelt');
 
 %------------------------------------------------------------------
 % FIG 2 - Histograms of entire network and soil subset
-testsoil = ismember(site_cl, soilsites);
+% testsoil is defined in FIG 1
 fignum = fignum+1;
 fig = figure('position',[100 0 1200 800],'paperpositionmode',...
     'auto', 'color','white','InvertHardcopy','off');
@@ -417,10 +419,11 @@ hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 xlim([700 3700]); ylim([0 40]);
-vline(nanmean(elevAllAgg), '--k');
-h = vline(nanmean(elevSoilAgg), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+%vline(nanmean(elevAllAgg), '--k');
+%h = vline(nanmean(elevSoilAgg), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 text(0.05, 0.4, 'Elevation (m)', 'Units', 'normalized');
-ylabel('Frequency');
+text(0.95, 0.85, 'A', 'Units', 'normalized');
+%ylabel('Frequency');
 
 subplot (4, 2, 2)
 xedges = linspace(-5, 20, 60);
@@ -430,10 +433,11 @@ bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
-vline(nanmean(maat), '--k');
-h=vline(nanmean(maat(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+%vline(nanmean(maat), '--k');
+%h=vline(nanmean(maat(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-5 15]); ylim([0 500]);
-text(0.55, 0.4, 'Mean annual Tair (^oC)', 'Units', 'normalized');
+text(0.55, 0.4, 'Mean annual T_{air} (^oC)', 'Units', 'normalized');
+text(0.95, 0.85, 'B', 'Units', 'normalized');
 
 subplot (4, 2, 3)
 xedges = linspace(0, 2500, 60);
@@ -443,11 +447,13 @@ bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
-vline(nanmean(accumprecip), '--k');
-h=vline(nanmean(accumprecip(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+%vline(nanmean(accumprecip), '--k');
+%h=vline(nanmean(accumprecip(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-10 2500]); ylim([0 500]);
 text(0.55, 0.4, 'Annual precip (mm)', 'Units', 'normalized');
-ylabel('Frequency');
+%ylabel('Frequency');
+text(-0.15, -1,'Frequency of ocurrence', 'Units', 'normalized', 'Rotation', 90);
+text(0.95, 0.85, 'C', 'Units', 'normalized');
 
 subplot (4, 2, 4)
 xedges = linspace(0, 800, 60);
@@ -457,11 +463,12 @@ bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
-vline(nanmean(JASprecip), '--k');
-h=vline(nanmean(JASprecip(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+% vline(nanmean(JASprecip), '--k');
+% h=vline(nanmean(JASprecip(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-20 570]); ylim([0 600]);
 text(0.535, 0.5, ['Jul+Aug+Sep' 10  'precip (mm)'],...
     'Units', 'normalized');
+text(0.95, 0.85, 'D', 'Units', 'normalized');
 
 subplot (4, 2, 5)
 xedges = linspace(100, 2000, 60);
@@ -471,11 +478,12 @@ bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
-vline(nanmean(maxswe), '--k');
-h=vline(nanmean(maxswe(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+% vline(nanmean(maxswe), '--k');
+% h=vline(nanmean(maxswe(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 2000]); ylim([0 400]);
 text(0.55, 0.4, 'Peak SWE (mm)', 'Units', 'normalized');
-ylabel('Frequency');
+%ylabel('Frequency');
+text(0.95, 0.85, 'E', 'Units', 'normalized');
 
 subplot (4, 2, 6)
 xedges = linspace(0, 365, 60);
@@ -485,10 +493,11 @@ bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
-vline(nanmean(totaldaysSC), '--k');
-h=vline(nanmean(totaldaysSC(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+%vline(nanmean(totaldaysSC), '--k');
+%h=vline(nanmean(totaldaysSC(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 300]); ylim([0 500]);
-text(0.05, 0.4, 'Total snowcovered days', 'Units', 'normalized');
+text(0.05, 0.4, 'Total snow-covered days', 'Units', 'normalized');
+text(0.95, 0.85, 'F', 'Units', 'normalized');
 
 ticklocs = [0, 32, 62, 93, 121];
 tickmonths = ['Oct 1 '; 'Nov 1 '; 'Dec 1 '; 'Jan 1 '; 'Feb 1 '];
@@ -500,12 +509,13 @@ bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
-vline(nanmean(onsetdoy), '--k');
-h=vline(nanmean(onsetdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+%vline(nanmean(onsetdoy), '--k');
+%h=vline(nanmean(onsetdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 125]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
 text(0.55, 0.4, 'Snowpack onset day', 'Units', 'normalized');
-ylabel('Frequency');
+%ylabel('Frequency');
+text(0.95, 0.85, 'G', 'Units', 'normalized');
 
 ticklocs = [122, 150, 181, 211, 242, 272, 303, 334];
 tickmonths = ['Feb 1 '; 'Mar 1 '; 'Apr 1 '; 'May 1 '; 'Jun 1 ';...
@@ -518,11 +528,12 @@ bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
 set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
-vline(nanmean(meltdoy), '--k');
-h=vline(nanmean(meltdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
+%vline(nanmean(meltdoy), '--k');
+%h=vline(nanmean(meltdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([100 340]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
 text(0.05, 0.4, 'Day of snowmelt', 'Units', 'normalized');
+text(0.95, 0.85, 'H', 'Units', 'normalized');
 
 figpath = '../figures/';
 print(fig,'-depsc2','-painters',[figpath 'figA.eps']) 
@@ -694,7 +705,57 @@ ylabel('20cm MAST(^oC)');
 title('... vs Snowcovered days');
 
 %--------------------------------------------------------------
-% FIG 5 - Plot OFFSETS between MAST and MAT
+% FIG 4 - Plot MAST vs meltdoy and onsetdoy days by depth and elevation
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'MAST vs MAT/Snowcovered days by depth and elevation');
+
+% Left side - Plot MAST vs onset/melt days by depth
+subplot (2, 2, 1)
+plot(onsetdoy(matchsoil), mast5cm, '.g', ...
+    onsetdoy(matchsoil), mast20cm, '.b',...
+    onsetdoy(matchsoil), mast50cm, '.k');
+legend('5cm', '20cm', '50cm');
+xlabel('Snowpack onset day');
+ylabel('MAST(^oC)');
+title('Mean wateryear Ts vs Mean wateryear Tair');
+
+subplot (2, 2, 3)
+plot(meltdoy(matchsoil), mast5cm, '.g', ...
+    meltdoy(matchsoil), mast20cm, '.b',...
+    meltdoy(matchsoil), mast50cm, '.k');
+xlabel('Snowmelt day');
+ylabel('MAST (^oC)');
+title('... vs Snowcovered days');
+
+% Right side - Plot MAST vs MAT/Snowcovered days in elevation bins
+% First get the elevation categories
+testhi = elev(matchsoil) > 3000;
+testmid = elev(matchsoil) > 2500 & elev(matchsoil) < 3000;
+testlo = elev(matchsoil) > 2000 & elev(matchsoil) < 2500;
+% Match the climatedata variables with soil data
+matchMelt = meltdoy(matchsoil);
+matchOnset = onsetdoy(matchsoil);
+
+subplot (2, 2, 2)
+plot(matchOnset(testhi), mast20cm(testhi), '.b', ...
+    matchOnset(testmid), mast20cm(testmid), '.g',...
+    matchOnset(testlo), mast20cm(testlo), '.r');
+legend('3000+', '2500-3000', '2000-2500cm');
+xlabel('Snowpack onset day');
+ylabel('20cm MAST (^oC)');
+title('Mean wateryear Ts vs. Mean wateryear Tair');
+
+subplot (2, 2, 4)
+plot(matchMelt(testhi), mast20cm(testhi), '.b', ...
+    matchMelt(testmid), mast20cm(testmid), '.g',...
+    matchMelt(testlo), mast20cm(testlo), '.r');
+xlabel('Snowmelt day');
+ylabel('20cm MAST(^oC)');
+title('... vs Snowcovered days');
+
+%--------------------------------------------------------------
+% FIG 6 - Plot OFFSETS between MAST and MAT
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'MAST-MAT (Temp offset) for all wateryears');
@@ -740,8 +801,19 @@ text(200, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlabel('mm'); ylabel('^oC');
 title('MAST - MAT vs Peak SWE');
 
+subplot (2, 2, 4)
+plot(onsetdoy(matchsoil), offset5cm, '.r', ...
+    onsetdoy(matchsoil), offset20cm, '.g',...
+    onsetdoy(matchsoil), offset50cm, '.b');
+hold on;
+xrange = [0, 200]; %xlim(gca);
+[~, rsq, xfit, yfit] = fitline(onsetdoy(matchsoil), offset20cm, 1, xrange);
+plot(xfit, yfit, '--k');
+text(15, 7, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+xlabel('Onset day'); ylabel('^oC');
+title('MAST - MAT vs Onset day');
 %--------------------------------------------------------------
-% FIG 6 - Plot MAST vs snowpack duration for 3 sites
+% FIG 7 - Plot MAST vs snowpack duration for 3 sites
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Regress mast vs snowpack duration for 3 sites');
@@ -825,7 +897,7 @@ xlabel('MAT'); ylabel('MAST');
 title('Little Bear');
 
 %----------------------------------------------------
-% FIG 7 - Plot snowcovered temp vs onset temps
+% FIG 8 - Plot snowcovered temp vs onset temps
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter SoilT vs pre-snowpack temps');
@@ -867,7 +939,7 @@ ylabel('Mean JFM temp (^oC)');
 title('Mean Jan, Feb, Mar SoilT vs. pre-snowpack SoilT');
 
 %------------------------------------------------------------------
-% FIG 8 - Plot soil moisture vs max swe/snowmelt day
+% FIG 9 - Plot soil moisture vs max swe/snowmelt day
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Wateryear seasonal soil moisture');
@@ -909,31 +981,72 @@ ylabel('VWC (%)');
 title(' July, Aug, Sept VWC vs snowmeltday');
 
 %----------------------------------------------------
-% FIG 9 - Plot winter soil moisture vs onset soil moisture
+% FIG 10 - Plot winter soil moisture vs onset soil moisture
 fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
 
-subplot (2, 2, 1)
-plot(preonsetVWC5, decVWC5mean, '.g', ...
-    preonsetVWC20, decVWC20mean, '.b', ...
-    preonsetVWC50, decVWC50mean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soilVWC (%)');
-ylabel('Mean VWC (%)');
-title('Oct, Nov, Dec VWC vs pre-snowpack VWC');
+polyorder = 1;
+plotorder = 1:4;
+months = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May'];
 
-subplot (2, 2, 2)
-plot(preonsetVWC5, febVWC5mean, '.g', ...
-    preonsetVWC20, febVWC20mean, '.b', ...
-    preonsetVWC50, febVWC50mean, '.k');
-legend('5cm', '20cm', '50cm');
-xlabel('Wateryear pre-snowpack soilVWC (%)');
-ylabel('Mean VWC (%)');
-title('February VWC vs pre-snowpack VWC');
+x1 = preonsetVWC5;
+x2 = preonsetVWC20;
+x3 = preonsetVWC50;
+
+for i=plotorder
+    subplot(2, 4, i)
+    eval(['y1 = ' lower(months(i,:)) 'VWC5mean;']);
+    eval(['y2 = ' lower(months(i,:)) 'VWC20mean;']);
+    eval(['y3 = ' lower(months(i,:)) 'VWC50mean;']);
+    
+    plot(x1, y1, '.', 'Color', [0.7 0.7 0.7]);
+    hold on;
+    plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
+    plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
+    [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
+    [b2,bint,resid,rint,stats] = shregress(y2, [x2 ones(size(x2))]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    % slope and r^2 values
+    text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...
+        ', r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3))]);
+    %xlim([0, 1500]); ylim([-10, 10]);
+    title(months(i,:));
+    set(gca, 'XTickLabel', '');
+    if i==1
+        legend('Location', 'Northwest', '5cm', '20cm', '50cm', '20cm polyfit');
+        text(-0.35, -0.45, 'Mean monthly soil VWC', 'Units', 'normalized', 'Rotation', 90);
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+    
+    subplot(2, 4, i+4)
+    eval(['y1 = ' lower(months(i+4,:)) 'VWC5mean;']);
+    eval(['y2 = ' lower(months(i+4,:)) 'VWC20mean;']);
+    eval(['y3 = ' lower(months(i+4,:)) 'VWC50mean;']);
+    
+    plot(x1, y1, '.', 'Color', [0.7 0.7 0.7]);
+    hold on;
+    plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
+    plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
+    [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
+    [b2,bint,resid,rint,stats] = shregress(y2, [x2 ones(size(x2))]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    % slope and r^2 values
+    text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...
+        ', r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3))]);
+    %xlim([0, 1500]); ylim([-10, 10]);
+    title(months(i+4,:));
+    if i>1
+        set(gca, 'YTickLabel', '');
+    end
+    if i==2
+        text(1, -0.2, 'Pre-onset VWC', 'Units', 'normalized');
+    end
+end
 
 %----------------------------------------------------
-% FIG 10 - Plot winter soil moisture vs onset soil moisture
+% FIG 11 - Plot winter soil moisture vs onset soil moisture
 % Same as above, but binned, using only 20cm data
 fignum = fignum+1;
 fig= figure('position',[100 0 400 800],'paperpositionmode',...
@@ -1005,7 +1118,7 @@ figpath = '../figures/';
 print(fig,'-depsc2','-painters',[figpath 'figI.eps'])
 
 %----------------------------------------------------
-% FIG 11 - Plot winter soil moisture vs onset soil moisture
+% FIG 12 - Plot winter soil moisture vs onset soil moisture
 % Same as above, but binned, using only 20cm data
 fignum = fignum+1;
 fig= figure('position',[100 0 600 500],'paperpositionmode',...
@@ -1032,31 +1145,92 @@ end
 xax = (linspace(topEdge/numBins, topEdge, numBins) - (topEdge/numBins)/2);
 
 % And months and colors to plot
-months = ['Nov'; 'Feb'; 'Apr'];
-colors = {'k';[0.3 0.3 0.3]; [0.6 0.6 0.6]};
+months = ['Oct'; 'Dec'; 'Feb'; 'Apr'];
+colors = {[0.9 0.9 0.9]; [0.6 0.6 0.6]; [0.3 0.3 0.3]; 'k'};
 
-for i = 1:3;
+for i = 1:4;
     x = preonsetVWC20; %split into x and y
     eval(['y = ' lower(months(i,:)) 'VWC20mean;']);
     eval(['y2 = ' lower(months(i,:)) 'VWC20sd;']);
     [binMean, binSd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-    errorbar(xax(1:numBins), binMean, binSd, 'o', 'MarkerSize', 10,...
-        'Color', colors{i}, 'MarkerFaceColor', colors{i});
+    errorbar(xax(1:numBins), binMean, binSd, 'ok', 'MarkerSize', 10,...
+        'MarkerFaceColor', colors{i});
+    hold on;
+end
+% Plot 1:1 line
+plot(0:45, 0:45, ':k', 'linewidth', 2);
+pos = get(gca,'position'); % get subplot axis position
+%set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
+ylabel('Mean monthly VWC (%)');
+xlim(xaxlim); ylim(yaxlim);
+legend('October','December','February','April','Location','Southeast');
+xlabel('Pre-onset VWC (normalized)');
+
+
+figpath = '../figures/';
+print(fig,'-depsc2','-painters',[figpath 'figI2.eps'])
+
+%----------------------------------------------------
+% FIG 13 - Plot winter soil moisture vs onset soil moisture
+% Same as above, with all months
+fignum = fignum+1;
+fig= figure('position',[100 0 600 500],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(fig, 'Name', 'Winter VWC vs pre-snowpack VWC');
+set(fig, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
+
+% Set binning parameters
+if strcmpi(normalize, 'n')
+    topEdge = 45; % define limits
+    botEdge = 0; % define limits
+    numBins = 10; % define number of bins
+    xaxlim = [0 45];
+    yaxlim = [0 45];
+elseif strcmpi(normalize, 'y')
+    topEdge = 1; % define limits
+    botEdge = 0; % define limits
+    numBins = 10; % define number of bins
+    xaxlim = [0 1];
+    yaxlim = [0 1];
+end
+    
+% And an xaxis to use
+xax = (linspace(topEdge/numBins, topEdge, numBins) - (topEdge/numBins)/2);
+
+% And months and colors to plot
+months = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May'];
+colors = {'LightCyan';'LightSkyBlue';'DeepSkyBlue';'DodgerBlue';'MediumBlue';'DarkBlue';...
+    'MidnightBlue';'Black';};
+grays = {[0.9 0.9 0.9];[0.7 0.7 0.7]; [0.6 0.6 0.6]; [0.5 0.5 0.5]; ...
+    [0.4 0.4 0.4]; [0.3 0.3 0.3];[0.2 0.2 0.2];'k'};
+
+for i = 1:8;
+    x = preonsetVWC20; %split into x and y
+    eval(['y = ' lower(months(i,:)) 'VWC20mean;']);
+    eval(['y2 = ' lower(months(i,:)) 'VWC20sd;']);
+    [binMean, binSd] = binseries(x, y, y2, topEdge, botEdge, numBins);
+    %errorbar(xax(1:numBins), binMean, binSd, 'ok', 'MarkerSize', 10,...
+     %   'MarkerFaceColor', rgb(colors{i}));']);
+    %eval(['h' int2str(i)  '= errorbar(xax(1:numBins), binMean, binSd,' ...
+    %    char(39) 'ok' char(39) ', ' char(39) 'MarkerSize' char(39) ''...
+    %    ', 10,' char(39) 'MarkerFaceColor' char(39) ', rgb(colors{i}));']);
+    eval(['h' int2str(i)  '= errorbar(xax(1:numBins), binMean, binSd,' ...
+        char(39) 'ok' char(39) ', ' char(39) 'MarkerSize' char(39) ''...
+        ', 10,' char(39) 'MarkerFaceColor' char(39) ', grays{i});']);
     hold on;
 end
 % Plot 1:1 line
 plot(0:45, 0:45, ':k', 'linewidth', 1.5);
 pos = get(gca,'position'); % get subplot axis position
 %set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
-ylabel('Mean VWC');
+ylabel('Mean monthly VWC (normalized)');
 xlim(xaxlim); ylim(yaxlim);
-legend('November', 'February', 'April', 'Location', 'Southeast');
-xlabel('Fall VWC (20cm - normalized)');
+legend([h1; h8], {'October','May'}, 'Location', 'Southeast');
+xlabel('Pre-onset VWC (normalized)');
 
 
 figpath = '../figures/';
-print(fig,'-depsc2','-painters',[figpath 'figI2.eps'])
-
+print(fig,'-depsc2','-painters',[figpath 'figI3.eps'])
 junk = 99;
 end
 

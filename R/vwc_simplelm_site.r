@@ -4,11 +4,13 @@ source('getdata.r')
 reg.dat <- cbind(climData.sub[,c('siteClim','yearClim','maxswe','meltdoy',
 			     'onsetdoy','JASprecip','junPrecip','julPrecip',
 			     'augPrecip','sepPrecip','jasMAT','julTairMean',
-			     'augTairMean','sepTairMean')],
+			     'augTairMean','sepTairMean','decSWEmean',
+			     'jfmMAT')],
 	     soilVWCData[,c('jasVWC5mean','julVWC5mean','augVWC5mean',
 			    'sepVWC5mean','jasVWC20mean','julVWC20mean',
 			    'augVWC20mean','sepVWC20mean','jasVWC50mean',
-			    'julVWC50mean','augVWC50mean','sepVWC50mean')])
+			    'julVWC50mean','augVWC50mean','sepVWC50mean',
+			    'preonsetVWC20','jfmVWC20mean')])
 # Create a list of lmLists for the simple linear regressions,
 # but first change the precip columns
 reg.dat$julPrecip <- (reg.dat$junPrecip + reg.dat$julPrecip)
@@ -183,7 +185,8 @@ for (i in 1:length(sites)) {
 	}
 }
 
-# Now do 50cm JAS
+
+# Now do JAS 50cm 
 simpledat.jas50 <- data.frame(site=sites,
 			      nyrs=as.vector(table(reg.dat$siteClim)),
 		     precInt=0,precIntPval=0,precBeta=0,precPval=0,
@@ -265,6 +268,92 @@ for (i in 1:length(sites)) {
 		}
 	} else {
 		simpledat.jas50[i,-(1:2)] <- NA
+	}
+}
+
+
+# Now do JFM 20cm 
+simpledat.jfm20 <- data.frame(site=sites,
+			      nyrs=as.vector(table(reg.dat$siteClim)),
+		     precInt=0,precIntPval=0,precBeta=0,precPval=0,
+		     onsetInt=0,onsetIntPval=0,onsetBeta=0,onsetPval=0,
+		     meltInt=0,meltIntPval=0,meltBeta=0,meltPval=0,
+		     maxsweInt=0,maxsweIntPval=0,maxsweBeta=0,maxswePval=0,
+		     matInt=0,matIntPval=0,matBeta=0,matPval=0)
+		    
+for (i in 1:length(sites)) {
+	tmp <- reg.dat[reg.dat$siteClim==sites[i],]
+	if (dim(tmp)[1]-sum(is.na(tmp$jfmVWC20mean))>3) {
+		if (dim(tmp)[1]-sum(is.na(tmp$maxswe))>3) {
+			lm1 <- lm(jfmVWC20mean~maxswe,data=tmp,
+				  na.action=na.omit)
+			simpledat.jfm20[i,3] <- lm1$coef[1]
+			simpledat.jfm20[i,4] <- summary(lm1)$coef[7]
+			simpledat.jfm20[i,5] <- lm1$coef[2]
+		       	simpledat.jfm20[i,6] <- summary(lm1)$coef[8]
+		} else {
+			simpledat.jfm20[i,3] <- NA
+			simpledat.jfm20[i,4] <- NA
+			simpledat.jfm20[i,5] <- NA
+			simpledat.jfm20[i,6] <- NA
+		}
+		if (dim(tmp)[1]-sum(is.na(tmp$preonsetVWC20))>3) {
+			lm2 <- lm(jfmVWC20mean~preonsetVWC20,data=tmp,
+			  na.action=na.omit)
+			simpledat.jfm20[i,7] <- lm2$coef[1]
+			simpledat.jfm20[i,8] <- summary(lm2)$coef[7]
+			simpledat.jfm20[i,9] <- lm2$coef[2]
+			simpledat.jfm20[i,10] <- summary(lm2)$coef[8]
+		} else {
+			simpledat.jfm20[i,7] <- NA
+			simpledat.jfm20[i,8] <- NA
+			simpledat.jfm20[i,9] <- NA
+			simpledat.jfm20[i,10] <- NA
+		}
+		if (dim(tmp)[1]-sum(is.na(tmp$meltdoy))>3) {
+			lm3 <- lm(jfmVWC20mean~meltdoy,data=tmp,
+				  na.action=na.omit)
+			#plot(tmp$meltdoy,tmp$jasVWC50mean,main=sites[i])
+			#abline(lm3)
+			#yo <- readline('Press return for next plot')
+			simpledat.jfm20[i,11] <- lm3$coef[1]
+			simpledat.jfm20[i,12] <- summary(lm3)$coef[7]
+			simpledat.jfm20[i,13] <- lm3$coef[2]
+			simpledat.jfm20[i,14] <- summary(lm3)$coef[8]
+		} else {
+			simpledat.jfm20[i,11] <- NA
+			simpledat.jfm20[i,12] <- NA
+			simpledat.jfm20[i,13] <- NA
+			simpledat.jfm20[i,14] <- NA
+		}
+		if (dim(tmp)[1]-sum(is.na(tmp$decSWEmean))>3) {
+			lm4 <- lm(jfmVWC20mean~decSWEmean,data=tmp,
+				  na.action=na.omit)
+			simpledat.jfm20[i,15] <- lm4$coef[1]
+			simpledat.jfm20[i,16] <- summary(lm4)$coef[7]
+			simpledat.jfm20[i,17] <- lm4$coef[2]
+			simpledat.jfm20[i,18] <- summary(lm4)$coef[8]
+		} else {
+			simpledat.jfm20[i,15] <- NA
+			simpledat.jfm20[i,16] <- NA
+			simpledat.jfm20[i,17] <- NA
+			simpledat.jfm20[i,18] <- NA
+		}
+		if (dim(tmp)[1]-sum(is.na(tmp$jfmMAT))>3) {
+			lm5 <- lm(jfmVWC20mean~jfmMAT,data=tmp,
+				  na.action=na.omit)
+			simpledat.jfm20[i,19] <- lm5$coef[1]
+			simpledat.jfm20[i,20] <- summary(lm5)$coef[7]
+			simpledat.jfm20[i,21] <- lm5$coef[2]
+			simpledat.jfm20[i,22] <- summary(lm5)$coef[8]
+		} else {
+			simpledat.jfm20[i,19] <- NA
+			simpledat.jfm20[i,20] <- NA
+			simpledat.jfm20[i,21] <- NA
+			simpledat.jfm20[i,22] <- NA
+		}
+	} else {
+		simpledat.jfm20[i,-(1:2)] <- NA
 	}
 }
 
@@ -518,6 +607,7 @@ rm(lm1, lm2, lm3, lm4, lm5, tmp, sites, reg.dat, i)
 
 
 # Summarize the coefficients and significance of all these
+rm(simpledat.all, simpledat.allnum)
 datlist <- ls(pattern='simpledat')
 
 simpledat.all <- data.frame(ydat=datlist,nyrs=0,

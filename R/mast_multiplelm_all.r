@@ -149,8 +149,6 @@ AIC(regX) #3504.815
 # So the story is about the same for diff - best fit is 4 or 5 parameters
 # However, maat and totalSCdays are highly correlated (see reg1). now what?
 
-layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
-plot(reg7) #(I don't know what these diagnostics mean!)
 
 # Look at the interaction
 reg8 <-lm (diff ~ climData.sub$totaldaysSC + climData.sub$maat + 
@@ -234,59 +232,203 @@ summary(xxxxxy.pcr)
 # X   86.220   94.334   97.722   99.911   100.00
 # y    1.216    1.524    4.683    7.252    53.32
 
-# Seems a little inconclusive. What about doing this on all sites?
-climData.sub <- climData.sub[order(climData.sub$siteClim, 
-				   climData.sub$yearClim),]
-soilTData <- soilTData[order(soilTData$siteTsoil, 
-				   soilTData$yearTsoil),]
-soilVWCData <- soilVWCData[order(soilVWCData$siteVWC, 
-				   soilVWCData$yearVWC),]
+# Seems a little inconclusive. What if we do this for snowcovered and snowfree
+# soil temperature
+# Start with a complicated model with meltdoy and onsetdoy (like with MAST)?
+reg10 <- lm(soilTData$snowcovTs20mean ~ climData.sub$scovmat+
+	    climData.sub$onsetdoy+climData.sub$novSWEmean)
+summary(reg10)
+#                         Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)             0.821839   0.056801  14.469  < 2e-16 ***
+# climData.sub$scovmat    0.155109   0.014835  10.456  < 2e-16 ***
+# climData.sub$onsetdoy   0.002160   0.001407   1.535    0.125    
+# climData.sub$novSWEmean 0.100237   0.014237   7.041 3.26e-12 ***
+AIC(reg10) # 2765.598
 
-sites = unique(soilTData$siteTsoil)
-regdat <- data.frame(site=sites,nyrs=as.vector(table(soilTData$siteTsoil)),
-		     lmInt=0,lmSlope1=0,lmSlope2=0,PvalInt=0,Pval1=0,Pval2=0,
-		     lmR2=0,modelPval=0,comp1=0,scdInt=0,scdSlope=0,scdPval=0,
-		     scdR2=0)
-for (i in 1:length(sites)) {
-    tmpC <- climData.sub[climData.sub$siteClim==sites[i],]
-    tmpT <- soilTData[soilTData$siteTsoil==sites[i],]
-    tmpDiff <- tmpT$mast20cm - tmpC$maat
-    tmp2X <- cbind(tmpC$totaldaysSC, tmpC$maat)
-    natest <- is.na(tmp2X[,1]) | is.na(tmp2X[,2]) | is.na(tmpDiff)
-    tmp2X <- tmp2X[!natest,]
-    tmpy <- as.matrix(tmpDiff)[!natest,]
-    if (length(tmpy) > 4){ 
-        #tmpC <- climData.sub[climData.sub$siteClim==sites[i],]
-        #tmpT <- soilTData[soilTData$siteTsoil==sites[i],]
-        #tmpDiff <- tmpT$mast20cm - tmpC$maat
-        #tmp2X <- cbind(tmpC$totaldaysSC, tmpC$maat)
-        #natest <- is.na(tmp2X[,1]) | is.na(tmp2X[,2])
-        #tmp2X <- tmp2X[!natest,]
-        #tmpy <- as.matrix(tmpDiff)[!natest,]
-        # Do the pcr for the site
-        diff.pcr <- pcr(tmpy ~ tmp2X, ncomp=2, method='svdpc')
-        regdat[i,'comp1'] <- (diff.pcr$Xvar/diff.pcr$Xtotvar)[1]
-        # Do the multiple regression and get F, pvals, and r2 
-        diff.lm <- lm(tmpDiff ~ tmpC$totaldaysSC + tmpC$maat)
-        fs <- summary(diff.lm)$fstatistic #Get F, df1, df2
-        regdat[i,'modelPval'] <- pf(fs[1], fs[2], fs[3], lower.tail=FALSE)
-	# Do the simple regression (on totaldaysSC and get stats
-	simp.lm <- lm(tmpDiff ~ tmpC$totaldaysSC)
-        fs <- summary(simp.lm)$fstatistic #Get F, df1, df2
-        regdat[i,'scdPval'] <- pf(fs[1], fs[2], fs[3], lower.tail=FALSE)
-        # Add stats to regdat
-        regdat[i,'lmInt'] <- diff.lm$coef[1]
-        regdat[i,'lmSlope1'] <- diff.lm$coef[2]
-        regdat[i,'lmSlope2'] <- diff.lm$coef[3]
-        regdat[i,'PvalInt'] <- summary(diff.lm)$coef[10]
-        regdat[i,'Pval1'] <- summary(diff.lm)$coef[11]
-        regdat[i,'Pval2'] <- summary(diff.lm)$coef[12]
-        regdat[i,'lmR2'] <- summary(diff.lm)$r.squared
-	regdat[i,'scdInt'] <- simp.lm$coef[1]
-	regdat[i,'scdSlope'] <- simp.lm$coef[2]
-        regdat[i,'scdR2'] <- summary(simp.lm)$r.squared
+reg11 <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$onsetdoy+climData.sub$novSWEmean)
+summary(reg11)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               -0.289589   0.092167  -3.142  0.00172 ** 
+# climData.sub$preonsetTair  0.110551   0.010619  10.411  < 2e-16 ***
+# climData.sub$onsetdoy      0.014630   0.001756   8.333  < 2e-16 ***
+# climData.sub$novSWEmean    0.105528   0.014301   7.379 3.03e-13 ***
+AIC(reg11) # 2754.598
 
-    } else {
-	regdat[i,-(1:2)] <- NA
-    }
-}
+reg12 <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$onsetdoy+climData.sub$novSWEmean+climData.sub$scovmat)
+summary(reg12)
+#                           Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               0.194799   0.133551   1.459    0.145    
+# climData.sub$preonsetTair 0.069420   0.013391   5.184 2.56e-07 ***
+# climData.sub$onsetdoy     0.009503   0.002018   4.710 2.78e-06 ***
+# climData.sub$novSWEmean   0.102999   0.014171   7.268 6.70e-13 ***
+# climData.sub$scovmat      0.094754   0.018832   5.031 5.64e-07 ***
+AIC(reg12) # 2703.864
+
+reg13 <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$onsetdoy+climData.sub$novSWEmean+climData.sub$scovmat
+	    +climData.sub$maxswe)
+summary(reg13)
+#                           Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               0.063985   0.142650   0.449   0.6538    
+# climData.sub$preonsetTair 0.068491   0.013363   5.125 3.48e-07 ***
+# climData.sub$onsetdoy     0.010169   0.002029   5.011 6.27e-07 ***
+# climData.sub$novSWEmean   0.080347   0.016667   4.821 1.62e-06 ***
+# climData.sub$scovmat      0.083240   0.019315   4.310 1.78e-05 ***
+# climData.sub$maxswe       0.007048   0.002747   2.566   0.0104 *  
+
+AIC(reg13) # 2699.265
+
+reg14 <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$onsetdoy+climData.sub$decSWEmean+climData.sub$scovmat
+	    +climData.sub$maxswe)
+summary(reg14)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                0.044769   0.144313   0.310    0.756    
+# climData.sub$preonsetTair  0.069637   0.013468   5.171 2.75e-07 ***
+# climData.sub$onsetdoy      0.009370   0.002025   4.628 4.11e-06 ***
+# climData.sub$decSWEmean    0.079630   0.013495   5.901 4.76e-09 ***
+# climData.sub$scovmat       0.078999   0.019673   4.016 6.32e-05 ***
+# climData.sub$maxswe       -0.004424   0.003918  -1.129    0.259
+AIC(reg14) # 2699.669
+
+reg15 <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$onsetdoy+climData.sub$decSWEmean+climData.sub$scovmat)
+summary(reg15)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               -0.008190   0.136495  -0.060 0.952167    
+# climData.sub$preonsetTair  0.070529   0.013446   5.245 1.86e-07 ***
+# climData.sub$onsetdoy      0.009816   0.001986   4.943 8.82e-07 ***
+# climData.sub$decSWEmean    0.067384   0.008032   8.390  < 2e-16 ***
+# climData.sub$scovmat       0.073321   0.019022   3.855 0.000122 ***
+
+AIC(reg15) # 2698.95
+
+# This is a good model including site effects
+regSite <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$decSWEmean+climData.sub$scovmat+climData.sub$onsetdoy
+	    +as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                   Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                     -0.3554677  0.3016446  -1.178 0.238925    
+# climData.sub$preonsetTair        0.0484763  0.0098238   4.935 9.51e-07 ***
+# climData.sub$decSWEmean          0.0867157  0.0075848  11.433  < 2e-16 ***
+# climData.sub$scovmat            -0.0581096  0.0234971  -2.473 0.013574 *  
+# climData.sub$onsetdoy            0.0029860  0.0016407   1.820 0.069092 .
+AIC(regSite) #1825.254
+
+# This is the best model including site effects - dropped another parameter
+regSite <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$decSWEmean+climData.sub$scovmat
+	    +as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                   Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                     -0.2381520  0.2950412  -0.807 0.419767    
+# climData.sub$preonsetTair        0.0361972  0.0071491   5.063 4.97e-07 ***
+# climData.sub$decSWEmean          0.0901358  0.0073574  12.251  < 2e-16 ***
+# climData.sub$scovmat            -0.0540554  0.0234202  -2.308 0.021213 * 
+AIC(regSite) # 1827.348
+
+
+# However, there are some interactions to pay attention to also
+# First - between winter temp and snowcover
+regSite <- lm(soilTData$snowcovTs20mean ~ as.factor(climData.sub$siteClim)
+	      +climData.sub$preonsetTair+
+	    climData.sub$decSWEmean*climData.sub$scovmat)
+summary(regSite)
+AIC(regSite) # 1819.243
+
+# Add early season interaction
+regSite <- lm(soilTData$snowcovTs20mean ~ as.factor(climData.sub$siteClim)
+	      +climData.sub$preonsetTair*climData.sub$decSWEmean + 
+	      climData.sub$maxswe*climData.sub$scovmat)
+summary(regSite)
+AIC(regSite) # 1786.243
+
+# Remove later season interaction
+regSite <- lm(soilTData$snowcovTs20mean ~ as.factor(climData.sub$siteClim)
+	      +climData.sub$preonsetTair*climData.sub$decSWEmean + 
+	      climData.sub$maxswe + climData.sub$scovmat)
+summary(regSite)
+#                               Estimate Std. Error t value
+# (Intercept)                 -0.3732476  0.2940521  -1.26   0.2046
+# climData.sub$preonsetTair    0.0765750  0.0105201   7.279  7.15e-13 ***
+# climData.sub$decSWEmean      0.1701198  0.0153027  11.117  < 2e-16  ***
+# climData.sub$maxswe         -0.0098241  0.0031394  -3.129  0.001806 **
+# climData.sub$scovmat        -0.0496339  0.0230384  -2.154  0.031465 *
+# preonsetTair:decSWEmean     -0.0106136  0.0021401  -4.959  8.40e-07 ***
+AIC(regSite) # 1788.063
+
+regSite <- lm(soilTData$snowcovTs20mean ~
+	      climData.sub$preonsetTair*climData.sub$decSWEmean + 
+	      climData.sub$maxswe + climData.sub$scovmat)
+summary(regSite)
+
+
+
+reg16 <- lm(soilTData$snowcovTs20mean ~ climData.sub$preonsetTair+
+	    climData.sub$onsetdoy+climData.sub$decSWEmean)
+summary(reg16)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               -0.389774   0.092774  -4.201 2.86e-05 ***
+# climData.sub$preonsetTair  0.102205   0.010608   9.635  < 2e-16 ***
+# climData.sub$onsetdoy      0.013776   0.001705   8.079 1.63e-15 ***
+# climData.sub$decSWEmean    0.069918   0.008057   8.678  < 2e-16 ***
+AIC(reg16) # 2739.421
+
+# Now lets do snowfree
+reg17 <- lm(soilTData$snowfreeTs20mean ~ climData.sub$freemat+
+	    climData.sub$meltdoy)
+summary(reg17)
+#                       Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)           9.944001   0.628199   15.83   <2e-16 ***
+# climData.sub$freemat  0.560325   0.031435   17.82   <2e-16 ***
+# climData.sub$meltdoy -0.027482   0.002388  -11.51   <2e-16 ***
+AIC(reg17) # 4532.077
+
+reg18 <- lm(soilTData$snowfreeTs20mean ~ climData.sub$freemat+
+	    climData.sub$meltdoy+ climData.sub$maxswe)
+summary(reg18)
+#                       Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)          10.640595   0.789727  13.474   <2e-16 ***
+# climData.sub$freemat  0.548845   0.032396  16.942   <2e-16 ***
+# climData.sub$meltdoy -0.030708   0.003258  -9.425   <2e-16 ***
+# climData.sub$maxswe   0.009949   0.006841   1.454    0.146
+AIC(reg18) # 4531.956
+
+reg19 <- lm(soilTData$snowfreeTs20mean ~ climData.sub$freemat+
+	    climData.sub$meltdoy+soilTData$snowcovTs20mean)
+summary(reg19)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               10.894673   0.582347   18.71   <2e-16 ***
+# climData.sub$freemat       0.431111   0.030320   14.22   <2e-16 ***
+# climData.sub$meltdoy      -0.027951   0.002199  -12.71   <2e-16 ***
+# soilTData$snowcovTs20mean  0.846378   0.058716   14.41   <2e-16 ***
+AIC(reg19) # 4331.002
+
+# Add site effects to this
+reg20 <- lm(soilTData$snowfreeTs20mean ~ climData.sub$freemat+
+	    climData.sub$meltdoy+soilTData$snowcovTs20mean+
+	    as.factor(climData.sub$siteClim))
+summary(reg20)
+#                                   Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                       5.080677   0.463234  10.968  < 2e-16 ***
+# climData.sub$freemat              0.612046   0.021581  28.361  < 2e-16 ***
+# climData.sub$meltdoy             -0.007741   0.001376  -5.627 2.43e-08 ***
+# soilTData$snowcovTs20mean         0.719859   0.033096  21.751  < 2e-16 ***
+AIC(reg20) # 2024.006
+
+
+reg21 <- lm(soilTData$snowfreeTs20mean ~ climData.sub$freemat+
+	    climData.sub$meltdoy+soilTData$snowcovTs20mean+
+	    climData.sub$totaldaysSC)
+summary(reg21)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                9.883580   0.707140  13.977  < 2e-16 ***
+# climData.sub$freemat       0.431290   0.030250  14.257  < 2e-16 ***
+# climData.sub$meltdoy      -0.018094   0.004501  -4.020  6.2e-05 ***
+# soilTData$snowcovTs20mean  0.843083   0.058595  14.388  < 2e-16 ***
+# climData.sub$totaldaysSC  -0.006567   0.002618  -2.508   0.0123 *
+AIC(reg21) # 4326.7
+

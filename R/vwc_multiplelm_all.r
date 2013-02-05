@@ -1,6 +1,6 @@
 source('getdata.r')
 
-# We're interested in whether growing season VWC is related to mean
+# We're interested in whether snowcovered and snow-free VWC is related to mean
 # air temperature, melt timing, snowpack size, or summer rain.
 #
 # First lets check whether any predictors are correlated. We already know that
@@ -32,7 +32,7 @@ reg3 <- lm(soilVWCData$jasVWC20mean ~ climData.sub$meltdoy)
 plot(climData.sub$meltdoy, soilVWCData$jasVWC20mean)
 abline(reg3)
 summary(reg3)
-# Yep, a pretty strong positive correlation, but the intercept fails
+# Yep, a somewhat stronger positive correlation
 #                        Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)          -0.0255317  0.0556508  -0.459    0.646    
 # climData.sub$meltdoy  0.0013035  0.0002379   5.478 5.28e-08 ***
@@ -175,6 +175,94 @@ drop1(regSite, test='F')
 # as.factor(climData.sub$siteClim) < 2.2e-16 ***
 # This says we can drop meltdoy
 
+# So... First lets try dropping meltdoy
+regSite <- lm(soilVWCData$jasVWC20mean ~ climData.sub$jasMAT+
+	   climData.sub$JASprecip+climData.sub$maxswe
+	   +climData.sub$onsetdoy+as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                    Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                       0.3969346  0.0782030   5.076 4.89e-07 ***
+# climData.sub$jasMAT              -0.0079984  0.0013142  -6.086 1.86e-09 ***
+# climData.sub$JASprecip            0.0164384  0.0017942   9.162  < 2e-16 ***
+# climData.sub$maxswe               0.0022802  0.0005012   4.549 6.29e-06 ***
+# climData.sub$onsetdoy            -0.0006949  0.0002126  -3.268 0.001133 ** 
+# Multiple R-squared: 0.8291,	Adjusted R-squared: 0.7839 
+# F-statistic: 18.36 on 195 and 738 DF,  p-value: < 2.2e-16 
+AIC(regSite) # -1934.807
+# That didn't really improve things
+
+# Then lets try dropping maxswe
+regSite <- lm(soilVWCData$jasVWC20mean ~ climData.sub$jasMAT+
+	   climData.sub$JASprecip+climData.sub$meltdoy
+	   +climData.sub$onsetdoy+as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                    Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                       0.2973794  0.0990266   3.003 0.002763 ** 
+# climData.sub$jasMAT              -0.0088871  0.0013028  -6.821 1.88e-11 ***
+# climData.sub$JASprecip            0.0158191  0.0018048   8.765  < 2e-16 ***
+# climData.sub$meltdoy              0.0007257  0.0002447   2.965 0.003123 ** 
+# climData.sub$onsetdoy            -0.0005804  0.0002175  -2.668 0.007795 **
+AIC(regSite) #-1920.807
+# That didn't really improve things
+
+# Then lets try dropping onsetdoy
+regSite <- lm(soilVWCData$jasVWC20mean ~ climData.sub$jasMAT+
+	   climData.sub$JASprecip+climData.sub$maxswe+climData.sub$meltdoy
+	   +as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                    Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                       0.2583619  0.0968525   2.668 0.007807 ** 
+# climData.sub$jasMAT              -0.0076443  0.0013145  -5.815 9.02e-09 ***
+# climData.sub$JASprecip            0.0162878  0.0018099   8.999  < 2e-16 ***
+# climData.sub$maxswe               0.0018784  0.0005437   3.455 0.000582 ***
+# climData.sub$meltdoy              0.0004989  0.0002595   1.922 0.054954 . 
+AIC(regSite) #-1926.053
+# That didn't really improve things
+# So we should probably keep all 5 variables
+
+# One other thing to try - jmfVWC
+regX <- lm(soilVWCData$jasVWC20mean ~ climData.sub$jasMAT+
+	   climData.sub$JASprecip+climData.sub$maxswe+climData.sub$meltdoy
+	   +soilVWCData$jfmVWC20mean)
+summary(regX)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               0.3732047  0.0991205   3.765 0.000177 ***
+# climData.sub$jasMAT      -0.0093039  0.0009281 -10.025  < 2e-16 ***
+# climData.sub$JASprecip    0.0124927  0.0021758   5.742 1.27e-08 ***
+# climData.sub$maxswe      -0.0029206  0.0006955  -4.199 2.93e-05 ***
+# climData.sub$meltdoy      0.0007738  0.0003458   2.238 0.025473 *  
+# soilVWCData$jfmVWC20mean  0.2365736  0.0219111  10.797  < 2e-16 ***
+AIC(regX) # -947.9184
+
+# Now try with site effects
+regSite <- lm(soilVWCData$jasVWC20mean ~ climData.sub$jasMAT+
+	   climData.sub$JASprecip+climData.sub$maxswe+climData.sub$meltdoy
+	   +soilVWCData$jfmVWC20mean+as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                    Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                       0.2564959  0.0971668   2.640 0.008473 ** 
+# climData.sub$jasMAT              -0.0079056  0.0013226  -5.978 3.54e-09 ***
+# climData.sub$JASprecip            0.0163291  0.0018321   8.913  < 2e-16 ***
+# climData.sub$maxswe               0.0016675  0.0005566   2.996 0.002829 ** 
+# climData.sub$meltdoy              0.0005307  0.0002609   2.034 0.042310 *  
+# soilVWCData$jfmVWC20mean          0.0371151  0.0206787   1.795 0.073090
+AIC(regSite) # -1912.541
+
+# hmm the jfmVWC20 effect disappeared - lets try this without it
+regSite <- lm(soilVWCData$jasVWC20mean ~ climData.sub$jasMAT+
+	   climData.sub$JASprecip+climData.sub$maxswe+climData.sub$meltdoy
+	   +as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                   Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                      0.2583619  0.0968525   2.668 0.007807 ** 
+# climData.sub$jasMAT             -0.0076443  0.0013145  -5.815 9.02e-09 ***
+# climData.sub$JASprecip           0.0162878  0.0018099   8.999  < 2e-16 ***
+# climData.sub$maxswe              0.0018784  0.0005437   3.455 0.000582 ***
+# climData.sub$meltdoy             0.0004989  0.0002595   1.922 0.054954 .   
+AIC(regSite) # -1926.053
+#This is the one
+
+
 # Lets check these results just using monthly data
 # July
 precip <- climData.sub$junPrecip+climData.sub$julPrecip
@@ -225,6 +313,76 @@ summary(regSep)
 # Multiple R-squared: 0.3115,	Adjusted R-squared: 0.3079 
 # F-statistic: 86.43 on 5 and 955 DF,  p-value: < 2.2e-16
 AIC(regSep) # -869.9365
+
+# Finally, lets try the model including site effects with Aug data
+precip <- climData.sub$julPrecip+climData.sub$augPrecip
+regSite <- lm(soilVWCData$augVWC20mean ~ climData.sub$augTairMean+
+	   precip+climData.sub$maxswe+climData.sub$meltdoy
+	   +as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                   Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                     -0.1705795  0.0865207  -1.972 0.048961 *  
+# climData.sub$augTairMean        -0.0091497  0.0031563  -2.899 0.003834 ** 
+# precip                           0.0471691  0.0022636  20.839  < 2e-16 ***
+# climData.sub$maxswe              0.0023622  0.0005536   4.267 2.19e-05 ***
+# climData.sub$meltdoy             0.0011289  0.0002783   4.056 5.42e-05 ***
+AIC(regSite) # -1970.204
+# seems like a pretty good model, and meltdoy is especially important in august
+
+
+
+# Now lets look at below-snow VWC
+regX <- lm(soilVWCData$jfmVWC20mean ~ climData.sub$jfmMAT+
+	   climData.sub$maxswe+climData.sub$onsetdoy
+	   +soilVWCData$preonsetVWC20)
+summary(regX)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               0.3126860  0.0215984  14.477   <2e-16 ***
+# climData.sub$jfmMAT       0.0143641  0.0009839  14.599   <2e-16 ***
+# climData.sub$maxswe       0.0068510  0.0005968  11.479   <2e-16 ***
+# climData.sub$onsetdoy     0.0005282  0.0004053   1.303    0.193    
+# soilVWCData$preonsetVWC20 0.4456250  0.0253108  17.606   <2e-16 ***
+AIC(regX) # -473.8438
+
+regX <- lm(soilVWCData$jfmVWC20mean ~ climData.sub$jfmMAT+
+	   climData.sub$decSWEmean
+	   +soilVWCData$preonsetVWC20)
+summary(regX)
+#                            Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               0.3539077  0.0147999   23.91   <2e-16 ***
+# climData.sub$jfmMAT       0.0155803  0.0009394   16.59   <2e-16 ***
+# climData.sub$decSWEmean   0.0267395  0.0020932   12.77   <2e-16 ***
+# soilVWCData$preonsetVWC20 0.4232636  0.0246495   17.17   <2e-16 ***
+AIC(regX) # -501.5505
+
+# Now add site effects
+regSite <- lm(soilVWCData$jfmVWC20mean ~ climData.sub$jfmMAT+
+	   climData.sub$decSWEmean
+	   +soilVWCData$preonsetVWC20+as.factor(climData.sub$siteClim))
+summary(regSite)
+#                                       Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                           0.068822   0.076888   0.895 0.370987    
+# climData.sub$jfmMAT                   0.001694   0.001519   1.116 0.264844    
+# climData.sub$decSWEmean               0.031181   0.001971  15.822  < 2e-16 ***
+# soilVWCData$preonsetVWC20             0.239841   0.021891  10.956  < 2e-16 ***
+AIC(regSite) # -1177.525
+
+#hmm - this makes jfmMAT go away, but the other 2 are similar, and significant
+
+# What if we get rid of it?
+regSite <- lm(soilVWCData$jfmVWC20mean ~ climData.sub$decSWEmean
+	   +soilVWCData$preonsetVWC20+climData.sub$siteClim)
+summary(regSite)
+#                                  Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                      0.046057   0.074334   0.620 0.535685    
+# climData.sub$decSWEmean          0.030913   0.001932  15.999  < 2e-16 ***
+# soilVWCData$preonsetVWC20        0.239683   0.021499  11.149  < 2e-16 ***
+AIC(regSite) #-1210.26
+#This is the one
+
+
+
+
 
 # Seems a little inconclusive. What about doing this on individual sites?
 climData.sub <- climData.sub[order(climData.sub$siteClim, 

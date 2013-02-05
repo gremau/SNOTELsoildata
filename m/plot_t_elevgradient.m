@@ -90,11 +90,11 @@ augTairSd = soilClim(:, 75);
 sepTairMean = soilClim(:, 76);
 sepTairSd = soilClim(:, 77);
 
-elev = soilClim(:, 86);
-lat = soilClim(:, 87);
-lon = soilClim(:, 88);
-ltMeanSWE = soilClim(:, 89);
-ltMeanPrecip = soilClim(:, 90);
+elev = soilClim(:, 88);
+lat = soilClim(:, 89);
+lon = soilClim(:, 90);
+ltMeanSWE = soilClim(:, 91);
+ltMeanPrecip = soilClim(:, 92);
 
 octTs5mean = tsData(:, 3);
 octTs5sd = tsData(:, 4);
@@ -572,6 +572,19 @@ title('Air & soil temp.');
 subplot(1,2,2);
 offset = abs(decTairMean - decTs20mean);
 plot(elev, offset(:,1), 'ok', 'MarkerFaceColor', 'b');
+hold on;
+
+xfit = linspace(900, 3500);
+[b,bint,resid,rint,stats] = shregress(offset, [elev ones(size(elev))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+%text(1750, -7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
+if stats(3) < 0.01
+    text(1750, 2, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1750, 2, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
+
 xlabel('Elevation (m)');
 ylabel('^oC');
 title('Air-Soil temp. offset');
@@ -636,39 +649,42 @@ handles(1) = plot(x, y1, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
 hold on;
 xfit = linspace(1692, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
-handles(2) = plot(xfit, polyval(b, xfit), '--k');
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+%text(1750, -7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
-    text(1750, -7, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+    text(1750, -7.4, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
-    text(1750, -7, ['r^2 = ' num2str(stats(1),2)...
+    text(1750, -7.4, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
 
 % Plot Tair example error bar in an inset box
-handles(3) = errorbar(1625, -4.7, meanStdDev,'o',...
-    'MarkerFaceColor',[0.7 0.7 0.7], 'Color', [0.7 0.7 0.7],...
+handles(3) = errorbar(1625, -4.7, meanStdDev,'ok',...
+    'MarkerFaceColor',[0.7 0.7 0.7],...
     'MarkerEdgeColor', 'k', 'MarkerSize', 10);
 % Create rectangle
 annotation(h, 'rectangle', [0.154 0.146 0.05 0.55], 'FaceColor','flat');
 
 % Plot Jan mean Tsoil and regression
-handles(4) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'w',...
-    'Color', [0.5 0.5 0.5], 'MarkerEdgeColor', 'k','MarkerSize', 10);
+handles(4) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'White',...
+    'MarkerEdgeColor', 'k','MarkerSize', 10);
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
-handles(5) = plot(xfit, polyval(b, xfit), '--k');
+handles(5) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+%text(1570, 3.1, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
-    text(1750, 3, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+    text(1570, 2.2, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
-    text(1750, 3, ['r^2 = ' num2str(stats(1),2)...
+    text(1570, 2.2, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
 
 xlim([1500 3500]);
+set(gca, 'Ytick', [-8;-6;-4;-2;0;2;4]);
 xlabel('Elevation(m)');
-ylabel('^oC');
+ylabel('Mean January T (^oC)');
 legend(handles([1 4]), {'T_{air}',...
-    'T_{soil} (20cm)'});
+    'T_{soil}'});
 %title('Utah - January Tair/Tsoil (aggregated)');
 % Plot moist adiabatic lapse rate
 % plot([900 3500], [4, -9], ':k')
@@ -713,35 +729,38 @@ h = figure('position',[100 0 650 600],'paperpositionmode',...
 set(h, 'Name','(UT-Agg) January/July Soil T gradients',...
     'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 % Plot January Ts by elevation and regression
-handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'w',...
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
 hold on;
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
-handles(2) = plot(xfit, polyval(b, xfit), '--k');
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+%text(1600, 4.7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
-    text(1650, 3.1, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+    text(1600, 3.1, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
-    text(1650, 3.1, ['r^2 = ' num2str(stats(1),2)...
+    text(1600, 3.1, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
 % Plot July Ts by elevation and regression
 handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
     'MarkerSize', 10);
 [b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
-handles(4) = plot(xfit, polyval(b, xfit), '--k');
+handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+%text(1600, 9.5, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
-    text(1650, 9.5, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+    text(1600, 9, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
-    text(1650, 9.5, ['r^2 = ' num2str(stats(1),2)...
+    text(1600, 9, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
 % Plot moist adiabatic lapse rate
 %plot([1600 3400], [18, 9], ':k');
 xlim([1500 3500]);
+set(gca, 'Ytick', [0;5;10;15;20;25]);
 legend(handles([1 3]), {'January', 'July'});
 xlabel('Elevation (m)');
-ylabel('20cm T_{soil} (^oC)')
+ylabel('Mean monthly T_{soil} (^oC)')
 
 figpath = '../figures/';
 print(h,'-depsc2','-painters',[figpath 'figC.eps']) 

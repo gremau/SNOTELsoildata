@@ -78,7 +78,7 @@ dailyRaw = loadsnotel_raw(siteID, 'daily');
 
 % Load the climate data from summarize_wateryear.m
 processeddatapath = '../processed_data/';
-climData = csvread([processeddatapath 'wyear_climatesummary.txt']);
+climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
 
 % Parse out the date/times
 decday_h = datenum(strcat(hourlyData{2}, hourlyData{3}), 'yyyy-mm-ddHH:MM');

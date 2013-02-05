@@ -12,3 +12,4 @@ colnames(soilfiles)[2] <- 'years'
 
 table(metfiles) # will show a nice table of sites, years and number of files
 table(soilfiles)
+mean(rowSums(table(soilfiles))# mean number of available years

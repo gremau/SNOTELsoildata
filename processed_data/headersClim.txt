@@ -12,6 +12,7 @@ maxcontinSC
 numcontinSC
 accumprecip
 JASprecip
+mayPrecip
 junPrecip
 julPrecip
 augPrecip
@@ -76,6 +77,8 @@ augTairMean
 augTairSd
 sepTairMean
 sepTairSd
+freemat
+scovmat
 maat
 maat_sd
 preonsetTair

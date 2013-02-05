@@ -98,19 +98,21 @@ augTairMean = climData(:, 74);
 augTairSd = climData(:, 75);
 sepTairMean = climData(:, 76);
 sepTairSd = climData(:, 77);
-maat = climData(:, 78);
-sdAnnTair = climData(:, 79);
-preonsetTair = climData(:, 80);
-preonsetTairSd = climData(:, 81);
-premeltTair = climData(:, 82);
-premeltTairSd = climData(:, 83);
-postmeltTair = climData(:, 84);
-postmeltTairSd = climData(:, 85);
-elev = climData(:, 86);
-lat = climData(:, 87);
-lon = climData(:, 88);
-ltMeanSWE = climData(:, 89);
-ltMeanPrecip = climData(:, 90);
+freemat = climData(:, 78);
+scovmat = climData(:, 79);
+maat = climData(:, 80);
+sdAnnTair = climData(:, 81);
+preonsetTair = climData(:, 82);
+preonsetTairSd = climData(:, 83);
+premeltTair = climData(:, 84);
+premeltTairSd = climData(:, 85);
+postmeltTair = climData(:, 86);
+postmeltTairSd = climData(:, 87);
+elev = climData(:, 88);
+lat = climData(:, 89);
+lon = climData(:, 90);
+ltMeanSWE = climData(:, 91);
+ltMeanPrecip = climData(:, 92);
 
 % Parse soilwatersummary
 site_sw = vwcDataN(:, 1);
@@ -560,8 +562,8 @@ set(h, 'Name', 'Aug soil moisture vs snomelt date');
 % Left side - plot vs Snowmelt day
 % Set binning parameters
 topEdge = 305; % define limits
-botEdge = 145; % define limits
-numBins = 15; % define number of bins
+botEdge = 175; % define limits
+numBins = 12; % define number of bins
 % And an xaxis to use
 xax = (linspace(botEdge, topEdge, numBins+1))+5;
 
@@ -572,7 +574,9 @@ y2 = augVWC5sd;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
 subplot(221);
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
-xlim([140 310]); %ylim([0 1]);
+xlim([170 310]); %ylim([0 1]);
+ticks = [175;240;300]
+set(gca,'XTick', ticks, 'XTickLabel', {'Apr';'Jun'; 'Aug'});
 xlabel('Snowmelt dowy');
 title('5cm VWC');
 
@@ -581,7 +585,9 @@ y2 = augVWC20sd;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
 subplot(222);
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
-xlim([140 310]);%ylim([0 1]);
+xlim([170 310]);%ylim([0 1]);
+ticks = [180;240;300]
+set(gca,'XTick', ticks, 'XTickLabel', {'Apr';'Jun'; 'Aug'});
 xlabel('Snowmelt dowy');
 title('20cm VWC');
 
@@ -590,8 +596,11 @@ y2 = augVWC50sd;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
 subplot(223);
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
-xlim([140 310]);%ylim([0 1]);
+xlim([170 310]);%ylim([0 1]);
+ticks = [180;240;300]
+set(gca,'XTick', ticks, 'XTickLabel', {'Apr';'Jun'; 'Aug'});
 xlabel('Snowmelt dowy');
+ylabel('Aug VWC (normalized)')
 title('50cm VWC');
 
 %--------------------------------------------------------------

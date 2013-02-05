@@ -11,14 +11,20 @@ addpath('/home/greg/data/code_resources/m_common/linear/');
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 
 % Use this site as an example:
-examplesite = 828;
-examplelabel = 'Trial Lake';
+% examplesite = 828;
+% examplelabel = 'Trial Lake';
 % examplesite = 393;
 % examplelabel = 'Chalk Creek';
 % examplesite = 332;
 % examplelabel = 'Ben Lomond Peak';
 % examplesite = 333;
 % examplelabel = 'Ben Lomond Trail';
+% examplesite = 390;
+% examplelabel = 'Castle Valley';
+%examplesite = 766;
+%examplelabel = 'Snowbird';
+examplesite = 839;
+examplelabel = 'Upper Rio Grande';
 
 % Set processed data path
 processeddatapath = '../processed_data/';
@@ -49,20 +55,20 @@ maxcontinSC = soilClim(:, 10);% Length of longest continuos snowpack
 numcontinSC = soilClim(:, 11);% # of continuous snowcovered periods
 accumprecip = soilClim(:, 12)*25.4;
 JASprecip = soilClim(:, 13)*25.4;
-maat = soilClim(:, 74);
-maat_sd = soilClim(:, 75);
+maat = soilClim(:, 80);
+maat_sd = soilClim(:, 81);
 
-preonsetTair = soilClim(:, 76);
-preonsetTairSd = soilClim(:, 77);
-premeltTair = soilClim(:, 78);
-premeltTairSd = soilClim(:, 79);
-postmeltTair = soilClim(:, 80);
-postmeltTairSd = soilClim(:, 81);
-elev = soilClim(:, 82);
-lat = soilClim(:, 83);
-lon = soilClim(:, 84);
-ltMeanSWE = soilClim(:, 85);
-ltMeanPrecip = soilClim(:, 86);
+preonsetTair = soilClim(:, 82);
+preonsetTairSd = soilClim(:, 83);
+premeltTair = soilClim(:, 84);
+premeltTairSd = soilClim(:, 85);
+postmeltTair = soilClim(:, 86);
+postmeltTairSd = soilClim(:, 87);
+elev = soilClim(:, 88);
+lat = soilClim(:, 89);
+lon = soilClim(:, 90);
+ltMeanSWE = soilClim(:, 91);
+ltMeanPrecip = soilClim(:, 92);
 
 % Seasonal/yearly soil temp means
 site_ts = tsData(:, 1);
@@ -142,7 +148,7 @@ sites = unique(site_cl);
 
 % PUBLICATION PLOTS   ------------------------------------------------
 diff5cm = mast5cm-maat; diff20cm = mast20cm-maat; diff50cm = mast50cm-maat;
-Yvars = {'mast50cm' 'diff50cm' 'jasVWC20mean','jasVWC20mean','jasVWC20mean'};
+Yvars = {'mast20cm' 'diff20cm' 'jasVWC20mean','jasVWC20mean','jasVWC20mean'};
 Xvars = {'totaldaysSC' 'totaldaysSC' 'meltdoy', 'maxswe', 'JASprecip'};
 
 % EXPLORATORY ANALYSIS  ------------------------------------------------

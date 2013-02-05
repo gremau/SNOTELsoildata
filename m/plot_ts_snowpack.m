@@ -12,6 +12,7 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 %addpath('../m/');
+addpath('~/data/code_resources/m_common/');
 addpath('~/data/code_resources/m_common/nonlinear/');
 addpath('~/data/code_resources/m_common/nanstuff/');
 addpath('~/data/code_resources/m_common/hline_vline/');
@@ -143,6 +144,7 @@ junTs50sd = tsData(:, 56);
 % PLOTS
 %----------------------------------------------------------------------
 % FIG 1 - Month soil temps vs mean SWE
+% Note that this can easily be set to use median SWE
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
@@ -155,6 +157,7 @@ polyorder = 2;
 for i=plotorder
     subplot(3, 5, i);
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    % eval(['x = ' lower(months(i,:)) 'SWEmed;']);
     eval(['y = ' lower(months(i,:)) 'Ts5mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -172,6 +175,7 @@ for i=plotorder
     
     subplot(3, 5, i+5)
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    % eval(['x = ' lower(months(i,:)) 'SWEmed;']);
     eval(['y = ' lower(months(i,:)) 'Ts20mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -188,6 +192,7 @@ for i=plotorder
     
     subplot(3, 5, i+10);
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    % eval(['x = ' lower(months(i,:)) 'SWEmed;']);
     eval(['y = ' lower(months(i,:)) 'Ts50mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -199,6 +204,7 @@ for i=plotorder
         ylabel('50cm ^oC');
     elseif i==3
         xlabel('Mean SWE');
+        % xlabel('Median SWE');
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
@@ -206,22 +212,37 @@ end
 
 
 %----------------------------------------------------------------------
-% FIG 2 - Month soil temps vs median SWE
+% FIG 2 - Month soil temps vs mean SWE - use bounded exponential fit
 fignum = fignum+1;    
 h = figure(fignum);
 set(h, 'Name', 'Mean monthly temp vs Median SWE - all sites/wateryears');
 
-% plotorder, months, and polyorder are set in previous figure's code
+% Set some plotting parameters
+plotorder = 1:5;
+months = ['Dec';'Jan';'Feb';'Mar';'Apr'];
+% Set up non-linear fits - Bounded exponential
+nlfunc = inline('b(1)*(1 - b(2)*exp(-b(3).*x))', 'b', 'x');
+beta_init = [1.0 .2 0.01];
 
 for i=plotorder
     subplot(3, 5, i)
-    eval(['x = ' lower(months(i,:)) 'SWEmed;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
     eval(['y = ' lower(months(i,:)) 'Ts5mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
-    plot(xfit, yfit, '-k', 'LineWidth', 2);
-    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    
+    % Non-linear fit
+    [coeffs, r, ~] = nlinfit(x, y, nlfunc, beta_init);
+    rmse = sqrt(nansum(r.^2)/(length(x)-1));
+    rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
+    plot(0:1500, nlfunc(coeffs, 0:1500), '-k');
+    % Mean Squared error and r-squared values
+    text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
+    text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
+    % Plot horizontal zero line
+    l = hline(0, ':k');
+    set(l, 'linewidth', 1.5);
+    
     xlim([0, 1500]); ylim([-10, 10]);
     title(months(i,:));
     set(gca, 'XTickLabel', '');
@@ -232,13 +253,23 @@ for i=plotorder
     end
     
     subplot(3, 5, i+5)
-    eval(['x = ' lower(months(i,:)) 'SWEmed;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
     eval(['y = ' lower(months(i,:)) 'Ts20mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
-    plot(xfit, yfit, '-k', 'LineWidth', 2);
-    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+
+    % Non-linear fit
+    [coeffs, r, ~] = nlinfit(x, y, nlfunc, beta_init);
+    rmse = sqrt(nansum(r.^2)/(length(x)-1));
+    rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
+    plot(0:1500, nlfunc(coeffs, 0:1500), '-k');
+    % Mean Squared error and r-squared values
+    text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
+    text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
+    % Plot horizontal zero line
+    l = hline(0, ':k');
+    set(l, 'linewidth', 1.5);
+    
     xlim([0, 1500]); ylim([-10, 10]);
     set(gca, 'XTickLabel', '');
     if i==1
@@ -248,18 +279,29 @@ for i=plotorder
     end
     
     subplot(3, 5, i+10)
-    eval(['x = ' lower(months(i,:)) 'SWEmed;']);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
     eval(['y = ' lower(months(i,:)) 'Ts50mean;']);
     plot(x, y, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
-    [~, rsq, xfit, yfit] = fitline(x, y, polyorder, [0, 1000]);
-    plot(xfit, yfit, '-k', 'LineWidth', 2);
-    text(700, 8, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
+    
+    % Non-linear fit
+    [coeffs, r, ~] = nlinfit(x, y, nlfunc, beta_init);
+    rmse = sqrt(nansum(r.^2)/(length(x)-1));
+    rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
+    plot(0:1500, nlfunc(coeffs, 0:1500), '-k');
+    % Mean Squared error and r-squared values
+    text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
+    text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
+    % Plot horizontal zero line
+    l = hline(0, ':k');
+    set(l, 'linewidth', 1.5);
+    
+
     xlim([0, 1500]); ylim([-10, 10]);
     if i==1
         ylabel('50cm ^oC');
     elseif i==3
-        xlabel('Median SWE');
+        xlabel('Mean SWE');
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
@@ -288,6 +330,7 @@ legend('20cm one-month mean');
 
 %--------------------------------------------------------
 % FIG 4 - Like above - but try some new curve fitting
+% This was where I figured out the best curve, several are possible here
 fignum = fignum+1;    
 h = figure(fignum);
 
@@ -393,7 +436,7 @@ for i=plotorder
     title(months(i,:), 'Fontsize', 20, 'Fontangle', 'italic');
     set(gca, 'XTickLabel', '');
     if i==1
-        ylabel('5cm ^oC');
+        ylabel('5cm T_{soil} (^oC)');
         set(gca,'Ytick', [-4,-2,0,2,4,6]);
     elseif i>1
         set(gca, 'YTickLabel', '');
@@ -420,7 +463,7 @@ for i=plotorder
     xlim([0, 700]); ylim([-6, 6]);
     xlabel('Mean SWE (mm)');
     if i==1
-        ylabel('20cm ^oC');
+        ylabel('20cm T_{soil} (^oC)');
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
@@ -428,8 +471,63 @@ end
 figpath = '../figures/';
 print(h,'-depsc2','-painters',[figpath 'figG.eps']) 
 
+% FIG 6 - Plot a small subset of months/depths and use better fitlines
+fignum = fignum+1;    
+h = figure('position',[100 0 1100 450],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
+set(h, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
+
+% Set some plotting parameters
+plotorder = [1, 2];
+months = ['Dec';'Jan'] ;
+polyorder = 1;
+
+% Set up non-linear fits
+% Bounded exponential
+nlfunc = inline('b(1)*(1 - b(2)*exp(-b(3).*x))', 'b', 'x');
+beta_init = [1.5 2 0.01];
+% Logistic fit -> K./(1+exp(-r*(t-t0)));
+% nlfunc = inline('(b(1)./(1 + exp(-b(2).*x))) - b(3)', 'b', 'x');
+% beta_init = [1.5 0.01 1];
+
+for i=plotorder
+    subplot(1, 2, i);
+    eval(['x = ' lower(months(i,:)) 'SWEmean;']);
+    eval(['y = ' lower(months(i,:)) 'Ts5mean;']);
+    plot(x, y, '.', 'Color', [0.5 0.5 0.5], 'markersize', 10);
+    hold on;
+    
+    % Non-linear fit
+    [coeffs, r, ~] = nlinfit(x, y, nlfunc, beta_init);
+    rmse = sqrt(nansum(r.^2)/(length(x)-1));
+    rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
+    plot(0:1500, nlfunc(coeffs, 0:1500), '-k', 'Linewidth', 1.5);
+    % Mean Squared error and r-squared values
+    text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
+    text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
+    % Plot horizontal zero line
+    l = hline(0, ':k');
+    set(l, 'linewidth', 2);
+    
+    set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
+    xlim([0, 700]); ylim([-6, 6]);
+    %title(months(i,:), 'Fontsize', 20, 'Fontangle', 'italic');
+    %set(gca, 'XTickLabel', '');
+    if i==1
+        ylabel('Mean monthly T_{soil} (^oC)');
+        set(gca,'Ytick', [-4,-2,0,2,4,6]);
+        xlabel('Mean December SWE (mm)');
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+        xlabel('Mean January SWE (mm)');
+    end
+end
+figpath = '../figures/';
+print(h,'-depsc2','-painters',[figpath 'figG2.eps']) 
+
 %------------------------------------------------------
-% FIG 6 - Soil temp and offset - plot for wasatch and uinta sites 
+% FIG 7 - Soil temp and offset - plot for wasatch and uinta sites 
 uintaTest = ismember(soilClim(:, 1), uintas);
 wasatchTest = ismember(soilClim(:, 1), wasatch);
 
