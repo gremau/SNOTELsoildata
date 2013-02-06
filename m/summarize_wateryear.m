@@ -182,7 +182,7 @@ for i = 1:length(climatesummary)
     climatesummary(i, 12) = accumprecip; % accumulated precip
     if length(precip) > 355 % Allow for 10 days missing precip data
         JASprecip = accumprecip - precip(274); % JAS precip
-        mayprecip = precip(243)-precip(212)
+        mayprecip = precip(243)-precip(212);
         junprecip = precip(274)-precip(243);
         julprecip = precip(305)-precip(274);
         augprecip = precip(336)-precip(305);

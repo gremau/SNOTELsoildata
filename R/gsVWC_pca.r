@@ -6,28 +6,21 @@
 
 source('getdata.r')
 
-# climData.sub should have the same sites/years in the same order as soilTData
+# climData.sub should have the same sites/years in the same order as soilVWCData
 # and soilVWCData
 # sum(soilVWCData[,1]-climData.sub[,1] )
 
-# Create a dataframe of variables for pca
-varframe <- data.frame(climData.sub$totaldaysSC, climData.sub$maat, 
-		climData.sub$meltdoy,climData.sub$onsetdoy,
-		climData.sub$maxswe, climData.sub$scovmat,
-		soilVWCData$preonsetVWC20,soilTData$preonsetTs20,
-		climData.sub$preonsetTair,climData.sub$elev)
-
 # Create a dataframe of variables for pca - include monthly means
-varframe <- data.frame(climData.sub$totaldaysSC,climData.sub$jasMAT, 
-		climData.sub$meltdoy,climData.sub$onsetdoy,
-		climData.sub$maxswe, climData.sub$scovmat,
-		climData.sub$aprTairMean,climData.sub$mayTairMean,
-		climData.sub$junTairMean,climData.sub$julTairMean,
-		climData.sub$augTairMean,climData.sub$sepTairMean,
-		climData.sub$novSWEmean,climData.sub$JASprecip,
-		climData.sub$junPrecip,climData.sub$julPrecip,
-		climData.sub$augPrecip,climData.sub$sepPrecip,
-	       	soilVWCData$amjVWC20mean,climData.sub$elev)
+varframe <- data.frame(climData.sub$totaldaysSC,climData.sub$jasMAT,
+		       climData.sub$meltdoy,climData.sub$maxswe, 
+		       climData.sub$scovmat,soilTData$jfmTs5mean,
+		       climData.sub$aprTairMean,climData.sub$mayTairMean,
+		       climData.sub$junTairMean,climData.sub$julTairMean,
+		       climData.sub$augTairMean,climData.sub$sepTairMean,
+		       climData.sub$JASprecip,climData.sub$mayPrecip,
+		       climData.sub$junPrecip,climData.sub$julPrecip,
+		       climData.sub$augPrecip,climData.sub$sepPrecip,
+		       soilVWCData$jfmVWC20mean,climData.sub$elev)
 
 
 # Shorten the variable names in varframe
@@ -36,7 +29,7 @@ names(varframe) = sub("soilTData.","",names(varframe))
 names(varframe) = sub("soilVWCData.","",names(varframe))
 
 # What about the difference (MAST-MAT)?
-#varframe$Diff20cm <- (soilTData$mast20cm - climData.sub$maat)
+#varframe$Diff20cm <- (soilVWCData$mast20cm - climData.sub$maat)
 
 # Write varframe to file
 # write.csv(varframe, file='TsoilMV.dat', col.names=TRUE)
@@ -58,6 +51,8 @@ rownames(loadings) <- colnames(varframe)
 scores <- vwc20.pca$x
 rownames(scores) <- 1:dim(scores)[1]
 
+loadings[,1:3]
+
 # Make a biplot of PCA 1 & 2 - note that the scaling factor of 10 may need to
 # be changed depending on the data set
 plot(scores[,1], scores[,2], xlab="PCA 1", ylab="PCA 2",
@@ -72,19 +67,26 @@ text(loadings[,1]*29*1.2,loadings[,2]*10*1.2, rownames(loadings), col="red",
 text(scores[,1],scores[,2], rownames(scores), col="blue", cex=0.7)
 
 # Do the same plot (sorta) using built-in biplot function
-biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores),
-       ylab=rownames(loadings), cex=0.7)
+biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
+# Built-in biplot function - axes 1 & 3
+biplot(cbind(scores[,1], scores[,3]), cbind(loadings[,1], loadings[,3]),
+       xlab=rownames(scores), cex=0.7)
+# Built-in biplot function - axes 2 & 3
+biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 
 # Are axes 1, 2, and 3 normal?
 qqnorm(scores[,1])
 qqline(scores[,1])
-density(scores[,1])# mostly, a little negative skew
+plot(density(scores[,1]))# yes
 qqnorm(scores[,2])
-qqline(scores[,2]) # yes
+qqline(scores[,2]) # mostly, some positive skew
 qqnorm(scores[,3])
-qqline(scores[,3]) # yes
+qqline(scores[,3]) # yes, slight negative skew
 
 # Assign scores for pc1, 2, & 3 to thier observation (rows)
+soilVWCData$pc1score <- NA 
+soilVWCData$pc2score <- NA
+soilVWCData$pc3score <- NA
 soilVWCData$pc1score[varframe.cmplt] <- scores[,1]
 soilVWCData$pc2score[varframe.cmplt] <- scores[,2]
 soilVWCData$pc3score[varframe.cmplt] <- scores[,3]
@@ -93,73 +95,67 @@ soilVWCData$pc3score[varframe.cmplt] <- scores[,3]
 # principal components
 lm1 <- lm(jasVWC20mean ~ pc1score + pc2score + pc3score, data=soilVWCData)
 
+# Add site
 lm2 <- lm(jasVWC20mean ~ pc1score + pc2score + pc3score
 	 + as.factor(siteVWC), data=soilVWCData)
 
-lm3 <- lm(jasVWC20mean ~ pc1score + pc2score, data=soilVWCData)
-
-lm4 <- lm(jasVWC20mean ~ pc1score + pc2score
+# Add year
+lm3 <- lm(jasVWC20mean ~ pc1score + pc2score + pc3score + as.factor(yearVWC)
 	 + as.factor(siteVWC), data=soilVWCData)
 
-lm5 <- lm(jasVWC20mean ~ pc1score + pc2score + as.factor(yearVWC)
-	 + as.factor(siteVWC) , data=soilVWCData)
+AIC(lm1) # -876.1643
+AIC(lm2) # -2093.832
+AIC(lm3) # -2173.575
 
-lm6 <- lm(jasVWC20mean ~ pc1score + pc2score + pc3score
-	  + as.factor(yearVWC) + as.factor(siteVWC), data=soilVWCData)
+summary(lm1)
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.275297   0.004917  55.989  < 2e-16 ***
+# pc1score    -0.021617   0.001786 -12.105  < 2e-16 ***
+# pc2score     0.007996   0.002564   3.118  0.00187 ** 
+# pc3score    -0.019927   0.003331  -5.983 3.04e-09 ***
+# Multiple R-squared: 0.1589,	Adjusted R-squared: 0.1564 
+# F-statistic:  63.9 on 3 and 1015 DF,  p-value: < 2.2e-16 
 
-AIC(lm1) # 2149.277
-AIC(lm2) # 1600.425
-AIC(lm3) # 2150.76
-AIC(lm4) # 1598.536
-AIC(lm5) # 1269.112
-AIC(lm6) # 1236.874
+summary(lm2)
+#                          Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)             0.1415014  0.0462187   3.062 0.002274 ** 
+# pc1score               -0.0373956  0.0035810 -10.443  < 2e-16 ***
+# pc2score                0.0010156  0.0024574   0.413 0.679518    
+# pc3score               -0.0386070  0.0030351 -12.720  < 2e-16 ***
+# Multiple R-squared: 0.8287,	Adjusted R-squared: 0.7855 
+# F-statistic: 19.19 on 205 and 813 DF,  p-value: < 2.2e-16 
 
-summary(lm4)
-#                           Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)               0.612258   0.290035   2.111 0.035093 *  
-# pc1score                 -0.034856   0.011940  -2.919 0.003610 ** 
-# pc2score                 -0.122687   0.017712  -6.927 9.04e-12 ***
-# Multiple R-squared: 0.6923,	Adjusted R-squared: 0.612 
-# F-statistic: 8.613 on 203 and 777 DF,  p-value: < 2.2e-16 
-
-summary(lm5)
-#                           Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)               4.328343   0.554666   7.804 1.98e-14 ***
-# pc1score                 -0.102177   0.018624  -5.486 5.58e-08 ***
-# pc2score                  0.017746   0.025999   0.683 0.495095
-# Multiple R-squared: 0.7858,	Adjusted R-squared: 0.7253 
-# F-statistic: 12.98 on 216 and 764 DF,  p-value: < 2.2e-16
-
-summary(lm6)
-#                            Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)               4.0248562  0.5485341   7.337 5.58e-13 ***
-# pc1score                 -0.1152548  0.0184850  -6.235 7.47e-10 ***
-# pc2score                  0.0310184  0.0256931   1.207 0.227703    
-# pc3score                 -0.0624008  0.0119869  -5.206 2.49e-07 ***
-# Multiple R-squared: 0.7932,	Adjusted R-squared: 0.7344 
-# F-statistic: 13.49 on 217 and 763 DF,  p-value: < 2.2e-16 
-
+summary(lm3)
+#                          Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)             0.0489963  0.1032221   0.475 0.635153    
+# pc1score               -0.0439191  0.0057158  -7.684 4.51e-14 ***
+# pc2score                0.0136366  0.0036435   3.743 0.000195 ***
+# pc3score               -0.0389700  0.0043436  -8.972  < 2e-16 ***
+# Multiple R-squared: 0.8453,	Adjusted R-squared: 0.8034 
+# F-statistic: 20.17 on 217 and 801 DF,  p-value: < 2.2e-16 
 
 # One thing that is unclear here is that year seems to have a big effect.
 # It might be best to try this with some selected years, then exclude year
 # from the multiple regression model.
-# 2009
-varframe.09 <- varframe[climData.sub$yearClim==2009,] # Boolean 2009 rows
-varframe.cmplt <- complete.cases(varframe.09)
-ts20.09.pca <- prcomp(data.matrix(varframe.09[varframe.cmplt,]), 
+# 2007
+varframe.07 <- varframe[climData.sub$yearClim==2007,] # Boolean 2007 rows
+varframe.cmplt <- complete.cases(varframe.07)
+vwc20.07.pca <- prcomp(data.matrix(varframe.07[varframe.cmplt,]), 
 		   center=TRUE, scale=TRUE, retx=TRUE)
 
 # Get a summary of the variance explained by each principal component
-summary(ts20.09.pca)
+summary(vwc20.07.pca)
 # Make a screeplot of this
-screeplot(ts20.09.pca)
+screeplot(vwc20.07.pca)
 
 # Now make some useful variables
-sd <- ts20.09.pca$sdev
-loadings <- ts20.09.pca$rotation
-rownames(loadings) <- colnames(varframe.09)
-scores <- ts20.09.pca$x
+sd <- vwc20.07.pca$sdev
+loadings <- vwc20.07.pca$rotation
+rownames(loadings) <- colnames(varframe.07)
+scores <- vwc20.07.pca$x
 rownames(scores) <- 1:dim(scores)[1]
+
+loadings[,1:3]
 
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
@@ -172,57 +168,130 @@ biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 # Are axes 1, 2, and 3 normal?
 qqnorm(scores[,1])
 qqline(scores[,1])
-plot(density(scores[,1]))# mostly, a little negative skew
+plot(density(scores[,1]))# yes
 qqnorm(scores[,2])
-qqline(scores[,2]) # yes
+qqline(scores[,2]) # mostly, tiny skew
 qqnorm(scores[,3])
 qqline(scores[,3]) # yes except for at the extremes
 
 # Assign scores for pc1, 2, & 3 to thier observation (rows)
-varframe.cmplt.09 <- (soilTData$yearTsoil==2009 & complete.cases(varframe))
-soilTData$pc1score[varframe.cmplt.09] <- scores[,1]
-soilTData$pc2score[varframe.cmplt.09] <- scores[,2]
-soilTData$pc3score[varframe.cmplt.09] <- scores[,3]
+varframe.cmplt.07 <- (soilVWCData$yearVWC==2007 & complete.cases(varframe))
+soilVWCData$pc1score <- NA 
+soilVWCData$pc2score <- NA
+soilVWCData$pc3score <- NA
+soilVWCData$pc1score[varframe.cmplt.07] <- scores[,1]
+soilVWCData$pc2score[varframe.cmplt.07] <- scores[,2]
+soilVWCData$pc3score[varframe.cmplt.07] <- scores[,3]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in
 # all singularities (invalid model)
-lm1 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score, data=soilTData)
+lm1 <- lm(jasVWC20mean ~ pc1score + pc2score + pc3score, data=soilVWCData)
 summary(lm1)
-#             Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)  0.54842    0.05822   9.420  < 2e-16 ***
-# pc1score    -0.01330    0.01695  -0.784 0.434087    
-# pc2score     0.15700    0.02329   6.742 3.71e-10 ***
-# pc3score    -0.14195    0.03836  -3.700 0.000308 ***
-# Multiple R-squared: 0.2977,	Adjusted R-squared: 0.2827 
-# F-statistic: 19.92 on 3 and 141 DF,  p-value: 8.012e-11 
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.229824   0.011550  19.898  < 2e-16 ***
+# pc1score    -0.023541   0.003709  -6.348 3.24e-09 ***
+# pc2score     0.021379   0.006751   3.167  0.00191 ** 
+# pc3score    -0.002858   0.007715  -0.370  0.71165    
+# Multiple R-squared: 0.2765,	Adjusted R-squared: 0.2601 
+# F-statistic: 16.82 on 3 and 132 DF,  p-value: 2.599e-09
 
-lm2 <- lm(snowcovTs20mean ~ pc2score + pc3score, data=soilTData)
+lm2 <- lm(jasVWC20mean ~ pc1score + pc2score, data=soilVWCData)
 summary(lm2)
-#             Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)  0.54842    0.05814   9.432  < 2e-16 ***
-# pc2score     0.15700    0.02326   6.751 3.47e-10 ***
-# pc3score    -0.14195    0.03831  -3.706 0.000301 ***
-# Multiple R-squared: 0.2946,	Adjusted R-squared: 0.2847 
-# F-statistic: 29.65 on 2 and 142 DF,  p-value: 1.732e-11 
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.229824   0.011513  19.963  < 2e-16 ***
+# pc1score    -0.023541   0.003697  -6.368 2.87e-09 ***
+# pc2score     0.021379   0.006729   3.177  0.00185 ** 
+# Multiple R-squared: 0.2758,	Adjusted R-squared: 0.2649 
+# F-statistic: 25.32 on 2 and 133 DF,  p-value: 4.795e-10
+
+# 2009
+varframe.09 <- varframe[climData.sub$yearClim==2009,] # Boolean 2009 rows
+varframe.cmplt <- complete.cases(varframe.09)
+vwc20.09.pca <- prcomp(data.matrix(varframe.09[varframe.cmplt,]), 
+		   center=TRUE, scale=TRUE, retx=TRUE)
+
+# Get a summary of the variance explained by each principal component
+summary(vwc20.09.pca)
+# Make a screeplot of this
+screeplot(vwc20.09.pca)
+
+# Now make some useful variables
+sd <- vwc20.09.pca$sdev
+loadings <- vwc20.09.pca$rotation
+rownames(loadings) <- colnames(varframe.09)
+scores <- vwc20.09.pca$x
+rownames(scores) <- 1:dim(scores)[1]
+
+loadings[,1:3]
+
+# Built-in biplot function - axes 1 & 2
+biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
+# Built-in biplot function - axes 1 & 3
+biplot(cbind(scores[,1], scores[,3]), cbind(loadings[,1], loadings[,3]),
+       xlab=rownames(scores), cex=0.7)
+# Built-in biplot function - axes 2 & 3
+biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
+
+# Are axes 1, 2, and 3 normal?
+qqnorm(scores[,1])
+qqline(scores[,1])
+plot(density(scores[,1]))# yes, except for a little at the extremes
+qqnorm(scores[,2])
+qqline(scores[,2]) # yes, tiny positive skew
+qqnorm(scores[,3])
+qqline(scores[,3]) # yes
+
+# Assign scores for pc1, 2, & 3 to thier observation (rows)
+varframe.cmplt.09 <- (soilVWCData$yearVWC==2009 & complete.cases(varframe))
+soilVWCData$pc1score <- NA 
+soilVWCData$pc2score <- NA
+soilVWCData$pc3score <- NA
+soilVWCData$pc1score[varframe.cmplt.09] <- scores[,1]
+soilVWCData$pc2score[varframe.cmplt.09] <- scores[,2]
+soilVWCData$pc3score[varframe.cmplt.09] <- scores[,3]
+
+# Now it should be possible to do a multiple regression model with the 3
+# principal components. Note that using site as a predictor results in
+# all singularities (invalid model)
+
+lm1 <- lm(jasVWC20mean ~ pc1score + pc2score + pc3score, data=soilVWCData)
+summary(lm1)
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.271016   0.011623  23.317  < 2e-16 ***
+# pc1score    -0.013402   0.003795  -3.531 0.000556 ***
+# pc2score    -0.001580   0.006509  -0.243 0.808547    
+# pc3score     0.009857   0.008500   1.160 0.248128    
+# Multiple R-squared: 0.08787,	Adjusted R-squared: 0.06887 
+# F-statistic: 4.624 on 3 and 144 DF,  p-value: 0.004049
+
+lm2 <- lm(jasVWC20mean ~ pc1score, data=soilVWCData)
+summary(lm2)
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.271016   0.011599  23.365  < 2e-16 ***
+# pc1score    -0.013402   0.003787  -3.538  0.00054 ***
+# Multiple R-squared: 0.07898,	Adjusted R-squared: 0.07268 
+# F-statistic: 12.52 on 1 and 146 DF,  p-value: 0.0005401 
 
 # 2011
 varframe.11 <- varframe[climData.sub$yearClim==2011,] # Boolean 2011 rows
 varframe.cmplt <- complete.cases(varframe.11)
-ts20.11.pca <- prcomp(data.matrix(varframe.11[varframe.cmplt,]), 
+vwc20.11.pca <- prcomp(data.matrix(varframe.11[varframe.cmplt,]), 
 		   center=TRUE, scale=TRUE, retx=TRUE)
 
 # Get a summary of the variance explained by each principal component
-summary(ts20.11.pca)
+summary(vwc20.11.pca)
 # Make a screeplot of this
-screeplot(ts20.11.pca)
+screeplot(vwc20.11.pca)
 
 # Now make some useful variables
-sd <- ts20.11.pca$sdev
-loadings <- ts20.11.pca$rotation
+sd <- vwc20.11.pca$sdev
+loadings <- vwc20.11.pca$rotation
 rownames(loadings) <- colnames(varframe.11)
-scores <- ts20.11.pca$x
+scores <- vwc20.11.pca$x
 rownames(scores) <- 1:dim(scores)[1]
+
+loadings[,1:3]
 
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
@@ -242,30 +311,33 @@ qqnorm(scores[,3])
 qqline(scores[,3]) # yes except for at the extremes
 
 # Assign scores for pc1, 2, & 3 to thier observation (rows)
-varframe.cmplt.11 <- (soilTData$yearTsoil==2011 & complete.cases(varframe))
-soilTData$pc1score[varframe.cmplt.11] <- scores[,1]
-soilTData$pc2score[varframe.cmplt.11] <- scores[,2]
-soilTData$pc3score[varframe.cmplt.11] <- scores[,3]
+varframe.cmplt.11 <- (soilVWCData$yearVWC==2011 & complete.cases(varframe))
+soilVWCData$pc1score <- NA 
+soilVWCData$pc2score <- NA
+soilVWCData$pc3score <- NA
+soilVWCData$pc1score[varframe.cmplt.11] <- scores[,1]
+soilVWCData$pc2score[varframe.cmplt.11] <- scores[,2]
+soilVWCData$pc3score[varframe.cmplt.11] <- scores[,3]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in
 # all singularities (invalid model)
-lm1 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score, data=soilTData)
+lm1 <- lm(jasVWC20mean ~ pc1score + pc2score + pc3score, data=soilVWCData)
 summary(lm1)
-#             Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)  0.73004    0.03526  20.703  < 2e-16 ***
-# pc1score     0.01301    0.01017   1.280    0.202    
-# pc2score     0.12919    0.01417   9.118  < 2e-16 ***
-# pc3score    -0.09523    0.02276  -4.185 3.73e-05 ***
-# Multiple R-squared: 0.2499,	Adjusted R-squared: 0.2426 
-# F -statistic:  34.1 on 3 and 307 DF,  p-value: < 2.2e-16 
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.339582   0.012924  26.276  < 2e-16 ***
+# pc1score    -0.025304   0.004442  -5.696 5.24e-08 ***
+# pc2score    -0.008621   0.006249  -1.380  0.16949    
+# pc3score    -0.023206   0.008335  -2.784  0.00597 ** 
+# Multiple R-squared: 0.1976,	Adjusted R-squared: 0.1835 
+# F-statistic: 14.04 on 3 and 171 DF,  p-value: 3.195e-08
 
-lm2 <- lm(snowcovTs20mean ~ pc2score + pc3score, data=soilTData)
+lm2 <- lm(jasVWC20mean ~ pc1score + pc3score, data=soilVWCData)
 summary(lm2)
-#             Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)  0.73004    0.03530  20.682  < 2e-16 ***
-# pc2score     0.12919    0.01418   9.108  < 2e-16 ***
-# pc3score    -0.09523    0.02278  -4.180  3.8e-05 ***
-# Multiple R-squared: 0.2459,	Adjusted R-squared: 0.241 
-# F-statistic: 50.22 on 2 and 308 DF,  p-value: < 2.2e-16 
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.339582   0.012957  26.207  < 2e-16 ***
+# pc1score    -0.025304   0.004454  -5.682 5.59e-08 ***
+# pc3score    -0.023206   0.008357  -2.777   0.0061 ** 
+# Multiple R-squared: 0.1886,	Adjusted R-squared: 0.1792 
+# F-statistic:    20 on 2 and 172 DF,  p-value: 1.556e-08 
 

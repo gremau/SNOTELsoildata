@@ -92,6 +92,13 @@ elseif strcmp(type, 'sigma')
     sigmas = threshold * runningStd;
     % Resulting mean is shifted forward in phase by window/2, shift it back
     runningMean = circshift(runningMean, -floor(window/2));
+    % Fix the ends of the running mean
+    slen = length(series);
+    fix = floor(window/2);
+    for i = 1:floor(window/2)
+      runningMean(i) = mean(series(1:(fix+i)));
+      runningMean((slen-fix)+i) = mean(series((slen-2*fix+i):slen));
+    end
     % Set a hi and low value (# of sigmas from mean) to filter outliers.
     hi = runningMean + sigmas;
     lo = runningMean - sigmas;
