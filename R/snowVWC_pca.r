@@ -70,10 +70,16 @@ text(loadings[,1]*29*1.2,loadings[,2]*10*1.2, rownames(loadings), col="red",
 text(scores[,1],scores[,2], rownames(scores), col="blue", cex=0.7)
 
 # Do the same plot (sorta) using built-in biplot function
-biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
+biplot(scores[,1:2], loadings[,1:2], cex=0.7)
+
+#setEPS()
+#postscript("biplot13.eps", onefile="FALSE", horizontal="FALSE", 
+#	   height = 5, width = 5)
 # Built-in biplot function - axes 1 & 3
 biplot(cbind(scores[,1], scores[,3]), cbind(loadings[,1], loadings[,3]),
-       xlab=rownames(scores), cex=0.7)
+       cex=0.7, xlab='PC1', ylab='PC3')
+#dev.off()
+
 # Built-in biplot function - axes 2 & 3
 biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 
@@ -81,7 +87,7 @@ biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 # Are axes 1, 2, and 3 normal?
 qqnorm(scores[,1])
 qqline(scores[,1])
-density(scores[,1])# mostly, a little negative skew
+plot(density(scores[,1]))# mostly, a little negative skew
 qqnorm(scores[,2])
 qqline(scores[,2]) # yes
 qqnorm(scores[,3])

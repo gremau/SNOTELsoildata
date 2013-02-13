@@ -17,7 +17,8 @@ normalize = input('Use normalized soil moisture data?  (y/n) : ', 's');
 % Access to nan stuff, lines, etc
 addpath('/home/greg/data/code_resources/m_common/nanstuff/');
 addpath('/home/greg/data/code_resources/m_common/');
-addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
+addpath('/home/greg/data/code_resources/m_common/hline_vline/');
+addpath('/home/greg/data/code_resources/m_common/linear/');
 %addpath('/home/greg/data/code_resources/m_common/hist2/');
 
 % Set data path and file name, read in file
@@ -61,9 +62,9 @@ climAggindex = [valindex ones(size(climData(:,1)))];
 soilAggindex = [valindex ones(size(soilClim(:,1)))];
 
 % Unique elevations in climData
-elevAllAgg = accumarray(climAggindex, climData(:,88), [numel(allsites) 1], @mean);
+elevAllAgg = accumarray(climAggindex, climData(:,89), [numel(allsites) 1], @mean);
 %Unique elevations in soilClim
-elevSoilAgg = accumarray(soilAggindex, soilClim(:,88), [numel(soilsites) 1], @mean);
+elevSoilAgg = accumarray(soilAggindex, soilClim(:,89), [numel(soilsites) 1], @mean);
 
 site_cl = climData(:, 1);
 year_cl = climData(:, 2);
@@ -336,6 +337,7 @@ postmeltTs5sd = tsData(:, 126);
 % Get the soil site subset of the climate data - note that this includes
 % all climate years - so it is different than the soilClim dataset
 testsoil = ismember(site_cl, soilsites);
+testyears = year_cl > 2000;
 
 fignum = fignum+1;
 h = figure(fignum);
@@ -402,8 +404,8 @@ xlabel('Elevation (m)'); ylabel('Day of year');
 title('Day of snowmelt');
 
 %------------------------------------------------------------------
-% FIG 2 - Histograms of entire network and soil subset
-% testsoil is defined in FIG 1
+% FIG 2 - Histograms of entire network and soil subset - 2001-2011
+% testsoil & testyears is defined in FIG 1
 fignum = fignum+1;
 fig = figure('position',[100 0 1200 800],'paperpositionmode',...
     'auto', 'color','white','InvertHardcopy','off');
@@ -427,8 +429,8 @@ text(0.95, 0.85, 'A', 'Units', 'normalized');
 
 subplot (4, 2, 2)
 xedges = linspace(-5, 20, 60);
-networkhist = histc(maat, xedges);
-soilhist = histc(maat(testsoil), xedges);
+networkhist = histc(maat(testyears), xedges);
+soilhist = histc(maat(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
@@ -441,8 +443,8 @@ text(0.95, 0.85, 'B', 'Units', 'normalized');
 
 subplot (4, 2, 3)
 xedges = linspace(0, 2500, 60);
-networkhist = histc(accumprecip, xedges);
-soilhist = histc(accumprecip(testsoil), xedges);
+networkhist = histc(accumprecip(testyears), xedges);
+soilhist = histc(accumprecip(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
@@ -457,8 +459,8 @@ text(0.95, 0.85, 'C', 'Units', 'normalized');
 
 subplot (4, 2, 4)
 xedges = linspace(0, 800, 60);
-networkhist = histc(JASprecip, xedges);
-soilhist = histc(JASprecip(testsoil), xedges);
+networkhist = histc(JASprecip(testyears), xedges);
+soilhist = histc(JASprecip(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
@@ -472,8 +474,8 @@ text(0.95, 0.85, 'D', 'Units', 'normalized');
 
 subplot (4, 2, 5)
 xedges = linspace(100, 2000, 60);
-networkhist = histc(maxswe, xedges);
-soilhist = histc(maxswe(testsoil), xedges);
+networkhist = histc(maxswe(testyears), xedges);
+soilhist = histc(maxswe(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
@@ -487,8 +489,8 @@ text(0.95, 0.85, 'E', 'Units', 'normalized');
 
 subplot (4, 2, 6)
 xedges = linspace(0, 365, 60);
-networkhist = histc(totaldaysSC, xedges);
-soilhist = histc(totaldaysSC(testsoil), xedges);
+networkhist = histc(totaldaysSC(testyears), xedges);
+soilhist = histc(totaldaysSC(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
@@ -503,8 +505,8 @@ ticklocs = [0, 32, 62, 93, 121];
 tickmonths = ['Oct 1 '; 'Nov 1 '; 'Dec 1 '; 'Jan 1 '; 'Feb 1 '];
 subplot (4, 2, 7)
 xedges = linspace(0, 130, 60);
-networkhist = histc(onsetdoy, xedges);
-soilhist = histc(onsetdoy(testsoil), xedges);
+networkhist = histc(onsetdoy(testyears), xedges);
+soilhist = histc(onsetdoy(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);
@@ -522,8 +524,8 @@ tickmonths = ['Feb 1 '; 'Mar 1 '; 'Apr 1 '; 'May 1 '; 'Jun 1 ';...
     'Jul 1 '; 'Aug 1 '; 'Sep 1 '];
 subplot (4, 2, 8)
 xedges = linspace(0, 365, 60);
-networkhist = histc(meltdoy, xedges);
-soilhist = histc(meltdoy(testsoil), xedges);
+networkhist = histc(meltdoy(testyears), xedges);
+soilhist = histc(meltdoy(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
 hold on;
 bar(xedges, soilhist, 'FaceColor', [0.7 0.7 0.7]);

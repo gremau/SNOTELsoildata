@@ -53,6 +53,7 @@ rownames(loadings) <- colnames(varframe)
 scores <- ts20.pca$x
 rownames(scores) <- 1:dim(scores)[1]
 
+# Look at loadings
 loadings[,1:3]
 
 # Make a biplot of PCA 1 & 2 - note that the scaling factor of 10 may need to
