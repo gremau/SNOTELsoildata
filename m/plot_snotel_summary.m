@@ -1007,7 +1007,7 @@ for i=plotorder
     plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
     plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
     [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
-    [b2,bint,resid,rint,stats] = shregress(y2, [x2 ones(size(x2))]);
+    [b2,bint,resid,rint,stats] = shadow_regress(y2, [x2 ones(size(x2))]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     % slope and r^2 values
     text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...
@@ -1032,7 +1032,7 @@ for i=plotorder
     plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
     plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
     [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
-    [b2,bint,resid,rint,stats] = shregress(y2, [x2 ones(size(x2))]);
+    [b2,bint,resid,rint,stats] = shadow_regress(y2, [x2 ones(size(x2))]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     % slope and r^2 values
     text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...

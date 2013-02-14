@@ -1,4 +1,4 @@
-% plot_ts_snowpack.m
+% plot_belowsnow_ts.m
 %
 % Plots Tsoil and Tsoil-Tair vs SWE for SNOTEL sites (and subsets 
 % of SNOTELS) and fits some lines to the data.

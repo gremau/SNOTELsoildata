@@ -1,9 +1,9 @@
 function n = plot_growseas_sm()
 % plot_growseas_sm.m
 %
-% Reads the outputs from summarize_wateryear.m and makes a number of plots
-% characterizing variability in soil moisture and soil temperature in the
-% SNOTEL network.
+% Reads SNOTEL data files and makes plots characterizing growing season 
+% variability in soil VWC (entire network or individual sites), and its 
+% relationship to snowpack.
 %
 % Feb 20, 2012 - Greg Maurer
 
