@@ -1,6 +1,22 @@
 % plot_examplesites.m
+%
+% This makes a number of figures that highlight snow-soil interactions
+% at particular sites.
+% **File input:** The first 4 figures directly load hourly or daily data. 
+%                 The last 2 use the summary files
+% **User input:** User can select different sites to plot in figs 2, 4, 
+%                 5, 6 in the code
+% 
+% Fig 1 = 2 year SWE/temp comparison at Mosby Mtn.
+% Fig 2 = Multi-year SWE/Tsoil/VWC time series at a site (changeable)
+% Fig 3 = Full VWC timeseries of 4 sites - the data for Fig 4
+% Fig 4 = VWC Frequency histograms for 4 contrasting sites
+% Fig 5 = Scatterplot/Regression of snowcov. Tsoil vs pre-onset T at 1 site
+% Fig 6 = Scatterplot/Regression of summer (JAS) VWC vs meltday at 1 site
+
 close all;
 clear all;
+addpath('/home/greg/data/code_resources/m_common/linear/'); 
 addpath('/home/greg/data/code_resources/m_common/');
 
 
@@ -531,7 +547,7 @@ plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.6, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
@@ -556,7 +572,7 @@ plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.6, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p

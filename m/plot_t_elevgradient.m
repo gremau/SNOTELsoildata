@@ -15,7 +15,7 @@ fignum=0;       % used to increment figure number for plots
 
 % Add needed tools
 addpath('/home/greg/data/code_resources/m_common/');
-addpath('/home/greg/data/code_resources/m_common/linear/');
+addpath('~/data/code_resources/m_common/linear/');
 addpath('/home/greg/data/code_resources/m_common/nanstuff/');
 addpath('/home/greg/data/code_resources/m_common/hline_vline/');
 
@@ -65,36 +65,36 @@ maat = soilClim(:, 74); % Mean wateryear air temp
 onsetdoy = soilClim(:, 6);
 meltdoy = soilClim(:, 7);
 totaldaysSC = soilClim(:, 9);
-octTairMean = soilClim(:, 54);
-octTairSd = soilClim(:, 55);
-novTairMean = soilClim(:, 56);
-novTairSd = soilClim(:, 57);
-decTairMean = soilClim(:, 58);
-decTairSd = soilClim(:, 59);
-janTairMean = soilClim(:, 60);
-janTairSd = soilClim(:, 61);
-febTairMean = soilClim(:, 62);
-febTairSd = soilClim(:, 63);
-marTairMean = soilClim(:, 64);
-marTairSd = soilClim(:, 65);
-aprTairMean = soilClim(:, 66);
-aprTairSd = soilClim(:, 67);
-mayTairMean = soilClim(:, 68);
-mayTairSd = soilClim(:, 69);
-junTairMean = soilClim(:, 70);
-junTairSd = soilClim(:, 71);
-julTairMean = soilClim(:, 72);
-julTairSd = soilClim(:, 73);
-augTairMean = soilClim(:, 74);
-augTairSd = soilClim(:, 75);
-sepTairMean = soilClim(:, 76);
-sepTairSd = soilClim(:, 77);
+octTairMean = soilClim(:, 55);
+octTairSd = soilClim(:, 56);
+novTairMean = soilClim(:, 57);
+novTairSd = soilClim(:, 58);
+decTairMean = soilClim(:, 59);
+decTairSd = soilClim(:, 60);
+janTairMean = soilClim(:, 61);
+janTairSd = soilClim(:, 62);
+febTairMean = soilClim(:, 63);
+febTairSd = soilClim(:, 64);
+marTairMean = soilClim(:, 65);
+marTairSd = soilClim(:, 66);
+aprTairMean = soilClim(:, 67);
+aprTairSd = soilClim(:, 68);
+mayTairMean = soilClim(:, 69);
+mayTairSd = soilClim(:, 70);
+junTairMean = soilClim(:, 71);
+junTairSd = soilClim(:, 72);
+julTairMean = soilClim(:, 73);
+julTairSd = soilClim(:, 74);
+augTairMean = soilClim(:, 75);
+augTairSd = soilClim(:, 76);
+sepTairMean = soilClim(:, 77);
+sepTairSd = soilClim(:, 78);
 
-elev = soilClim(:, 88);
-lat = soilClim(:, 89);
-lon = soilClim(:, 90);
-ltMeanSWE = soilClim(:, 91);
-ltMeanPrecip = soilClim(:, 92);
+elev = soilClim(:, 89);
+lat = soilClim(:, 90);
+lon = soilClim(:, 91);
+ltMeanSWE = soilClim(:, 92);
+ltMeanPrecip = soilClim(:, 93);
 
 octTs5mean = tsData(:, 3);
 octTs5sd = tsData(:, 4);
@@ -575,7 +575,7 @@ plot(elev, offset(:,1), 'ok', 'MarkerFaceColor', 'b');
 hold on;
 
 xfit = linspace(900, 3500);
-[b,bint,resid,rint,stats] = shregress(offset, [elev ones(size(elev))]);
+[b,bint,resid,rint,stats] = shadow_regress(offset, [elev ones(size(elev))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1750, -7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -648,7 +648,7 @@ handles(1) = plot(x, y1, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
     'MarkerEdgeColor', 'k','MarkerSize', 10);
 hold on;
 xfit = linspace(1692, 3400);
-[b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = shadow_regress(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1750, -7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -669,7 +669,7 @@ annotation(h, 'rectangle', [0.154 0.146 0.05 0.55], 'FaceColor','flat');
 handles(4) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerEdgeColor', 'k','MarkerSize', 10);
 xfit = linspace(1600, 3400);
-[b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = shadow_regress(y2, [x ones(size(x))]);
 handles(5) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1570, 3.1, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -733,7 +733,7 @@ handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
 hold on;
 xfit = linspace(1600, 3400);
-[b,bint,resid,rint,stats] = shregress(y1, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = shadow_regress(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1600, 4.7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -745,7 +745,7 @@ end
 % Plot July Ts by elevation and regression
 handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
     'MarkerSize', 10);
-[b,bint,resid,rint,stats] = shregress(y2, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = shadow_regress(y2, [x ones(size(x))]);
 handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1600, 9.5, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01

@@ -1,7 +1,7 @@
 % plot_soilsensor_distrib.m
 %
-% Plots distributions of SNOTEL soil sensor data for individual months 
-% and years. Data for all years (available) is represented.
+% Plots distributions of soil sensor data for one site in individual 
+% months and years. Data for all years (available) is represented.
 %
 % started 120119 GM
 

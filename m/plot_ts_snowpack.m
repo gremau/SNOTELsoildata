@@ -1,24 +1,20 @@
 % plot_ts_snowpack.m
 %
-% Plots soil and air temp from recent daily sensor data vs SWE, snow 
-% depth for SNOTEL sites (and subsets of SNOTELS)
+% Plots Tsoil and Tsoil-Tair vs SWE for SNOTEL sites (and subsets 
+% of SNOTELS) and fits some lines to the data.
 %
-% Uses daily sensor data in the rawdata/SNOTEL data/ directory
-%
-% Version 1: 111116
+% Greg Maurer - was plot_ts_vs_snowpack.m at one point
 %
 
 clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
-%addpath('../m/');
+
 addpath('~/data/code_resources/m_common/');
 addpath('~/data/code_resources/m_common/nonlinear/');
 addpath('~/data/code_resources/m_common/nanstuff/');
 addpath('~/data/code_resources/m_common/hline_vline/');
 
-% Ask user for month number
-%monthsel = str2double(input('Which month (1-12)?: ', 's'));
 
 % Set processed data path
 processeddatapath = '../processed_data/';
@@ -53,36 +49,36 @@ soilClim = climData(matchsoil, :);
 % Now assign variables
 janTairMean = soilClim(:, 56);
 
-octSWEmean = soilClim(:, 18)*25.4;
-octSWEmed = soilClim(:, 19)*25.4;
-octSWEsd = soilClim(:, 20)*25.4;
-novSWEmean = soilClim(:, 21)*25.4;
-novSWEmed = soilClim(:, 22)*25.4;
-novSWEsd = soilClim(:, 23)*25.4;
-decSWEmean = soilClim(:, 24)*25.4;
-decSWEmed = soilClim(:, 25)*25.4;
-decSWEsd = soilClim(:, 26)*25.4;
-janSWEmean = soilClim(:, 27)*25.4;
-janSWEmed = soilClim(:, 28)*25.4;
-janSWEsd = soilClim(:, 29)*25.4;
-febSWEmean = soilClim(:, 30)*25.4;
-febSWEmed = soilClim(:, 31)*25.4;
-febSWEsd = soilClim(:, 32)*25.4;
-marSWEmean = soilClim(:, 33)*25.4;
-marSWEmed = soilClim(:, 34)*25.4;
-marSWEsd = soilClim(:, 35)*25.4;
-aprSWEmean = soilClim(:, 36)*25.4;
-aprSWEmed = soilClim(:, 37)*25.4;
-aprSWEsd = soilClim(:, 38)*25.4;
-maySWEmean = soilClim(:, 39)*25.4;
-maySWEmed = soilClim(:, 40)*25.4;
-maySWEsd = soilClim(:, 41)*25.4;
-junSWEmean = soilClim(:, 42)*25.4;
-junSWEmed = soilClim(:, 43)*25.4;
-junSWEsd = soilClim(:, 44)*25.4;
-julSWEmean = soilClim(:, 45)*25.4;
-julSWEmed = soilClim(:, 46)*25.4;
-julSWEsd = soilClim(:, 47)*25.4;
+octSWEmean = soilClim(:, 19)*25.4;
+octSWEmed = soilClim(:, 20)*25.4;
+octSWEsd = soilClim(:, 21)*25.4;
+novSWEmean = soilClim(:, 22)*25.4;
+novSWEmed = soilClim(:, 23)*25.4;
+novSWEsd = soilClim(:, 24)*25.4;
+decSWEmean = soilClim(:, 25)*25.4;
+decSWEmed = soilClim(:, 26)*25.4;
+decSWEsd = soilClim(:, 27)*25.4;
+janSWEmean = soilClim(:, 28)*25.4;
+janSWEmed = soilClim(:, 29)*25.4;
+janSWEsd = soilClim(:, 30)*25.4;
+febSWEmean = soilClim(:, 31)*25.4;
+febSWEmed = soilClim(:, 32)*25.4;
+febSWEsd = soilClim(:, 33)*25.4;
+marSWEmean = soilClim(:, 34)*25.4;
+marSWEmed = soilClim(:, 35)*25.4;
+marSWEsd = soilClim(:, 36)*25.4;
+aprSWEmean = soilClim(:, 37)*25.4;
+aprSWEmed = soilClim(:, 38)*25.4;
+aprSWEsd = soilClim(:, 39)*25.4;
+maySWEmean = soilClim(:, 40)*25.4;
+maySWEmed = soilClim(:, 41)*25.4;
+maySWEsd = soilClim(:, 42)*25.4;
+junSWEmean = soilClim(:, 43)*25.4;
+junSWEmed = soilClim(:, 44)*25.4;
+junSWEsd = soilClim(:, 45)*25.4;
+julSWEmean = soilClim(:, 46)*25.4;
+julSWEmed = soilClim(:, 47)*25.4;
+julSWEsd = soilClim(:, 48)*25.4;
 
 octTs5mean = tsData(:, 3);
 octTs5sd = tsData(:, 4);

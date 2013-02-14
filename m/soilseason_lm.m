@@ -55,20 +55,20 @@ maxcontinSC = soilClim(:, 10);% Length of longest continuos snowpack
 numcontinSC = soilClim(:, 11);% # of continuous snowcovered periods
 accumprecip = soilClim(:, 12)*25.4;
 JASprecip = soilClim(:, 13)*25.4;
-maat = soilClim(:, 80);
-maat_sd = soilClim(:, 81);
+maat = soilClim(:, 81);
+maat_sd = soilClim(:, 82);
 
-preonsetTair = soilClim(:, 82);
-preonsetTairSd = soilClim(:, 83);
-premeltTair = soilClim(:, 84);
-premeltTairSd = soilClim(:, 85);
-postmeltTair = soilClim(:, 86);
-postmeltTairSd = soilClim(:, 87);
-elev = soilClim(:, 88);
-lat = soilClim(:, 89);
-lon = soilClim(:, 90);
-ltMeanSWE = soilClim(:, 91);
-ltMeanPrecip = soilClim(:, 92);
+preonsetTair = soilClim(:, 83);
+preonsetTairSd = soilClim(:, 84);
+premeltTair = soilClim(:, 85);
+premeltTairSd = soilClim(:, 86);
+postmeltTair = soilClim(:, 87);
+postmeltTairSd = soilClim(:, 88);
+elev = soilClim(:, 89);
+lat = soilClim(:, 90);
+lon = soilClim(:, 91);
+ltMeanSWE = soilClim(:, 92);
+ltMeanPrecip = soilClim(:, 93);
 
 % Seasonal/yearly soil temp means
 site_ts = tsData(:, 1);
@@ -193,7 +193,7 @@ for i = 1:length(Yvars)
         nantest = isnan(x(:,1)) | isnan(y);
         if (sum(getsite) - sum(nantest)) > 4 % Do sites w/ this many years
             %[coefficients, rsq, ~, ~] = fitline(x(:,1), y, 1, [0, 1]);
-            [b,bint,resid,rint,stats] = shregress(y, x);
+            [b,bint,resid,rint,stats] = shadow_regress(y, x);
             slopes = [slopes; b(1)];%coefficients(1)];
             %slopes(j, i) = b(1);
             yints = [yints; b(2)];%coefficients(2)];
@@ -294,7 +294,7 @@ for i = 1:length(Yvars)
     hold on;
     xrange = xlim(gca);
     [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-    [b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+    [b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
     plot(xfit, yfit,'--k');
     text(mean(get(gca,'Xlim')), mean(get(gca,'Ylim')), ...
         ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)]); % r^2 & p
@@ -343,7 +343,7 @@ hold on;
 xrange = get(gca, 'Xlim');
 %xrange = [190 270];% Works best for trial lake
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k');
 text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'units', 'normalized');
@@ -389,7 +389,7 @@ hold on;
 xrange = get(gca, 'Xlim');
 %xrange = [190 270];% Works best for trial lake
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k');
 text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'units', 'normalized');
@@ -444,7 +444,7 @@ plot(xsite, ysite, 'ok', 'MarkerFaceColor', 'b');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k');
 text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'units', 'normalized');
@@ -490,7 +490,7 @@ plot(xsite, ysite, 'ok', 'MarkerFaceColor', 'b');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k');
 text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'units', 'normalized');
@@ -538,7 +538,7 @@ plot(xsite, ysite, 'ok', 'MarkerFaceColor', 'b');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shregress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k');
 text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'units', 'normalized');
