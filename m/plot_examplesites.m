@@ -16,7 +16,7 @@
 
 close all;
 clear all;
-addpath('/home/greg/data/code_resources/m_common/linear/'); 
+addpath('/home/greg/data/code_resources/m_common/linreg/'); 
 addpath('/home/greg/data/code_resources/m_common/');
 
 
@@ -547,7 +547,7 @@ plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.6, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
@@ -572,7 +572,7 @@ plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
-[b,bint,resid,rint,stats] = shadow_regress(ysite, [xsite ones(size(xsite))]);
+[b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.6, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p

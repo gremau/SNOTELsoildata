@@ -14,7 +14,7 @@ fignum=0;       % used to increment figure number for plots
 % Add any needed tools
 addpath('/home/greg/data/code_resources/m_common/'); 
 addpath('/home/greg/data/code_resources/m_common/nanstuff/');
-addpath('/home/greg/data/code_resources/m_common/linear/'); 
+%addpath('/home/greg/data/code_resources/m_common/linreg/'); 
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 
 % Set data path and file name, read in file

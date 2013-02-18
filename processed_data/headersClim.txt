@@ -1,4 +1,4 @@
-# Climate summary data headers (90 total)
+# Climate summary data headers (93 total)
 siteClim
 yearClim
 maxswe

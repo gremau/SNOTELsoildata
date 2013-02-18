@@ -1,5 +1,5 @@
 function plot_belowsnow_sm
-%plot_belowsnow_sm.m
+% plot_belowsnow_sm.m
 %
 % Reads SNOTEL data files and makes plots characterizing variability 
 % in below-snow soil VWC (entire network or individual sites), and its 
@@ -15,11 +15,11 @@ fignum=0;       % used to increment figure number for plots
 % Ask user whether use normalized soil moisture data
 normalize = input('Use normalized soil moisture data?  (y/n) : ', 's');
 
-% Access to nan stuff, lines, etc
-addpath('/home/greg/data/code_resources/m_common/nanstuff/');
-addpath('/home/greg/data/code_resources/m_common/');
-addpath('/home/greg/data/code_resources/m_common/hline_vline/');
-addpath('/home/greg/data/code_resources/m_common/linear/');
+% Access to nan situff, lines, etc
+addpath('~/data/code_resources/m_common/');
+addpath('~/data/code_resources/m_common/nanstuff/');
+addpath('~/data/code_resources/m_common/hline_vline/');
+addpath('~/data/code_resources/m_common/linreg/');
 %addpath('/home/greg/data/code_resources/m_common/hist2/');
 
 % Set data path and file name, read in file
@@ -358,7 +358,7 @@ for i=plotorder
     plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
     plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
     [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
-    [b2,bint,resid,rint,stats] = shadow_regress(y2, [x2 ones(size(x2))]);
+    [b2,bint,resid,rint,stats] = regress2(y2, [x2 ones(size(x2))]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     % slope and r^2 values
     text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...
@@ -383,7 +383,7 @@ for i=plotorder
     plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
     plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
     [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
-    [b2,bint,resid,rint,stats] = shadow_regress(y2, [x2 ones(size(x2))]);
+    [b2,bint,resid,rint,stats] = regress2(y2, [x2 ones(size(x2))]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     % slope and r^2 values
     text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...
