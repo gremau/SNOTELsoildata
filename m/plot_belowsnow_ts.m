@@ -16,12 +16,8 @@ addpath('~/data/code_resources/m_common/nanstuff/');
 addpath('~/data/code_resources/m_common/hline_vline/');
 
 
-% Set processed data path
+% Set data path
 processeddatapath = '../processed_data/';
-
-% Load lists of sites with data in the daily/hourly data directory
-dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
-soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
 
 % Import list of wasatch + uinta sites
 formatstr = '%s%f%s%s';
@@ -36,105 +32,51 @@ wasatch = wasatchUintaCell{2}(wasatchTest);
 uintas = wasatchUintaCell{2}(uintaTest);
 clear wasatchTest uintaTest wasatchUintaCell;
 
+% Load lists of sites with data in the daily/hourly data directory
+dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
+soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
+allsites = unique(dailysites(:,1));
+soilsites = unique(soilsites(:,1));
+
 % LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
 tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
 % tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
-% Get a subset of climData that corresponds with available soildata
-[matchsoil, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
-soilClim = climData(matchsoil, :);
-% matchsoil2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
+% climData includes more than just soil sites, 
+% Get a subset corresponding to the sites and years in tsData
+matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 
-% Now assign variables
-janTairMean = soilClim(:, 56);
 
-octSWEmean = soilClim(:, 19)*25.4;
-octSWEmed = soilClim(:, 20)*25.4;
-octSWEsd = soilClim(:, 21)*25.4;
-novSWEmean = soilClim(:, 22)*25.4;
-novSWEmed = soilClim(:, 23)*25.4;
-novSWEsd = soilClim(:, 24)*25.4;
-decSWEmean = soilClim(:, 25)*25.4;
-decSWEmed = soilClim(:, 26)*25.4;
-decSWEsd = soilClim(:, 27)*25.4;
-janSWEmean = soilClim(:, 28)*25.4;
-janSWEmed = soilClim(:, 29)*25.4;
-janSWEsd = soilClim(:, 30)*25.4;
-febSWEmean = soilClim(:, 31)*25.4;
-febSWEmed = soilClim(:, 32)*25.4;
-febSWEsd = soilClim(:, 33)*25.4;
-marSWEmean = soilClim(:, 34)*25.4;
-marSWEmed = soilClim(:, 35)*25.4;
-marSWEsd = soilClim(:, 36)*25.4;
-aprSWEmean = soilClim(:, 37)*25.4;
-aprSWEmed = soilClim(:, 38)*25.4;
-aprSWEsd = soilClim(:, 39)*25.4;
-maySWEmean = soilClim(:, 40)*25.4;
-maySWEmed = soilClim(:, 41)*25.4;
-maySWEsd = soilClim(:, 42)*25.4;
-junSWEmean = soilClim(:, 43)*25.4;
-junSWEmed = soilClim(:, 44)*25.4;
-junSWEsd = soilClim(:, 45)*25.4;
-julSWEmean = soilClim(:, 46)*25.4;
-julSWEmed = soilClim(:, 47)*25.4;
-julSWEsd = soilClim(:, 48)*25.4;
+% Assign climData variables using the headers file - USE MATCHSOIL
+fid = fopen([processeddatapath 'headersClim.txt']);
+headerCell = textscan(fid, '%s', 'headerlines', 1);
+fclose(fid);
+headers = headerCell{1};
 
-octTs5mean = tsData(:, 3);
-octTs5sd = tsData(:, 4);
-octTs20mean = tsData(:, 5);
-octTs20sd = tsData(:, 6);
-octTs50mean = tsData(:, 7);
-octTs50sd = tsData(:, 8);
-novTs5mean = tsData(:, 9);
-novTs5sd = tsData(:, 10);
-novTs20mean = tsData(:, 11);
-novTs20sd = tsData(:, 12);
-novTs50mean = tsData(:, 13);
-novTs50sd = tsData(:, 14);
-decTs5mean = tsData(:, 15);
-decTs5sd = tsData(:, 16);
-decTs20mean = tsData(:, 17);
-decTs20sd = tsData(:, 18);
-decTs50mean = tsData(:, 19);
-decTs50sd = tsData(:, 20);
-janTs5mean = tsData(:, 21);
-janTs5sd = tsData(:, 22);
-janTs20mean = tsData(:, 23);
-janTs20sd = tsData(:, 24);
-janTs50mean = tsData(:, 25);
-janTs50sd = tsData(:, 26);
-febTs5mean = tsData(:, 27);
-febTs5sd = tsData(:, 28);
-febTs20mean = tsData(:, 29);
-febTs20sd = tsData(:, 30);
-febTs50mean = tsData(:, 31);
-febTs50sd = tsData(:, 32);
-marTs5mean = tsData(:, 33);
-marTs5sd = tsData(:, 34);
-marTs20mean = tsData(:, 35);
-marTs20sd = tsData(:, 36);
-marTs50mean = tsData(:, 37);
-marTs50sd = tsData(:, 38);
-aprTs5mean = tsData(:, 39);
-aprTs5sd = tsData(:, 40);
-aprTs20mean = tsData(:, 41);
-aprTs20sd = tsData(:, 42);
-aprTs50mean = tsData(:, 43);
-aprTs50sd = tsData(:, 44);
-mayTs5mean = tsData(:, 45);
-mayTs5sd = tsData(:, 46);
-mayTs20mean = tsData(:, 47);
-mayTs20sd = tsData(:, 48);
-mayTs50mean = tsData(:, 49);
-mayTs50sd = tsData(:, 50);
-junTs5mean = tsData(:, 51);
-junTs5sd = tsData(:, 52);
-junTs20mean = tsData(:, 53);
-junTs20sd = tsData(:, 54);
-junTs50mean = tsData(:, 55);
-junTs50sd = tsData(:, 56);
-% These repeat through sept (end of wy)
+for i=1:11
+    eval([headers{i} ' = climData(matchsoil,i);']);
+end
+% Load precip + SWE and convert to mm
+for i=12:54
+    eval([headers{i} ' = climData(matchsoil,i)*25.4;']);
+end
+% and the rest with no conversion
+for i=55:length(headers)
+    eval([headers{i} ' = climData(matchsoil,i)*25.4;']);
+end
+
+
+% Assign tsData variables using the headers file
+fid = fopen([processeddatapath 'headersTsoil.txt']);
+headerCell = textscan(fid, '%s', 'headerlines', 1);
+fclose(fid);
+headers = headerCell{1};
+
+for i=1:length(headers)
+    eval([headers{i} ' = tsData(:,i);']);
+end
+
 
 
 % PLOTS
@@ -523,9 +465,9 @@ figpath = '../figures/';
 print(h,'-depsc2','-painters',[figpath 'figG2.eps']) 
 
 %------------------------------------------------------
-% FIG 7 - Soil temp and offset - plot for wasatch and uinta sites 
-uintaTest = ismember(soilClim(:, 1), uintas);
-wasatchTest = ismember(soilClim(:, 1), wasatch);
+% FIG 7 - Soil temp and offset - plot for wasatch and uinta sites
+uintaTest = ismember(siteClim, uintas);
+wasatchTest = ismember(siteClim, wasatch);
 
 fignum = fignum+1;    
 h = figure(fignum);
