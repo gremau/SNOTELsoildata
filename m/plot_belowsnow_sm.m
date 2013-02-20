@@ -67,7 +67,7 @@ for i=12:54
 end
 % and the rest with no conversion
 for i=55:length(headers)
-    eval([headers{i} ' = climData(:,i)*25.4;']);
+    eval([headers{i} ' = climData(:,i);']);
 end
 
 
@@ -83,11 +83,10 @@ end
 
 
 %-------------------------------------------------------------------------
-
 % FIG 1 - Plot winter soil moisture vs onset soil moisture
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', 'Winter VWC vs pre-snowpack VWC');
+set(h, 'Name', 'Winter monthly VWC vs pre-onset VWC');
 
 polyorder = 1;
 plotorder = 1:4;
@@ -148,8 +147,76 @@ for i=plotorder
     end
 end
 
-%----------------------------------------------------
-% FIG 2 - Plot winter soil moisture vs onset soil moisture
+%-------------------------------------------------------------------------
+% FIG 2 - Plot winter soil moisture vs prior month's soil moisture
+fignum = fignum+1;
+h = figure(fignum);
+set(h, 'Name', 'Winter monthly VWC vs prior month VWC');
+
+polyorder = 1;
+plotorder = 1:4;
+months = ['Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May';'Jun'];
+priormonths = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May'];
+
+for i=plotorder
+    subplot(2, 4, i)
+    eval(['x1 = ' lower(priormonths(i,:)) 'VWC5mean;']);
+    eval(['x2 = ' lower(priormonths(i,:)) 'VWC20mean;']);
+    eval(['x3 = ' lower(priormonths(i,:)) 'VWC50mean;']);
+    eval(['y1 = ' lower(months(i,:)) 'VWC5mean;']);
+    eval(['y2 = ' lower(months(i,:)) 'VWC20mean;']);
+    eval(['y3 = ' lower(months(i,:)) 'VWC50mean;']);
+    
+    plot(x1, y1, '.', 'Color', [0.7 0.7 0.7]);
+    hold on;
+    plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
+    plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
+    [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
+    [b2,bint,resid,rint,stats] = regress2(y2, [x2 ones(size(x2))]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    % slope and r^2 values
+    text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...
+        ', r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3))]);
+    xlim([0, 1]); ylim([0, 1]);
+    title(months(i,:));
+    set(gca, 'XTickLabel', '');
+    if i==1
+        legend('Location', 'Northwest', '5cm', '20cm', '50cm', '20cm polyfit');
+        text(-0.35, -0.45, 'Mean monthly soil VWC', 'Units', 'normalized', 'Rotation', 90);
+    elseif i>1
+        set(gca, 'YTickLabel', '');
+    end
+    
+    subplot(2, 4, i+4)
+    eval(['x1 = ' lower(priormonths(i+4,:)) 'VWC5mean;']);
+    eval(['x2 = ' lower(priormonths(i+4,:)) 'VWC20mean;']);
+    eval(['x3 = ' lower(priormonths(i+4,:)) 'VWC50mean;']);
+    eval(['y1 = ' lower(months(i+4,:)) 'VWC5mean;']);
+    eval(['y2 = ' lower(months(i+4,:)) 'VWC20mean;']);
+    eval(['y3 = ' lower(months(i+4,:)) 'VWC50mean;']);
+    
+    plot(x1, y1, '.', 'Color', [0.7 0.7 0.7]);
+    hold on;
+    plot(x2, y2, '.', 'Color', [0.5 0.5 0.5]);
+    plot(x3, y3, '.', 'Color', [0.3 0.3 0.3]);
+    [b, rsq, xfit, yfit] = fitline(x2, y2, polyorder, [0, 1]);
+    [b2,bint,resid,rint,stats] = regress2(y2, [x2 ones(size(x2))]);
+    plot(xfit, yfit, '-k', 'LineWidth', 2);
+    % slope and r^2 values
+    text(0.5, 0.08, ['Slope = ' num2str(b(1), 2) ...
+        ', r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3))]);
+    xlim([0, 1]); ylim([0, 1]);
+    title(months(i+4,:));
+    if i>1
+        set(gca, 'YTickLabel', '');
+    end
+    if i==2
+        text(1, -0.2, 'Prior month VWC', 'Units', 'normalized');
+    end
+end
+
+%-------------------------------------------------------------------------
+% FIG 3 - Plot winter soil moisture vs onset soil moisture
 % Same as above, but binned, using only 20cm data
 fignum = fignum+1;
 fig= figure('position',[100 0 400 800],'paperpositionmode',...
@@ -220,8 +287,8 @@ end
 figpath = '../figures/';
 print(fig,'-depsc2','-painters',[figpath 'figI.eps'])
 
-%----------------------------------------------------
-% FIG 3 - Plot winter soil moisture vs onset soil moisture
+%-------------------------------------------------------------------------
+% FIG 4 - Plot winter soil moisture vs onset soil moisture
 % Same as above, but binned, using only 20cm data
 fignum = fignum+1;
 fig= figure('position',[100 0 600 500],'paperpositionmode',...
@@ -273,8 +340,8 @@ xlabel('Pre-onset VWC (normalized)');
 figpath = '../figures/';
 print(fig,'-depsc2','-painters',[figpath 'figI2.eps'])
 
-%----------------------------------------------------
-% FIG 4 - Plot winter soil moisture vs onset soil moisture
+%-------------------------------------------------------------------------
+% FIG 5 - Plot winter soil moisture vs onset soil moisture
 % Same as above, with all months
 fignum = fignum+1;
 fig= figure('position',[100 0 600 500],'paperpositionmode',...
@@ -335,13 +402,12 @@ xlabel('Pre-onset VWC (normalized)');
 figpath = '../figures/';
 print(fig,'-depsc2','-painters',[figpath 'figI3.eps'])
 
-%----------------------------------------------------
-% FIG 4 - Plot winter soil moisture vs onset soil moisture
-% Same as above, with all months
+%-------------------------------------------------------------------------
+% FIG 6 - Plot change in monthly soil moisture from pre-onset VWC
 fignum = fignum+1;
 fig= figure('position',[100 0 600 500],'paperpositionmode',...
     'auto', 'color','white','InvertHardcopy','off');
-set(fig, 'Name', 'Mean delta VWC through the winter');
+set(fig, 'Name', 'Monthly VWC - Pre-onset VWC (pre-onset delta VWC)');
 set(fig, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 
 % And months and colors to plot
@@ -352,19 +418,25 @@ months = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May';'Jun'];
 %     [0.4 0.4 0.4]; [0.3 0.3 0.3];[0.2 0.2 0.2];'k'};
 
 for i = 1:length(months);
+    eval(['delta5cm' months(i,:) ' = ' lower(months(i,:)) 'VWC5mean' ...
+         '- preonsetVWC5;']);
     eval(['delta20cm' months(i,:) ' = ' lower(months(i,:)) 'VWC20mean' ...
          '- preonsetVWC20;']);
-    [binMean, binSd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-    %errorbar(xax(1:numBins), binMean, binSd, 'ok', 'MarkerSize', 10,...
-     %   'MarkerFaceColor', rgb(colors{i}));']);
-%     eval(['h' int2str(i)  '= errorbar(xax(1:numBins), binMean, binSd,' ...
-%        char(39) 'ok' char(39) ', ' char(39) 'MarkerSize' char(39) ''...
-%        ', 10,' char(39) 'MarkerFaceColor' char(39) ', rgb(colors{i}));']);
-    n = sum(~isnan(['delta20cm' months(i,:)]));
-    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta20cm' months(i,:)...
-        '),  nanstd(delta20cm' months(i,:) ')/sqrt(n),' char(39) 'ok' char(39)...
+     eval(['delta50cm' months(i,:) ' = ' lower(months(i,:)) 'VWC50mean' ...
+         '- preonsetVWC50;']);
+    n = sum(~isnan(['delta5cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta5cm' months(i,:)...
+        '),  nanstd(delta5cm' months(i,:) ')/sqrt(n),' char(39) 'or' char(39)...
         ', ' char(39) 'MarkerSize' char(39) ', 10);']);
     hold on;
+    n = sum(~isnan(['delta20cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta20cm' months(i,:)...
+        '),  nanstd(delta20cm' months(i,:) ')/sqrt(n),' char(39) 'og' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 10);']);
+    n = sum(~isnan(['delta50cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta50cm' months(i,:)...
+        '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ob' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 10);']);
 end
 
 % Plot 1:1 line
@@ -379,6 +451,59 @@ xlabel('Month');
 
 figpath = '../figures/';
 print(fig,'-depsc2','-painters',[figpath 'figX.eps'])
+
+%-------------------------------------------------------------------------
+% FIG 7 - Plot change in monthly soil moisture from prior month VWC
+% Same as above, with all months
+fignum = fignum+1;
+fig= figure('position',[100 0 600 500],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(fig, 'Name', 'Monthly VWC - Prior month VWC (1-month delta VWC)');
+set(fig, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
+
+% And months and colors to plot
+months = ['Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May';'Jun'];
+priormonths = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May'];
+% colors = {'LightCyan';'LightSkyBlue';'DeepSkyBlue';'DodgerBlue';'MediumBlue';'DarkBlue';...
+%     'MidnightBlue';'Black';};
+% grays = {[0.9 0.9 0.9];[0.7 0.7 0.7]; [0.6 0.6 0.6]; [0.5 0.5 0.5]; ...
+%     [0.4 0.4 0.4]; [0.3 0.3 0.3];[0.2 0.2 0.2];'k'};
+
+for i = 1:length(months);
+    eval(['delta5cm' months(i,:) ' = ' lower(months(i,:)) 'VWC5mean ' ...
+         '- ' lower(priormonths(i,:)) 'VWC5mean;']);
+    eval(['delta20cm' months(i,:) ' = ' lower(months(i,:)) 'VWC20mean ' ...
+         '- ' lower(priormonths(i,:)) 'VWC20mean;']);
+    eval(['delta50cm' months(i,:) ' = ' lower(months(i,:)) 'VWC50mean ' ...
+         '- ' lower(priormonths(i,:)) 'VWC50mean;']);
+    n = sum(~isnan(['delta5cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta5cm' months(i,:)...
+        '),  nanstd(delta5cm' months(i,:) ')/sqrt(n),' char(39) 'or' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 10);']);
+    hold on;
+    n = sum(~isnan(['delta20cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta20cm' months(i,:)...
+        '),  nanstd(delta20cm' months(i,:) ')/sqrt(n),' char(39) 'og' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 10);']);
+    n = sum(~isnan(['delta50cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta50cm' months(i,:)...
+        '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ob' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 10);']);
+end
+
+% Plot 1:1 line
+%plot(0:45, 0:45, ':k', 'linewidth', 1.5);
+%pos = get(gca,'position'); % get subplot axis position
+%set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
+ylabel('Change in VWC');
+%xlim(xaxlim); ylim(yaxlim);
+%legend([h1; h8], {'October','May'}, 'Location', 'Southeast');
+xlabel('Month');
+
+
+figpath = '../figures/';
+print(fig,'-depsc2','-painters',[figpath 'figY.eps'])
+
 
 junk = 99;
 end

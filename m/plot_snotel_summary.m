@@ -72,16 +72,18 @@ headerCell = textscan(fid, '%s', 'headerlines', 1);
 fclose(fid);
 headers = headerCell{1};
 
+
 for i=1:11
     eval([headers{i} ' = climData(:,i);']);
 end
+maxswe = maxswe*25.4;
 % Load precip + SWE and convert to mm
 for i=12:54
     eval([headers{i} ' = climData(:,i)*25.4;']);
 end
 % and the rest with no conversion
 for i=55:length(headers)
-    eval([headers{i} ' = climData(:,i)*25.4;']);
+    eval([headers{i} ' = climData(:,i);']);
 end
 
 
