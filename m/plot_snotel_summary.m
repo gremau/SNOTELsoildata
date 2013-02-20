@@ -65,14 +65,11 @@ elevAllAgg = accumarray(climAggindex, climData(:,89), [numel(allsites) 1], @mean
 %Unique elevations in climData(matchsoil)
 elevSoilAgg = accumarray(soilAggindex, climData(matchsoil,89), [numel(soilsites) 1], @mean);
 
-
 % Assign climData variables using the headers file
 fid = fopen([processeddatapath 'headersClim.txt']);
 headerCell = textscan(fid, '%s', 'headerlines', 1);
 fclose(fid);
 headers = headerCell{1};
-
-
 for i=1:11
     eval([headers{i} ' = climData(:,i);']);
 end
@@ -86,17 +83,14 @@ for i=55:length(headers)
     eval([headers{i} ' = climData(:,i);']);
 end
 
-
 % Assign vwcData variables using the headers file
 fid = fopen([processeddatapath 'headersVWC.txt']);
 headerCell = textscan(fid, '%s', 'headerlines', 1);
 fclose(fid);
 headers = headerCell{1};
-
 for i=1:length(headers)
     eval([headers{i} ' = vwcData(:,i);']);
 end
-
 
 % Assign tsData variables using the headers file
 fid = fopen([processeddatapath 'headersTsoil.txt']);

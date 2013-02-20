@@ -15,32 +15,13 @@ fignum=0;       % used to increment figure number for plots
 
 % Add needed tools
 addpath('/home/greg/data/code_resources/m_common/');
-addpath('~/data/code_resources/m_common/linear/');
+addpath('~/data/code_resources/m_common/linreg/');
 addpath('/home/greg/data/code_resources/m_common/nanstuff/');
 addpath('/home/greg/data/code_resources/m_common/hline_vline/');
 
 % Set data path and file name, read in file
-rawdatapath = '../rawdata/';
+rawdatapath = '../rawdata/soilsensors_hourly/';
 processeddatapath = '../processed_data/';
-
-% Load lists of sites with data in the daily/hourly data directory
-dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
-soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
-sites = unique(soilsites(:,1));
-
-% LOAD the data (can switch between daily/hourly data here)
-climData = dlmread([processeddatapath 'wyear_climatesummary.txt'], ',', 1,0);
-tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
-% tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
-
-% Get a subset of climData that corresponds with available soildata
-[matchsoil, idx] = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
-soilClim = climData(matchsoil, :);
-% matchsoil2 = ismember(tsData(:, 1:2), soilClim(:, 1:2), 'rows');
-
-% Ask user for month number and state
-% statesel = input(...
-%     'Which state ("AZ, CO, ID, MT, NM, NV, UT, WY, or all")?: ', 's');
 
 % Get an inventory of siteIDs and their states from inventory file
 % Create format string (station,elev,cdbs_id only here)
@@ -53,137 +34,53 @@ states = inventorycell{1};
 siteIDs = inventorycell{2};
 clear inventorycell;
 
-% Aggregation index for soilClim data
-[vals, ~, valindex] = unique(soilClim(:,1));
-aggindex = [valindex ones(size(soilClim(:,1)))];
+% Load lists of sites with data in the daily/hourly data directory
+dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
+soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
+allsites = unique(dailysites(:,1));
+soilsites = unique(soilsites(:,1));
 
-%--------------------------------------------------------------
-% Assign variables
-sites_cl = soilClim(:,1);
-maxswe = soilClim(:,3)*25.4;
-maat = soilClim(:, 74); % Mean wateryear air temp
-onsetdoy = soilClim(:, 6);
-meltdoy = soilClim(:, 7);
-totaldaysSC = soilClim(:, 9);
-octTairMean = soilClim(:, 55);
-octTairSd = soilClim(:, 56);
-novTairMean = soilClim(:, 57);
-novTairSd = soilClim(:, 58);
-decTairMean = soilClim(:, 59);
-decTairSd = soilClim(:, 60);
-janTairMean = soilClim(:, 61);
-janTairSd = soilClim(:, 62);
-febTairMean = soilClim(:, 63);
-febTairSd = soilClim(:, 64);
-marTairMean = soilClim(:, 65);
-marTairSd = soilClim(:, 66);
-aprTairMean = soilClim(:, 67);
-aprTairSd = soilClim(:, 68);
-mayTairMean = soilClim(:, 69);
-mayTairSd = soilClim(:, 70);
-junTairMean = soilClim(:, 71);
-junTairSd = soilClim(:, 72);
-julTairMean = soilClim(:, 73);
-julTairSd = soilClim(:, 74);
-augTairMean = soilClim(:, 75);
-augTairSd = soilClim(:, 76);
-sepTairMean = soilClim(:, 77);
-sepTairSd = soilClim(:, 78);
+% LOAD the data (can switch between daily/hourly data here)
+climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
+tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
+% tsData = csvread([processeddatapath 'wyear_soiltempsummary_daily.txt']);
 
-elev = soilClim(:, 89);
-lat = soilClim(:, 90);
-lon = soilClim(:, 91);
-ltMeanSWE = soilClim(:, 92);
-ltMeanPrecip = soilClim(:, 93);
+% climData includes more than just soil sites, 
+% Get a subset corresponding to the sites and years in tsData
+matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 
-octTs5mean = tsData(:, 3);
-octTs5sd = tsData(:, 4);
-octTs20mean = tsData(:, 5);
-octTs20sd = tsData(:, 6);
-octTs50mean = tsData(:, 7);
-octTs50sd = tsData(:, 8);
-novTs5mean = tsData(:, 9);
-novTs5sd = tsData(:, 10);
-novTs20mean = tsData(:, 11);
-novTs20sd = tsData(:, 12);
-novTs50mean = tsData(:, 13);
-novTs50sd = tsData(:, 14);
-decTs5mean = tsData(:, 15);
-decTs5sd = tsData(:, 16);
-decTs20mean = tsData(:, 17);
-decTs20sd = tsData(:, 18);
-decTs50mean = tsData(:, 19);
-decTs50sd = tsData(:, 20);
-janTs5mean = tsData(:, 21);
-janTs5sd = tsData(:, 22);
-janTs20mean = tsData(:, 23);
-janTs20sd = tsData(:, 24);
-janTs50mean = tsData(:, 25);
-janTs50sd = tsData(:, 26);
-febTs5mean = tsData(:, 27);
-febTs5sd = tsData(:, 28);
-febTs20mean = tsData(:, 29);
-febTs20sd = tsData(:, 30);
-febTs50mean = tsData(:, 31);
-febTs50sd = tsData(:, 32);
-marTs5mean = tsData(:, 33);
-marTs5sd = tsData(:, 34);
-marTs20mean = tsData(:, 35);
-marTs20sd = tsData(:, 36);
-marTs50mean = tsData(:, 37);
-marTs50sd = tsData(:, 38);
-aprTs5mean = tsData(:, 39);
-aprTs5sd = tsData(:, 40);
-aprTs20mean = tsData(:, 41);
-aprTs20sd = tsData(:, 42);
-aprTs50mean = tsData(:, 43);
-aprTs50sd = tsData(:, 44);
-mayTs5mean = tsData(:, 45);
-mayTs5sd = tsData(:, 46);
-mayTs20mean = tsData(:, 47);
-mayTs20sd = tsData(:, 48);
-mayTs50mean = tsData(:, 49);
-mayTs50sd = tsData(:, 50);
-junTs5mean = tsData(:, 51);
-junTs5sd = tsData(:, 52);
-junTs20mean = tsData(:, 53);
-junTs20sd = tsData(:, 54);
-junTs50mean = tsData(:, 55);
-junTs50sd = tsData(:, 56);
-julTs5mean = tsData(:, 57);
-julTs5sd = tsData(:, 58);
-julTs20mean = tsData(:, 59);
-julTs20sd = tsData(:, 60);
-julTs50mean = tsData(:, 61);
-julTs50sd = tsData(:, 62);
-augTs5mean = tsData(:, 63);
-augTs5sd = tsData(:, 64);
-augTs20mean = tsData(:, 65);
-augTs20sd = tsData(:, 66);
-augTs50mean = tsData(:, 67);
-augTs50sd = tsData(:, 68);
-sepTs5mean = tsData(:, 69);
-sepTs5sd = tsData(:, 70);
-sepTs20mean = tsData(:, 71);
-sepTs20sd = tsData(:, 72);
-sepTs50mean = tsData(:, 73);
-sepTs50sd = tsData(:, 74);
+% Aggregation index for climData 
+[vals, ~, valindex] = unique(climData(matchsoil,1));
+aggindex = [valindex ones(size(climData(matchsoil,1)))];
 
-% Snowcovered soil temp means
-snowcovTs5mean = tsData(:, 105);
-snowcovTs5sd = tsData(:, 106);
-snowcovTs20mean = tsData(:, 107);
-snowcovTs20sd = tsData(:, 108);
-snowcovTs50mean = tsData(:, 109);
-snowcovTs50sd = tsData(:, 110);
 
-% Snowfree soil temp means
-snowfreeTs5mean = tsData(:, 111);
-snowfreeTs5sd = tsData(:, 112);
-snowfreeTs20mean = tsData(:, 113);
-snowfreeTs20sd = tsData(:, 114);
-snowfreeTs50mean = tsData(:, 115);
-snowfreeTs50sd = tsData(:, 116);
+% Assign climData variables using the headers file - USE MATCHSOIL
+fid = fopen([processeddatapath 'headersClim.txt']);
+headerCell = textscan(fid, '%s', 'headerlines', 1);
+fclose(fid);
+headers = headerCell{1};
+for i=1:11
+    eval([headers{i} ' = climData(matchsoil,i);']);
+end
+maxswe = maxswe*25.4;
+% Load precip + SWE and convert to mm
+for i=12:54
+    eval([headers{i} ' = climData(matchsoil,i)*25.4;']);
+end
+% and the rest with no conversion
+for i=55:length(headers)
+    eval([headers{i} ' = climData(matchsoil,i);']);
+end
+
+% Assign tsData variables using the headers file
+fid = fopen([processeddatapath 'headersTsoil.txt']);
+headerCell = textscan(fid, '%s', 'headerlines', 1);
+fclose(fid);
+headers = headerCell{1};
+for i=1:length(headers)
+    eval([headers{i} ' = tsData(:,i);']);
+end
+
 
 % PLOTS
 %----------------------------------
@@ -213,11 +110,11 @@ title('January');
 legend('Air', 'Soil', 'Moist adiabatic lapse( 5^oC/km)');
 
 % Aggregate by wateryear using accumarray
-elevAgg = accumarray(aggindex, elev, [numel(sites) 1], @mean);
-julTairMeanAgg = accumarray(aggindex, julTairMean, [numel(sites) 1], @nanmean);
-julTs20meanAgg = accumarray(aggindex, julTs20mean, [numel(sites) 1], @nanmean);
-janTairMeanAgg = accumarray(aggindex, janTairMean, [numel(sites) 1], @nanmean);
-janTs20meanAgg = accumarray(aggindex, janTs20mean, [numel(sites) 1], @nanmean);
+elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @mean);
+julTairMeanAgg = accumarray(aggindex, julTairMean, [numel(soilsites) 1], @nanmean);
+julTs20meanAgg = accumarray(aggindex, julTs20mean, [numel(soilsites) 1], @nanmean);
+janTairMeanAgg = accumarray(aggindex, janTairMean, [numel(soilsites) 1], @nanmean);
+janTs20meanAgg = accumarray(aggindex, janTs20mean, [numel(soilsites) 1], @nanmean);
 
 subplot (2, 2, 3)
 plot(elevAgg, julTairMeanAgg, 'ok', 'MarkerFaceColor', 'r');
@@ -317,7 +214,7 @@ legend('PeakSWE', 'LT Peak SWE', 'LT Precip');
 
 subplot(2,2,3)
 % Aggregate latitude
-latAgg = accumarray(aggindex, lat, [numel(sites) 1], @mean);
+latAgg = accumarray(aggindex, lat, [numel(soilsites) 1], @mean);
 plot(lat, maat, '.', 'Color', ...
     [0.7 0.7 0.7]);
 hold on
@@ -575,7 +472,7 @@ plot(elev, offset(:,1), 'ok', 'MarkerFaceColor', 'b');
 hold on;
 
 xfit = linspace(900, 3500);
-[b,bint,resid,rint,stats] = shadow_regress(offset, [elev ones(size(elev))]);
+[b,bint,resid,rint,stats] = regress2(offset, [elev ones(size(elev))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1750, -7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -599,7 +496,7 @@ set(h, 'Name','(UT) January Air/Soil T gradients');
 % Get selected state site out of all data
 selectState = 'UT';
 selectIDs = siteIDs(strcmpi(states, selectState));
-st_test = ismember(sites_cl, selectIDs);
+st_test = ismember(siteClim, selectIDs);
 
 subplot (1,1,1);
 errorbar(elev(st_test), janTairMean(st_test), janTairSd(st_test), ...
@@ -625,13 +522,13 @@ h = figure('position',[100 0 650 600],'paperpositionmode',...
 set(h, 'Name','(UT-Agg) January Air/Soil T gradients',...
     'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 
-% Aggregate the mean, sd, AND the sites_cl list
-janTairSdAgg = accumarray(aggindex, janTairSd, [numel(sites) 1], @mean);
-janTs20sdAgg = accumarray(aggindex, janTs20sd, [numel(sites) 1], @mean);
-sites_clAgg = accumarray(aggindex, sites_cl, [numel(sites) 1], @mean);
+% Aggregate the mean, sd, AND the siteClim list
+janTairSdAgg = accumarray(aggindex, janTairSd, [numel(soilsites) 1], @mean);
+janTs20sdAgg = accumarray(aggindex, janTs20sd, [numel(soilsites) 1], @mean);
+siteClimAgg = accumarray(aggindex, siteClim, [numel(soilsites) 1], @mean);
 
 % Get selected state site out of aggregated data
-st_testAgg = ismember(sites_clAgg, selectIDs);
+st_testAgg = ismember(siteClimAgg, selectIDs);
 
 % Assign to x and y variables
 x = elevAgg(st_testAgg);
@@ -648,7 +545,7 @@ handles(1) = plot(x, y1, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
     'MarkerEdgeColor', 'k','MarkerSize', 10);
 hold on;
 xfit = linspace(1692, 3400);
-[b,bint,resid,rint,stats] = shadow_regress(y1, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1750, -7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -669,7 +566,7 @@ annotation(h, 'rectangle', [0.154 0.146 0.05 0.55], 'FaceColor','flat');
 handles(4) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerEdgeColor', 'k','MarkerSize', 10);
 xfit = linspace(1600, 3400);
-[b,bint,resid,rint,stats] = shadow_regress(y2, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
 handles(5) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1570, 3.1, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -714,7 +611,7 @@ ylabel('20cm Ts (^oC)')
 % FIG 12 - January/July soil T gradients - AggregatedUtah data only
 
 % Aggregate the mean and sd
-julTs20sdAgg = accumarray(aggindex, julTs20sd, [numel(sites) 1], @mean);
+julTs20sdAgg = accumarray(aggindex, julTs20sd, [numel(soilsites) 1], @mean);
 
 % Assign x and y variables
 x = elevAgg(st_testAgg);
@@ -733,7 +630,7 @@ handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
 hold on;
 xfit = linspace(1600, 3400);
-[b,bint,resid,rint,stats] = shadow_regress(y1, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1600, 4.7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -745,7 +642,7 @@ end
 % Plot July Ts by elevation and regression
 handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
     'MarkerSize', 10);
-[b,bint,resid,rint,stats] = shadow_regress(y2, [x ones(size(x))]);
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
 handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 %text(1600, 9.5, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
@@ -764,5 +661,105 @@ ylabel('Mean monthly T_{soil} (^oC)')
 
 figpath = '../figures/';
 print(h,'-depsc2','-painters',[figpath 'figC.eps']) 
+
+
+% -------------------------------------------------------------
+% FIG 13 - January/July Tsoil and Tair gradients - AggregatedUtah data only
+
+% Aggregate the sd of July tair
+julTairSdAgg = accumarray(aggindex, julTairSd, [numel(soilsites) 1], @mean);
+
+% Assign x and y variables
+x = elevAgg(st_testAgg);
+y1 = janTs20meanAgg(st_testAgg);
+sd1 = janTs20sdAgg(st_testAgg);
+y2 = julTs20meanAgg(st_testAgg);
+sd2 = julTs20sdAgg(st_testAgg);
+
+fignum = fignum+1;    
+h = figure('position',[100 0 1100 500],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(h, 'Name','(UT-Agg) January/July Air & Soil T gradients',...
+    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
+% Plot January Ts by elevation and regression
+subplot(1,2,1);
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
+    'MarkerSize', 10);
+hold on;
+xfit = linspace(1600, 3400);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+%text(1600, 4.7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
+if stats(3) < 0.01
+    text(1600, -2.9, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1600, -2.9, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
+% Plot July Ts by elevation and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
+    'MarkerSize', 10);
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
+handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, 9, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1600, 9, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
+% Plot moist adiabatic lapse rate
+%plot([1600 3400], [18, 9], ':k');
+set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
+xlim([1500 3500]);ylim([-13 27]);
+set(gca,'Ytick',[-10;-5;0;5;10;15;20;25],'Xtick',[1500;2000;2500;3000]);
+legend(handles([1 3]), {'January', 'July'}, 'Location', 'Southeast');
+text(0.8, 0.9, 'T_{soil}', 'Units', 'normalized', 'Fontangle', 'italic',...
+    'Fontsize', 20);
+text(0.85, -0.1, 'Elevation (m)', 'Units', 'normalized');
+%xlabel('Elevation (m)');
+ylabel('Mean monthly T (^oC)')
+
+% Assign x and y variables
+y1 = janTairMeanAgg(st_testAgg);
+sd1 = janTairSdAgg(st_testAgg);
+y2 = julTairMeanAgg(st_testAgg);
+sd2 = julTairSdAgg(st_testAgg);
+
+subplot(1,2,2);
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
+    'MarkerSize', 10);
+hold on;
+xfit = linspace(1600, 3400);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+%text(1600, 4.7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
+if stats(3) < 0.01
+    text(1600, 5.2, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1600, 5.2, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
+% Plot July Ts by elevation and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
+    'MarkerSize', 10);
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
+handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, 11, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+else
+    text(1600, 11, ['r^2 = ' num2str(stats(1),2)...
+        ', p = ' num2str(stats(3),2)]);
+end
+% Plot moist adiabatic lapse rate
+%plot([1600 3400], [18, 9], ':k');
+set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
+xlim([1500 3500]);ylim([-13 27]);
+set(gca, 'YtickLabel', [],'Xtick',[2000;2500;3000;3500]);
+text(0.8, 0.9, 'T_{air}', 'Units', 'normalized', 'Fontangle', 'italic',...
+    'Fontsize',20);
+
+figpath = '../figures/';
+print(h,'-depsc2','-painters',[figpath 'figC-D.eps']) 
+
 
 junk = 99;

@@ -57,13 +57,14 @@ headers = headerCell{1};
 for i=1:11
     eval([headers{i} ' = climData(matchsoil,i);']);
 end
+maxswe = maxswe*25.4;
 % Load precip + SWE and convert to mm
 for i=12:54
     eval([headers{i} ' = climData(matchsoil,i)*25.4;']);
 end
 % and the rest with no conversion
 for i=55:length(headers)
-    eval([headers{i} ' = climData(matchsoil,i)*25.4;']);
+    eval([headers{i} ' = climData(matchsoil,i);']);
 end
 
 
