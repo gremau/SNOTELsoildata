@@ -587,7 +587,7 @@ legend(handles([1 4]), {'T_{air}',...
 % plot([900 3500], [4, -9], ':k')
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figD.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figD_old.eps']) 
 
 % -------------------------------------------------------------
 % FIG 11 - January/July soil T gradients - Utah data only
@@ -660,7 +660,7 @@ xlabel('Elevation (m)');
 ylabel('Mean monthly T_{soil} (^oC)')
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figC.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figC_old.eps']) 
 
 
 % -------------------------------------------------------------
@@ -681,15 +681,15 @@ h = figure('position',[100 0 1100 500],'paperpositionmode',...
     'auto', 'color','white','InvertHardcopy','off');
 set(h, 'Name','(UT-Agg) January/July Air & Soil T gradients',...
     'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
-% Plot January Ts by elevation and regression
+
 subplot(1,2,1);
+% Plot January Ts by elevation and regression
 handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
 hold on;
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
-%text(1600, 4.7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
     text(1600, -2.9, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
@@ -707,8 +707,6 @@ else
     text(1600, 9, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
-% Plot moist adiabatic lapse rate
-%plot([1600 3400], [18, 9], ':k');
 set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
 xlim([1500 3500]);ylim([-13 27]);
 set(gca,'Ytick',[-10;-5;0;5;10;15;20;25],'Xtick',[1500;2000;2500;3000]);
@@ -726,20 +724,20 @@ y2 = julTairMeanAgg(st_testAgg);
 sd2 = julTairSdAgg(st_testAgg);
 
 subplot(1,2,2);
+% Plot January Tair by elevation and regression
 handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
 hold on;
 xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
-%text(1600, 4.7, ['y = ' num2str(b(1),'%1.4f') 'x + ' num2str(b(2),'%2.1f')]);
 if stats(3) < 0.01
     text(1600, 5.2, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
     text(1600, 5.2, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
-% Plot July Ts by elevation and regression
+% Plot July Tair by elevation and regression
 handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', 'k',...
     'MarkerSize', 10);
 [b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
@@ -759,7 +757,7 @@ text(0.8, 0.9, 'T_{air}', 'Units', 'normalized', 'Fontangle', 'italic',...
     'Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figC-D.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figC.eps']) 
 
 
 junk = 99;

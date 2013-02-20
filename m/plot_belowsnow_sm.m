@@ -410,12 +410,8 @@ fig= figure('position',[100 0 600 500],'paperpositionmode',...
 set(fig, 'Name', 'Monthly VWC - Pre-onset VWC (pre-onset delta VWC)');
 set(fig, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 
-% And months and colors to plot
-months = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May';'Jun'];
-% colors = {'LightCyan';'LightSkyBlue';'DeepSkyBlue';'DodgerBlue';'MediumBlue';'DarkBlue';...
-%     'MidnightBlue';'Black';};
-% grays = {[0.9 0.9 0.9];[0.7 0.7 0.7]; [0.6 0.6 0.6]; [0.5 0.5 0.5]; ...
-%     [0.4 0.4 0.4]; [0.3 0.3 0.3];[0.2 0.2 0.2];'k'};
+% Change months a bit
+months = ['Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May'];
 
 for i = 1:length(months);
     eval(['delta5cm' months(i,:) ' = ' lower(months(i,:)) 'VWC5mean' ...
@@ -438,19 +434,8 @@ for i = 1:length(months);
         '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ob' char(39)...
         ', ' char(39) 'MarkerSize' char(39) ', 10);']);
 end
-
-% Plot 1:1 line
-%plot(0:45, 0:45, ':k', 'linewidth', 1.5);
-%pos = get(gca,'position'); % get subplot axis position
-%set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
 ylabel('Change in VWC');
-%xlim(xaxlim); ylim(yaxlim);
-%legend([h1; h8], {'October','May'}, 'Location', 'Southeast');
 xlabel('Month');
-
-
-figpath = '../figures/';
-print(fig,'-depsc2','-painters',[figpath 'figX.eps'])
 
 %-------------------------------------------------------------------------
 % FIG 7 - Plot change in monthly soil moisture from prior month VWC
@@ -461,13 +446,8 @@ fig= figure('position',[100 0 600 500],'paperpositionmode',...
 set(fig, 'Name', 'Monthly VWC - Prior month VWC (1-month delta VWC)');
 set(fig, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 
-% And months and colors to plot
-months = ['Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May';'Jun'];
-priormonths = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr';'May'];
-% colors = {'LightCyan';'LightSkyBlue';'DeepSkyBlue';'DodgerBlue';'MediumBlue';'DarkBlue';...
-%     'MidnightBlue';'Black';};
-% grays = {[0.9 0.9 0.9];[0.7 0.7 0.7]; [0.6 0.6 0.6]; [0.5 0.5 0.5]; ...
-%     [0.4 0.4 0.4]; [0.3 0.3 0.3];[0.2 0.2 0.2];'k'};
+% And prior months
+priormonths = ['Oct';'Nov';'Dec';'Jan';'Feb';'Mar';'Apr'];
 
 for i = 1:length(months);
     eval(['delta5cm' months(i,:) ' = ' lower(months(i,:)) 'VWC5mean ' ...
@@ -490,20 +470,90 @@ for i = 1:length(months);
         '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ob' char(39)...
         ', ' char(39) 'MarkerSize' char(39) ', 10);']);
 end
-
-% Plot 1:1 line
-%plot(0:45, 0:45, ':k', 'linewidth', 1.5);
-%pos = get(gca,'position'); % get subplot axis position
-%set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
 ylabel('Change in VWC');
-%xlim(xaxlim); ylim(yaxlim);
-%legend([h1; h8], {'October','May'}, 'Location', 'Southeast');
 xlabel('Month');
 
+% -------------------------------------------------------------
+% FIG 8 - Dual panel with Fig 6 and 7
+fignum = fignum+1;    
+h = figure('position',[100 0 1100 500],'paperpositionmode',...
+    'auto','color', 'white','InvertHardcopy','off');
+set(h, 'Name','Change in below-snow VWC',...
+    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
+
+subplot(1,2,1);
+% Plot change in VWC from prior month
+for i = 1:length(months);
+    eval(['delta5cm' months(i,:) ' = ' lower(months(i,:)) 'VWC5mean ' ...
+         '- ' lower(priormonths(i,:)) 'VWC5mean;']);
+    eval(['delta20cm' months(i,:) ' = ' lower(months(i,:)) 'VWC20mean ' ...
+         '- ' lower(priormonths(i,:)) 'VWC20mean;']);
+    eval(['delta50cm' months(i,:) ' = ' lower(months(i,:)) 'VWC50mean ' ...
+         '- ' lower(priormonths(i,:)) 'VWC50mean;']);
+    n = sum(~isnan(['delta50cm' months(i,:)]));
+    eval(['h' int2str(i+2)  ' = errorbar(i, nanmean(delta50cm' months(i,:)...
+        '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ok' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 12,' char(39) ...
+        'MarkerFaceColor' char(39) ', grays{7});']);
+    hold on;
+    n = sum(~isnan(['delta20cm' months(i,:)]));
+    eval(['h' int2str(i+1)  ' = errorbar(i, nanmean(delta20cm' months(i,:)...
+        '),  nanstd(delta20cm' months(i,:) ')/sqrt(n),' char(39) 'ok' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 12,' char(39) ...
+        'MarkerFaceColor' char(39) ', grays{4});']);
+    n = sum(~isnan(['delta5cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta5cm' months(i,:)...
+        '),  nanstd(delta5cm' months(i,:) ')/sqrt(n),' char(39) 'ok' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 12,' char(39) ...
+        'MarkerFaceColor' char(39) ', grays{1});']);
+
+end
+set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
+ylim([-0.2 0.6]);
+ylabel('Change in VWC');
+set(gca, 'xtick', [1;2;3;4;5;6;7], 'xticklabel', months);
+legend([h7;h8;h9], {'5cm', '20cm', '50cm'}, 'location', 'northeast');
+text(0.1, 0.9, '1-month', 'units', 'normalized', 'fontangle', 'italic',...
+    'Fontsize', 20);
+%text(0.95, -0.11, 'Month', 'units', 'normalized');
+ylabel('Change in VWC')
+
+
+subplot(1,2,2);
+% Plot Change in VWC from pre-onset
+for i = 1:length(months);
+    eval(['delta5cm' months(i,:) ' = ' lower(months(i,:)) 'VWC5mean' ...
+         '- preonsetVWC5;']);
+    eval(['delta20cm' months(i,:) ' = ' lower(months(i,:)) 'VWC20mean' ...
+         '- preonsetVWC20;']);
+     eval(['delta50cm' months(i,:) ' = ' lower(months(i,:)) 'VWC50mean' ...
+         '- preonsetVWC50;']);
+    n = sum(~isnan(['delta50cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta50cm' months(i,:)...
+        '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ok' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 12,' char(39) ...
+        'MarkerFaceColor' char(39) ', grays{7});']);
+    hold on;
+    n = sum(~isnan(['delta20cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta20cm' months(i,:)...
+        '),  nanstd(delta20cm' months(i,:) ')/sqrt(n),' char(39) 'ok' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 12,' char(39) ...
+        'MarkerFaceColor' char(39) ', grays{4});']);
+    n = sum(~isnan(['delta5cm' months(i,:)]));
+    eval(['h' int2str(i)  ' = errorbar(i, nanmean(delta5cm' months(i,:)...
+        '),  nanstd(delta5cm' months(i,:) ')/sqrt(n),' char(39) 'ok' char(39)...
+        ', ' char(39) 'MarkerSize' char(39) ', 12,' char(39) ...
+        'MarkerFaceColor' char(39) ', grays{1});']);
+
+end
+set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
+ylim([-0.2 0.6]);
+set(gca, 'yticklabel', [], 'xtick', [1;2;3;4;5;6;7], 'xticklabel', months);
+text(0.1, 0.9, 'Cumulative', 'Units', 'normalized', 'Fontangle', 'italic',...
+    'Fontsize',20);
 
 figpath = '../figures/';
-print(fig,'-depsc2','-painters',[figpath 'figY.eps'])
-
+print(h,'-depsc2','-painters',[figpath 'figX.eps']) 
 
 junk = 99;
 end
