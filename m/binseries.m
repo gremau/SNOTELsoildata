@@ -10,7 +10,7 @@
 
 
 function [binMean1, binMean2] = binseries(x, y1, y2, topEdge, botEdge, numBins)
-    addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+    addpath('/home/greg/data/code_resources/m_common/nanstats/');
     binEdges = linspace(botEdge, topEdge, numBins+1);
     [h,whichBin] = histc(x, binEdges);
     for i = 1:numBins

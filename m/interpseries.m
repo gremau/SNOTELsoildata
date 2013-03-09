@@ -11,7 +11,7 @@ function filled_series = interpseries(series)
 % function simply returns the original series of NaN's if this is the case.
 
 
-addpath('~/data/code_resources/m_common/nanstuff/');
+addpath('~/data/code_resources/m_common/nanstats/');
 
 if sum(isnan(series))==length(series)
     filled_series = series;

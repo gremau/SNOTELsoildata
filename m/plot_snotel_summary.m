@@ -15,7 +15,7 @@ fignum=0;       % used to increment figure number for plots
 normalize = input('Use normalized soil moisture data?  (y/n) : ', 's');
 
 % Access to nan stuff, lines, etc
-addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/nanstats/');
 addpath('/home/greg/data/code_resources/m_common/');
 addpath('/home/greg/data/code_resources/m_common/hline_vline/');
 addpath('~/data/code_resources/m_common/linreg/');
@@ -24,12 +24,6 @@ addpath('~/data/code_resources/m_common/linreg/');
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
 processeddatapath = '../processed_data/';
-
-% Load lists of sites with data in the daily/hourly data directory
-dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
-soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
-allsites = unique(dailysites(:,1));
-soilsites = unique(soilsites(:,1));
 
 % LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
@@ -53,11 +47,11 @@ end
 matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 
 % Aggregation index for climData 
-[vals, ~, valindex] = unique(climData(:,1));
+[allsites, ~, valindex] = unique(climData(:,1));
 climAggindex = [valindex ones(size(climData(:,1)))];
 
 % Aggregation index for climData(matchsoil) data
-[vals, ~, valindex] = unique(climData(matchsoil,1));
+[soilsites, ~, valindex] = unique(climData(matchsoil,1));
 soilAggindex = [valindex ones(size(climData(matchsoil,1)))];
 
 % Unique elevations in climData

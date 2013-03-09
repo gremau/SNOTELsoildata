@@ -16,7 +16,7 @@ fignum=0;       % used to increment figure number for plots
 % Add needed tools
 addpath('/home/greg/data/code_resources/m_common/');
 addpath('~/data/code_resources/m_common/linreg/');
-addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/nanstats/');
 addpath('/home/greg/data/code_resources/m_common/hline_vline/');
 
 % Set data path and file name, read in file
@@ -34,12 +34,6 @@ states = inventorycell{1};
 siteIDs = inventorycell{2};
 clear inventorycell;
 
-% Load lists of sites with data in the daily/hourly data directory
-dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
-soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
-allsites = unique(dailysites(:,1));
-soilsites = unique(soilsites(:,1));
-
 % LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
 tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
@@ -50,9 +44,9 @@ tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
 matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 
 % Aggregation index for climData 
-[vals, ~, valindex] = unique(climData(matchsoil,1));
-aggindex = [valindex ones(size(climData(matchsoil,1)))];
-
+[soilsites, ~, valindex] = unique(climData(matchsoil,1));
+aggindex = [valindex ones(size(valindex))];
+%aggindex = [valindex ones(size(climData(matchsoil,1)))];
 
 % Assign climData variables using the headers file - USE MATCHSOIL
 fid = fopen([processeddatapath 'headersClim.txt']);
@@ -81,6 +75,23 @@ for i=1:length(headers)
     eval([headers{i} ' = tsData(:,i);']);
 end
 
+% Aggregate a bunch of variables for plotting
+siteClimAgg = accumarray(aggindex, siteClim, [numel(soilsites) 1], @mean);
+elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @mean);
+% Tair and StdDev
+julTairMeanAgg = accumarray(aggindex, julTairMean, [numel(soilsites) 1], @nanmean);
+julTairSdAgg = accumarray(aggindex, julTairSd, [numel(soilsites) 1], @mean);
+janTairMeanAgg = accumarray(aggindex, janTairMean, [numel(soilsites) 1], @nanmean);
+janTairSdAgg = accumarray(aggindex, janTairSd, [numel(soilsites) 1], @mean);
+%Tsoil (mean and StdDev) for 5 and 20cm
+julTs5meanAgg = accumarray(aggindex, julTs5mean, [numel(soilsites) 1], @nanmean);
+julTs20meanAgg = accumarray(aggindex, julTs20mean, [numel(soilsites) 1], @nanmean);
+julTs5sdAgg = accumarray(aggindex, julTs5sd, [numel(soilsites) 1], @mean);
+julTs20sdAgg = accumarray(aggindex, julTs20sd, [numel(soilsites) 1], @mean);
+janTs5meanAgg = accumarray(aggindex, janTs5mean, [numel(soilsites) 1], @nanmean);
+janTs20meanAgg = accumarray(aggindex, janTs20mean, [numel(soilsites) 1], @nanmean);
+janTs5sdAgg = accumarray(aggindex, janTs5sd, [numel(soilsites) 1], @mean);
+janTs20sdAgg = accumarray(aggindex, janTs20sd, [numel(soilsites) 1], @mean);
 
 % PLOTS
 %----------------------------------
@@ -108,13 +119,6 @@ xlabel('Elevation(m)');
 ylabel('Mean temp (Celsius)');
 title('January');
 legend('Air', 'Soil', 'Moist adiabatic lapse( 5^oC/km)');
-
-% Aggregate by wateryear using accumarray
-elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @mean);
-julTairMeanAgg = accumarray(aggindex, julTairMean, [numel(soilsites) 1], @nanmean);
-julTs20meanAgg = accumarray(aggindex, julTs20mean, [numel(soilsites) 1], @nanmean);
-janTairMeanAgg = accumarray(aggindex, janTairMean, [numel(soilsites) 1], @nanmean);
-janTs20meanAgg = accumarray(aggindex, janTs20mean, [numel(soilsites) 1], @nanmean);
 
 subplot (2, 2, 3)
 plot(elevAgg, julTairMeanAgg, 'ok', 'MarkerFaceColor', 'r');
@@ -382,7 +386,6 @@ for i=plotorder
     end
 end
 
-
 %--------------------------------------------------------
 % FIG 6 - Restricted gradients
 fignum = fignum+1;    
@@ -420,7 +423,6 @@ xlabel('elevation(m)');
 ylabel('Mean peak SWE(mm)');
 title('Constant elevation - Peak SWE');
 
-
 %----------------------------------------------------------------------
 % FIG 7 - Winter Air/Soil gradient - All SNOTEL/years
 fignum = fignum+1;    
@@ -446,7 +448,6 @@ plot([900 3500], [4, -9], ':k')
 xlabel('Elevation(m)');
 ylabel('Mean temp (Celsius)');
 legend('Air', 'Soil(5cm)', 'Moist adiabatic lapse( 5^oC/km)');
-
 
 % -------------------------------------------------------------
 % FIG 8 - Winter Air/Soil gradient and offset - All SNOTEL/years
@@ -494,7 +495,7 @@ h = figure(fignum);
 set(h, 'Name','(UT) January Air/Soil T gradients');
 
 % Get selected state site out of all data
-selectState = 'UT';
+selectState = 'CO';
 selectIDs = siteIDs(strcmpi(states, selectState));
 st_test = ismember(siteClim, selectIDs);
 
@@ -521,11 +522,6 @@ h = figure('position',[100 0 650 600],'paperpositionmode',...
     'auto', 'color','white','InvertHardcopy','off');
 set(h, 'Name','(UT-Agg) January Air/Soil T gradients',...
     'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
-
-% Aggregate the mean, sd, AND the siteClim list
-janTairSdAgg = accumarray(aggindex, janTairSd, [numel(soilsites) 1], @mean);
-janTs20sdAgg = accumarray(aggindex, janTs20sd, [numel(soilsites) 1], @mean);
-siteClimAgg = accumarray(aggindex, siteClim, [numel(soilsites) 1], @mean);
 
 % Get selected state site out of aggregated data
 st_testAgg = ismember(siteClimAgg, selectIDs);
@@ -610,9 +606,6 @@ ylabel('20cm Ts (^oC)')
 % -------------------------------------------------------------
 % FIG 12 - January/July soil T gradients - AggregatedUtah data only
 
-% Aggregate the mean and sd
-julTs20sdAgg = accumarray(aggindex, julTs20sd, [numel(soilsites) 1], @mean);
-
 % Assign x and y variables
 x = elevAgg(st_testAgg);
 y1 = janTs20meanAgg(st_testAgg);
@@ -666,15 +659,12 @@ print(h,'-depsc2','-painters',[figpath 'figC_old.eps'])
 % -------------------------------------------------------------
 % FIG 13 - January/July Tsoil and Tair gradients - AggregatedUtah data only
 
-% Aggregate the sd of July tair
-julTairSdAgg = accumarray(aggindex, julTairSd, [numel(soilsites) 1], @mean);
-
 % Assign x and y variables
 x = elevAgg(st_testAgg);
-y1 = janTs20meanAgg(st_testAgg);
-sd1 = janTs20sdAgg(st_testAgg);
-y2 = julTs20meanAgg(st_testAgg);
-sd2 = julTs20sdAgg(st_testAgg);
+y1 = janTs5meanAgg(st_testAgg);
+sd1 = janTs5sdAgg(st_testAgg);
+y2 = julTs5meanAgg(st_testAgg);
+sd2 = julTs5sdAgg(st_testAgg);
 
 fignum = fignum+1;    
 h = figure('position',[100 0 1100 500],'paperpositionmode',...
@@ -691,9 +681,9 @@ xfit = linspace(1600, 3400);
 [b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
 handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
 if stats(3) < 0.01
-    text(1600, -2.9, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
+    text(1600, -3.5, ['r^2 = ' num2str(stats(1),2) ', p < 0.01']);
 else
-    text(1600, -2.9, ['r^2 = ' num2str(stats(1),2)...
+    text(1600, -3.5, ['r^2 = ' num2str(stats(1),2)...
         ', p = ' num2str(stats(3),2)]);
 end
 % Plot July Ts by elevation and regression
@@ -708,8 +698,8 @@ else
         ', p = ' num2str(stats(3),2)]);
 end
 set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
-xlim([1500 3500]);ylim([-13 27]);
-set(gca,'Ytick',[-10;-5;0;5;10;15;20;25],'Xtick',[1500;2000;2500;3000]);
+xlim([1500 3500]);ylim([-13 30]);
+set(gca,'Ytick',[-10;-5;0;5;10;15;20;25;30],'Xtick',[1500;2000;2500;3000]);
 legend(handles([1 3]), {'January', 'July'}, 'Location', 'Southeast');
 text(0.8, 0.9, 'T_{soil}', 'Units', 'normalized', 'Fontangle', 'italic',...
     'Fontsize', 20);
@@ -757,7 +747,7 @@ text(0.8, 0.9, 'T_{air}', 'Units', 'normalized', 'Fontangle', 'italic',...
     'Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figC.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figC_5cm.eps']) 
 
 
 junk = 99;

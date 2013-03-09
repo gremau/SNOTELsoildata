@@ -6,7 +6,7 @@ fignum = 1;
 
 % Add any needed tools
 addpath('/home/greg/data/code_resources/m_common/'); 
-addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/nanstats/');
 addpath('/home/greg/data/code_resources/m_common/linear/'); 
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 

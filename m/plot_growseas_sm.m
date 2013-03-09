@@ -13,19 +13,12 @@ fignum=0;       % used to increment figure number for plots
 
 % Add any needed tools
 addpath('/home/greg/data/code_resources/m_common/'); 
-addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/nanstats/');
 %addpath('/home/greg/data/code_resources/m_common/linreg/'); 
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 
-
 % Set data path and file name, read in file
 processeddatapath = '../processed_data/';
-
-% Load lists of sites with data in the daily/hourly data directory
-dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
-soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
-allsites = unique(dailysites(:,1));
-soilsites = unique(soilsites(:,1));
 
 % LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
@@ -45,13 +38,15 @@ vwcData = csvread([processeddatapath...
 % Get a subset corresponding to the sites and years in tsData
 matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 
+% Aggregation index for climData(matchsoil) data
+[soilsites, ~, valindex] = unique(climData(matchsoil,1));
+aggindex = [valindex ones(size(climData(matchsoil,1)))];
 
 % Assign climData variables using the headers file USE MATCHSOIL
 fid = fopen([processeddatapath 'headersClim.txt']);
 headerCell = textscan(fid, '%s', 'headerlines', 1);
 fclose(fid);
 headers = headerCell{1};
-
 for i=1:length(headers)
     eval([headers{i} ' = climData(matchsoil,i);']);
 end
@@ -60,13 +55,11 @@ maxswe = maxswe.*25.4;
 accumprecip = accumprecip*25.4;
 JASprecip = JASprecip*25.4;
 
-
 % Assign vwcData variables using the headers file
 fid = fopen([processeddatapath 'headersVWC.txt']);
 headerCell = textscan(fid, '%s', 'headerlines', 1);
 fclose(fid);
 headers = headerCell{1};
-
 for i=1:length(headers)
     eval([headers{i} ' = vwcData(:,i);']);
 end
@@ -76,12 +69,28 @@ fid = fopen([processeddatapath 'headersVWC.txt']);
 headerCell = textscan(fid, '%s', 'headerlines', 1);
 fclose(fid);
 headers = headerCell{1};
-
 for i=1:length(headers)
     eval([headers{i} 'N = vwcDataN(:,i);']);
 end
 
+%----------------------------------------------------
+% Aggregate some values and select sets of sites
+JASprecipAgg = accumarray(aggindex, JASprecip, [numel(soilsites) 1], @nanmean);
+maxsweAgg = accumarray(aggindex, maxswe, [numel(soilsites) 1], @nanmean);
+elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @nanmean);
 
+% Lists of sites with particular elev/swe characteristics - monsites get 
+% high summer precip (> 200mm)
+sites_hihi = soilsites(elevAgg>2750 & maxsweAgg>500);
+sites_lohi = soilsites(elevAgg<2250 & maxsweAgg>500);
+sites_hilo = soilsites(elevAgg>2750 & maxsweAgg<300);
+sites_lolo = soilsites(elevAgg<2250 & maxsweAgg<300);
+mtest = JASprecipAgg > 125;
+monsites = soilsites(mtest);
+monsites_hihi = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)>500);
+monsites_lohi = monsites(elevAgg(mtest)<2250 & maxsweAgg(mtest)>500);
+monsites_hilo = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)<300);
+monsites_lolo = monsites(elevAgg(mtest)<2250 & maxsweAgg(mtest)<300);
 
 %----------------------------------------------------
 % FIG 1 - Plot soil moisture vs max swe snowmelt day
@@ -615,5 +624,171 @@ for i=plotorder
         set(gca, 'YTickLabel', '');
     end
 end
+
+% -----------------------------------------------------------------------
+% Examine the seasonal variability in temp or vwc at a set of 4 sites.
+% These sites have been chosen to represent elevation/temp and SWE
+% gradients
+%
+% 2 plots = Sensor timeseries for each site and then seasonal histograms
+
+% 828 = TrialLk, 333 = BenLomTrail, 452=DonkeyRes, 573=Big BendNV
+sensoroutput = 'vwc';
+sensordepth = 2; %(1=5cm, 2=20cm, 3=50cm);
+startwy = 2006;
+
+% Select TEMP or VWC data and set distribution bins and plot axes
+if strcmpi(sensoroutput, 'vwc');
+    sensorcolumn = sensordepth + 3; % get proper column using sensordepth
+    xmin = 0;
+    % If running RAW SENSOR DATA (no normalization)
+    % xedges = 0:1:100; % raw sm data bins (0-100)
+    % xmax = 75
+    % If running NORMALIZED data with smnormalize
+    xedges = 0:0.02:1; % normalized vwc bins (0-1)
+    xmax = 1; % these axes are good for normalized data
+    ymax = 0.25;
+    disp('*** Running in normalized soil moisture data mode ***');
+elseif strcmpi(sensoroutput, 'temp');
+    sensorcolumn = sensordepth + 6; % get proper column using sensordepth
+    xedges = -15:0.5:35; % soil temp bins -15-35 deg C
+    xmax = 35; % corresponding x axis limits
+    xmin = -15;
+    ymax = 0.2;
+end
+
+% Set up PLOT 1 - add each site's timeseries on iteration through following
+% loop
+figure3 = figure();
+
+% Allocate for histogram and mean matrices - fill in following loop
+histograms = zeros(length(xedges), 16);
+means = zeros(16, 1);
+
+for i = 1:length(siteIDs);
+    % Load hourly data from site  w/ loadsnotel:
+    siteHourly = loadsnotel(siteIDs(i), 'hourly', 'exclude');
+    % Get rid of wateryears prior to startwy
+    wyexclude = siteHourly{10}>startwy-1;
+    for j = 1:10
+        siteHourly{j} = siteHourly{j}(wyexclude);
+    end
+    % Parse out the desired sensor depth, normalize if plotting vwc
+    if strcmpi(sensoroutput, 'vwc')
+        sensordata = filterseries(siteHourly{sensorcolumn}, 'sigma', 25, 3);
+        % SPECIAL Case for Taylor Cyn - There is some bad data that makes it
+        % past filter and messes up normalization - remove it
+        if siteIDs(i) == 336 %811n for TaylorCyn, 336 for BigBend
+            test = sensordata<10; %18 for TaylorCyn, 10 for BigBend
+            sensordata(test)=nan;
+        end
+        sensordata = smnormalize(sensordata, 1);
+    else
+        sensordata = siteHourly{sensorcolumn};
+    end
+    
+    % Create date arrays
+    datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}),...
+        'yyyy-mm-ddHH:MM');
+    datenum_h = datenum(datevec_h);
+    
+    % PLOT 1 - add the entire timeseries for site i
+    ticklocations = linspace(min(datenum_h), max(datenum_h), 20);
+    set(figure3, 'Name', ['Site ' num2str(siteIDs(i))...
+        ' - Full sensor timeseries']);
+    subplot (4, 1, i)
+    plot(datenum_h, sensordata, 'k');
+    set(gca, 'XTick', ticklocations);
+    set(gca, 'XTickLabel', ticklocations);
+    datetick('x', 12, 'keepticks');
+    ylabel(sensoroutput);
+    title(['Site ' num2str(siteIDs(i))]);
+    
+    % Create logical tests and pull desired quarters (3 months intervals)
+    testOND = (datevec_h(:,2)==10 | datevec_h(:,2)==11 | datevec_h(:,2)==12);
+    testJFM = (datevec_h(:,2)==1 | datevec_h(:,2)==2 | datevec_h(:,2)==3);
+    testAMJ = (datevec_h(:,2)==4 | datevec_h(:,2)==5 | datevec_h(:,2)==6);
+    testJAS = (datevec_h(:,2)==7 | datevec_h(:,2)==8 | datevec_h(:,2)==9);
+    sensordata_OND = sensordata(testOND,:);
+    sensordata_JFM = sensordata(testJFM,:);
+    sensordata_AMJ = sensordata(testAMJ,:);
+    sensordata_JAS = sensordata(testJAS,:);
+    
+    % Generate histograms for each quarter's sensor data
+    histOND = histc(sensordata_OND, xedges);
+    histJFM = histc(sensordata_JFM, xedges);
+    histAMJ = histc(sensordata_AMJ, xedges);
+    histJAS = histc(sensordata_JAS, xedges);
+    
+    % Normalize and put histograms in the histograms matrix
+    % (in plotting order)
+    histograms(:, i) = histOND./sum(histOND);
+    histograms(:, i+4) = histJFM./sum(histJFM);
+    histograms(:, i+8) = histAMJ./sum(histAMJ);
+    histograms(:, i+12) = histJAS./sum(histJAS);
+    
+    % Calculate mean and standard deviations of data from each quarter and
+    % place in appropriate vector (in plotting order)
+    means(i) = mean(sensordata_OND(~isnan(sensordata_OND)));
+    means(i+4) = mean(sensordata_JFM(~isnan(sensordata_JFM)));
+    means(i+8) = mean(sensordata_AMJ(~isnan(sensordata_AMJ)));
+    means(i+12) = mean(sensordata_JAS(~isnan(sensordata_JAS)));
+    % stddevOND = std(sensordata_OND(~isnan(sensordata_OND)));
+    % stddevJFM = std(sensordata_JFM(~isnan(sensordata_JFM)));
+    % stddevAMJ = std(sensordata_AMJ(~isnan(sensordata_AMJ)));
+    % stddevJAS = std(sensordata_JAS(~isnan(sensordata_JAS)));
+
+end
+    clear testOND testJFM testAMJ testJAS;
+
+% PLOT 2. Plot quarterly distributions for all sites
+titlelabels = {'Hi SWE/Hi Elev' 'Hi SWE/Low Elev' 'Low SWE/Hi Elev'...
+    'Low SWE/Low Elev'};
+monthlabels = {'Oct-Dec' '' '' '' 'Jan-Mar' '' '' '' 'Apr-Jun' '' '' ''...
+    'Jul-Sep'};
+
+figure4 = figure('position',[100 0 1000 800],'paperpositionmode',...
+    'auto', 'color','none','InvertHardcopy','off');
+set(figure4, 'Name', ['4 SNOTEL Sites - ' sensoroutput ...
+    ' quarterly histograms - all years combined']);
+set(figure4, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
+
+% Loop through 16 subplots and plot histograms and means
+for i = 1:16;
+    subplot (4, 4, i)
+    bar (xedges, histograms(:, i), 'Facecolor', [0.7 0.7 0.7]);
+    hold on
+    plot([means(i) means(i)], [0 1], '--k', 'Linewidth', 1.5);
+    axis([xmin xmax 0 ymax]);
+    set(gca, 'position', [0.925 0.925 1.15 1.19] .* get(gca, 'position'),...
+        'Xtick', [0.5]);
+    if i==1 || i==5 || i==9 || i==13;
+        %ylabel('Frequency');
+        text(0.1, 0.8, monthlabels(i), 'Units', 'normalized');
+        set(gca, 'XTick', [0;0.5])
+        if i==5;
+            text(-0.35, -1,'Normalized frequency of ocurrence',...
+                'Units', 'normalized', 'Rotation', 90);
+        end
+    elseif i==16;
+        set(gca, 'Xtick', [0.5;1]);
+        set(gca, 'YtickLabel', '');
+    else
+        set(gca, 'YtickLabel', '');
+    end
+    if i < 5
+        %title({['Site ' num2str(siteIDs(i))]; titlelabels{i}},...
+        %    'Fontsize', 18, 'Fontangle', 'italic');
+        title(titlelabels{i}, 'Fontsize', 18, 'Fontangle', 'italic');
+        set(gca, 'XtickLabel', '');
+    elseif i < 13
+        set(gca, 'XtickLabel', '');
+    elseif i 
+    end
+end
+
+figpath = '../figures/';
+print(figure4,'-depsc2','-painters',[figpath 'figJ.eps'])
+
 
 

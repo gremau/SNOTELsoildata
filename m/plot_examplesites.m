@@ -19,7 +19,6 @@ clear all;
 addpath('/home/greg/data/code_resources/m_common/linreg/'); 
 addpath('/home/greg/data/code_resources/m_common/');
 
-
 % -----------------------------------------------------------------------
 % Compare a site with a low and high early season snowpack
 % Load Mosby Mtn hourly and daily data
@@ -421,7 +420,7 @@ print(figure4,'-depsc2','-painters',[figpath 'figJ.eps'])
 
 % Add any needed tools
 addpath('/home/greg/data/code_resources/m_common/'); 
-addpath('/home/greg/data/code_resources/m_common/nanstuff/');
+addpath('/home/greg/data/code_resources/m_common/nanstats/');
 addpath('/home/greg/data/code_resources/m_common/linear/'); 
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 

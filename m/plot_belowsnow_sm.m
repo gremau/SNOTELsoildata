@@ -17,7 +17,7 @@ normalize = input('Use normalized soil moisture data?  (y/n) : ', 's');
 
 % Access to nan situff, lines, etc
 addpath('~/data/code_resources/m_common/');
-addpath('~/data/code_resources/m_common/nanstuff/');
+addpath('~/data/code_resources/m_common/nanstats/');
 addpath('~/data/code_resources/m_common/hline_vline/');
 addpath('~/data/code_resources/m_common/linreg/');
 %addpath('/home/greg/data/code_resources/m_common/hist2/');
@@ -25,12 +25,6 @@ addpath('~/data/code_resources/m_common/linreg/');
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/soilsensors_hourly/';
 processeddatapath = '../processed_data/';
-
-% Load lists of sites with data in the daily/hourly data directory
-dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
-soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
-allsites = unique(dailysites(:,1));
-soilsites = unique(soilsites(:,1));
 
 % LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);

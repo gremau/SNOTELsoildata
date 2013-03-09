@@ -12,9 +12,8 @@ fignum=0;       % used to increment figure number for plots
 
 addpath('~/data/code_resources/m_common/');
 addpath('~/data/code_resources/m_common/nonlinear/');
-addpath('~/data/code_resources/m_common/nanstuff/');
+addpath('~/data/code_resources/m_common/nanstats/');
 addpath('~/data/code_resources/m_common/hline_vline/');
-
 
 % Set data path
 processeddatapath = '../processed_data/';
@@ -32,12 +31,6 @@ wasatch = wasatchUintaCell{2}(wasatchTest);
 uintas = wasatchUintaCell{2}(uintaTest);
 clear wasatchTest uintaTest wasatchUintaCell;
 
-% Load lists of sites with data in the daily/hourly data directory
-dailysites = sortrows(csvread('../rawdata/allsensors_daily/filelist.txt'));
-soilsites = sortrows(csvread('../rawdata/soilsensors_hourly/filelist.txt'));
-allsites = unique(dailysites(:,1));
-soilsites = unique(soilsites(:,1));
-
 % LOAD the data (can switch between daily/hourly data here)
 climData = csvread([processeddatapath 'wyear_climatesummary.txt'], 1,0);
 tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
@@ -46,7 +39,6 @@ tsData = csvread([processeddatapath 'wyear_soiltempsummary_hourly.txt'], 1,0);
 % climData includes more than just soil sites, 
 % Get a subset corresponding to the sites and years in tsData
 matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
-
 
 % Assign climData variables using the headers file - USE MATCHSOIL
 fid = fopen([processeddatapath 'headersClim.txt']);
@@ -67,7 +59,6 @@ for i=55:length(headers)
     eval([headers{i} ' = climData(matchsoil,i);']);
 end
 
-
 % Assign tsData variables using the headers file
 fid = fopen([processeddatapath 'headersTsoil.txt']);
 headerCell = textscan(fid, '%s', 'headerlines', 1);
@@ -77,7 +68,6 @@ headers = headerCell{1};
 for i=1:length(headers)
     eval([headers{i} ' = tsData(:,i);']);
 end
-
 
 
 % PLOTS

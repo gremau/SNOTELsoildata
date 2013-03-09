@@ -90,13 +90,15 @@ qqline(scores[,3]) # yes
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
 soilTData$pc3score <- NA
+soilTData$pc4score <- NA
 soilTData$pc1score[varframe.cmplt] <- scores[,1]
 soilTData$pc2score[varframe.cmplt] <- scores[,2]
 soilTData$pc3score[varframe.cmplt] <- scores[,3]
+soilTData$pc4score[varframe.cmplt] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components
-lm1 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score, data=soilTData)
+lm1 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score+pc4score, data=soilTData)
 
 # Add site
 lm2 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score
@@ -117,19 +119,20 @@ lm5 <- lm(snowcovTs20mean ~ pc1score + pc2score + as.factor(yearTsoil)
 lm6 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score
 	  + as.factor(yearTsoil) + as.factor(siteTsoil), data=soilTData)
 
-AIC(lm1) # 2208.249
+AIC(lm1) # 2170.249
 AIC(lm2) # 1667.501
 AIC(lm3) # 1353.623
 AIC(lm4) # 1355.031
 
 summary(lm1)
 #              Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)  0.734803   0.023013  31.930  < 2e-16 ***
-# pc1score    -0.020614   0.007274  -2.834  0.00469 ** 
-# pc2score    -0.140855   0.009707 -14.511  < 2e-16 ***
-# pc3score    -0.032677   0.014869  -2.198  0.02820 *  
-# Multiple R-squared: 0.183,	Adjusted R-squared: 0.1806 
-# F-statistic: 74.39 on 3 and 996 DF,  p-value: < 2.2e-16
+# (Intercept)  0.734750   0.022570  32.555  < 2e-16 ***
+# pc1score    -0.020627   0.007134  -2.892  0.00392 ** 
+# pc2score    -0.140904   0.009520 -14.801  < 2e-16 ***
+# pc3score    -0.032726   0.014582  -2.244  0.02504 *  
+# pc4score     0.122926   0.019304   6.368 2.92e-10 ***
+# Multiple R-squared: 0.215,	Adjusted R-squared: 0.2119 
+# F-statistic: 68.14 on 4 and 995 DF,  p-value: < 2.2e-16
 
 summary(lm2) # not showing site
 #                            Estimate Std. Error t value Pr(>|t|)    
@@ -200,9 +203,11 @@ varframe.cmplt.07 <- (soilTData$yearTsoil==2007 & complete.cases(varframe))
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
 soilTData$pc3score <- NA
+soilTData$pc4score <- NA
 soilTData$pc1score[varframe.cmplt.07] <- scores[,1]
 soilTData$pc2score[varframe.cmplt.07] <- scores[,2]
 soilTData$pc3score[varframe.cmplt.07] <- scores[,3]
+soilTData$pc4score[varframe.cmplt.07] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in
@@ -266,9 +271,11 @@ varframe.cmplt.09 <- (soilTData$yearTsoil==2009 & complete.cases(varframe))
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
 soilTData$pc3score <- NA
+soilTData$pc4score <- NA
 soilTData$pc1score[varframe.cmplt.09] <- scores[,1]
 soilTData$pc2score[varframe.cmplt.09] <- scores[,2]
 soilTData$pc3score[varframe.cmplt.09] <- scores[,3]
+soilTData$pc4score[varframe.cmplt.09] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in
@@ -332,9 +339,11 @@ varframe.cmplt.11 <- (soilTData$yearTsoil==2011 & complete.cases(varframe))
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
 soilTData$pc3score <- NA
+soilTData$pc4score <- NA
 soilTData$pc1score[varframe.cmplt.11] <- scores[,1]
 soilTData$pc2score[varframe.cmplt.11] <- scores[,2]
 soilTData$pc3score[varframe.cmplt.11] <- scores[,3]
+soilTData$pc4score[varframe.cmplt.11] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in

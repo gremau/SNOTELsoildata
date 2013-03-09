@@ -45,7 +45,7 @@ else
 end
 
 % Get access to nanmean, etc
-addpath('/home/greg/data/code_resources/m_common/nanstuff/'); 
+addpath('/home/greg/data/code_resources/m_common/nanstats/'); 
 
 % Set data path and file name, read in file
 rawdatapath = '../rawdata/';
