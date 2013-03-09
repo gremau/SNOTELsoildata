@@ -97,13 +97,15 @@ qqline(scores[,3]) # yes
 soilVWCData$pc1score <- NA
 soilVWCData$pc2score <- NA
 soilVWCData$pc3score <- NA
+soilVWCData$pc4score <- NA
 soilVWCData$pc1score[varframe.cmplt] <- scores[,1]
 soilVWCData$pc2score[varframe.cmplt] <- scores[,2]
 soilVWCData$pc3score[varframe.cmplt] <- scores[,3]
+soilVWCData$pc4score[varframe.cmplt] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components
-lm1 <- lm(jfmVWC20mean ~ pc1score + pc2score + pc3score, data=soilVWCData)
+lm1 <- lm(jfmVWC20mean ~ pc1score+pc2score+pc3score+pc4score, data=soilVWCData)
 
 lm2 <- lm(jfmVWC20mean ~ pc1score + pc2score + pc3score
 	 + as.factor(siteVWC), data=soilVWCData)
@@ -204,9 +206,11 @@ varframe.cmplt.07 <- (soilVWCData$yearVWC==2007 & complete.cases(varframe))
 soilVWCData$pc1score <- NA
 soilVWCData$pc2score <- NA
 soilVWCData$pc3score <- NA
+soilVWCData$pc4score <- NA
 soilVWCData$pc1score[varframe.cmplt.07] <- scores[,1]
 soilVWCData$pc2score[varframe.cmplt.07] <- scores[,2]
 soilVWCData$pc3score[varframe.cmplt.07] <- scores[,3]
+soilVWCData$pc4score[varframe.cmplt.07] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in
@@ -272,9 +276,11 @@ varframe.cmplt.09 <- (soilVWCData$yearVWC==2009 & complete.cases(varframe))
 soilVWCData$pc1score <- NA
 soilVWCData$pc2score <- NA
 soilVWCData$pc3score <- NA
+soilVWCData$pc4score <- NA
 soilVWCData$pc1score[varframe.cmplt.09] <- scores[,1]
 soilVWCData$pc2score[varframe.cmplt.09] <- scores[,2]
 soilVWCData$pc3score[varframe.cmplt.09] <- scores[,3]
+soilVWCData$pc4score[varframe.cmplt.09] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in
@@ -332,9 +338,11 @@ varframe.cmplt.11 <- (soilVWCData$yearVWC==2011 & complete.cases(varframe))
 soilVWCData$pc1score <- NA
 soilVWCData$pc2score <- NA
 soilVWCData$pc3score <- NA
+soilVWCData$pc4score <- NA
 soilVWCData$pc1score[varframe.cmplt.11] <- scores[,1]
 soilVWCData$pc2score[varframe.cmplt.11] <- scores[,2]
 soilVWCData$pc3score[varframe.cmplt.11] <- scores[,3]
+soilVWCData$pc4score[varframe.cmplt.11] <- scores[,4]
 
 # Now it should be possible to do a multiple regression model with the 3
 # principal components. Note that using site as a predictor results in
