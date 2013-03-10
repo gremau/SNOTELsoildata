@@ -54,7 +54,7 @@ scores <- ts20.pca$x
 rownames(scores) <- 1:dim(scores)[1]
 
 # Look at loadings
-loadings[,1:3]
+loadings[,1:4]
 
 # Make a biplot of PCA 1 & 2 - note that the scaling factor of 10 may need to
 # be changed depending on the data set
@@ -77,7 +77,7 @@ biplot(cbind(scores[,1], scores[,3]), cbind(loadings[,1], loadings[,3]),
 # Built-in biplot function - axes 2 & 3
 biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 
-# Are axes 1, 2, and 3 normal?
+# Are axes 1-4 normal?
 qqnorm(scores[,1])
 qqline(scores[,1])
 plot(density(scores[,1]))# mostly, a little negative skew
@@ -85,8 +85,10 @@ qqnorm(scores[,2])
 qqline(scores[,2]) # yes
 qqnorm(scores[,3])
 qqline(scores[,3]) # yes
+qqnorm(scores[,4])
+qqline(scores[,4]) # Some positive skew 
 
-# Assign scores for pc1, 2, & 3 to thier observation (rows)
+# Assign scores for pc1-4 to thier observation (rows)
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
 soilTData$pc3score <- NA
@@ -96,33 +98,25 @@ soilTData$pc2score[varframe.cmplt] <- scores[,2]
 soilTData$pc3score[varframe.cmplt] <- scores[,3]
 soilTData$pc4score[varframe.cmplt] <- scores[,4]
 
-# Now it should be possible to do a multiple regression model with the 3
+# Now it should be possible to do a multiple regression model with the 4
 # principal components
 lm1 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score+pc4score, data=soilTData)
+AIC(lm1) # 2170.249
+
+# remove PC4 
+lm2 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score, data=soilTData)
+AIC(lm2) # 2208.249 - so it seems like pc4 is important
 
 # Add site
-lm2 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score
+lm3 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score+pc4score
 	 + as.factor(siteTsoil), data=soilTData)
+AIC(lm3) # 1594.67
 
 # Add year
-lm3 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score
+lm4 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score+pc4score
 	  + as.factor(yearTsoil) + as.factor(siteTsoil), data=soilTData)
+AIC(lm4) # 1349.05
 
-# Remove pc2 (keep site)
-lm4 <- lm(snowcovTs20mean ~ pc1score + pc3score + as.factor(yearTsoil)
-	 + as.factor(siteTsoil), data=soilTData)
-
-# Add year
-lm5 <- lm(snowcovTs20mean ~ pc1score + pc2score + as.factor(yearTsoil)
-	 + as.factor(siteTsoil) , data=soilTData)
-# Add pc3 back in
-lm6 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score
-	  + as.factor(yearTsoil) + as.factor(siteTsoil), data=soilTData)
-
-AIC(lm1) # 2170.249
-AIC(lm2) # 1667.501
-AIC(lm3) # 1353.623
-AIC(lm4) # 1355.031
 
 summary(lm1)
 #              Estimate Std. Error t value Pr(>|t|)    
@@ -134,31 +128,36 @@ summary(lm1)
 # Multiple R-squared: 0.215,	Adjusted R-squared: 0.2119 
 # F-statistic: 68.14 on 4 and 995 DF,  p-value: < 2.2e-16
 
-summary(lm2) # not showing site
-#                            Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)               0.5949591  0.2952824   2.015  0.04425 *  
-# pc1score                 -0.0346480  0.0122147  -2.837  0.00468 ** 
-# pc2score                 -0.1152891  0.0178841  -6.446 1.99e-10 ***
-# pc3score                 -0.0005928  0.0124289  -0.048  0.96197 
-# Multiple R-squared: 0.6843,	Adjusted R-squared: 0.6013 
-# F-statistic: 8.242 on 208 and 791 DF,  p-value: < 2.2e-16
+summary(lm2)
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.734803   0.023013  31.930  < 2e-16 ***
+# pc1score    -0.020614   0.007274  -2.834  0.00469 ** 
+# pc2score    -0.140855   0.009707 -14.511  < 2e-16 ***
+# pc3score    -0.032677   0.014869  -2.198  0.02820 *  
+# Multiple R-squared: 0.183,	Adjusted R-squared: 0.1806 
+# F-statistic: 74.39 on 3 and 996 DF,  p-value: < 2.2e-16
 
-summary(lm3) # not showing site or year
-#                           Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)               1.329751   0.448891   2.962 0.003147 ** 
-# pc1score                 -0.125487   0.019407  -6.466 1.77e-10 ***
-# pc2score                  0.043254   0.026540   1.630 0.103556    
-# pc3score                 -0.072183   0.012490  -5.779 1.08e-08 ***
-# Multiple R-squared: 0.7753,	Adjusted R-squared: 0.7114 
-# F-statistic: 12.14 on 221 and 778 DF,  p-value: < 2.2e-16 
+summary(lm3) # not showing site
+                          Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               0.536762   0.284715   1.885 0.059762 .  
+# pc1score                 -0.049195   0.011919  -4.127 4.06e-05 ***
+# pc2score                 -0.080106   0.017813  -4.497 7.93e-06 ***
+# pc3score                  0.003148   0.011990   0.263 0.792977    
+# pc4score                  0.119407   0.015240   7.835 1.51e-14 ***
+# Multiple R-squared: 0.707,	Adjusted R-squared: 0.6295 
+# F-statistic: 9.123 on 209 and 790 DF,  p-value: < 2.2e-16 
 
 summary(lm4) # not showing site or year
-#                            Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)               1.5772353  0.4228752   3.730 0.000206 ***
-# pc1score                 -0.1025905  0.0134023  -7.655 5.74e-14 ***
-# pc3score                 -0.0703813  0.0124538  -5.651 2.23e-08 ***
-# Multiple R-squared: 0.7745,	Adjusted R-squared: 0.7108 
-# F-statistic: 12.16 on 220 and 779 DF,  p-value: < 2.2e-16 
+#                           Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)               1.353485   0.447829   3.022 0.002591 ** 
+# pc1score                 -0.118783   0.019581  -6.066 2.04e-09 ***
+# pc2score                  0.045074   0.026482   1.702 0.089145 .  
+# pc3score                 -0.066593   0.012699  -5.244 2.03e-07 ***
+# pc4score                  0.050914   0.022491   2.264 0.023868 *  
+# Multiple R-squared: 0.7767,	Adjusted R-squared: 0.7129 
+# F-statistic: 12.18 on 222 and 777 DF,  p-value: < 2.2e-16 
+
+
 
 # One thing that is unclear here is that year seems to have a big effect.
 # It might be best to try this with some selected years, then exclude year
@@ -181,6 +180,9 @@ rownames(loadings) <- colnames(varframe.07)
 scores <- ts20.07.pca$x
 rownames(scores) <- 1:dim(scores)[1]
 
+# Look at loadings
+loadings[,1:4]
+
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
 # Built-in biplot function - axes 1 & 3
@@ -189,7 +191,7 @@ biplot(cbind(scores[,1], scores[,3]), cbind(loadings[,1], loadings[,3]),
 # Built-in biplot function - axes 2 & 3
 biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 
-# Are axes 1, 2, and 3 normal?
+# Are axes 1-4 normal?
 qqnorm(scores[,1])
 qqline(scores[,1])
 plot(density(scores[,1]))# mostly, a little negative skew
@@ -197,8 +199,10 @@ qqnorm(scores[,2])
 qqline(scores[,2]) # yes
 qqnorm(scores[,3])
 qqline(scores[,3]) # yes except for at the extremes
+qqnorm(scores[,4])
+qqline(scores[,4]) # mostly, but with some negative skew 
 
-# Assign scores for pc1, 2, & 3 to thier observation (rows)
+# Assign scores for pc1-4 to thier observation (rows)
 varframe.cmplt.07 <- (soilTData$yearTsoil==2007 & complete.cases(varframe))
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
@@ -209,11 +213,25 @@ soilTData$pc2score[varframe.cmplt.07] <- scores[,2]
 soilTData$pc3score[varframe.cmplt.07] <- scores[,3]
 soilTData$pc4score[varframe.cmplt.07] <- scores[,4]
 
-# Now it should be possible to do a multiple regression model with the 3
+# Now it should be possible to do a multiple regression model with the 4
 # principal components. Note that using site as a predictor results in
 # all singularities (invalid model)
-lm1 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score, data=soilTData)
+lm1 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score+pc4score, data=soilTData)
+AIC(lm1) # 235.0844
 summary(lm1)
+#             Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.65950    0.05053  13.052  < 2e-16 ***
+# pc1score    -0.01521    0.01461  -1.041    0.300    
+# pc2score     0.08776    0.02088   4.203 4.95e-05 ***
+# pc3score    -0.04411    0.03268  -1.350    0.179    
+# pc4score     0.25760    0.04774   5.396 3.25e-07 ***
+# Multiple R-squared: 0.287,	Adjusted R-squared: 0.2643 
+# F-statistic: 12.68 on 4 and 126 DF,  p-value: 1.061e-08 
+
+
+lm2 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score, data=soilTData)
+AIC(lm2) # 260.3205 
+summary(lm2)
 #             Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)  0.66690    0.05582  11.947  < 2e-16 ***
 # pc1score    -0.01396    0.01614  -0.865 0.388714    
@@ -221,15 +239,6 @@ summary(lm1)
 # pc3score    -0.04413    0.03611  -1.222 0.223984    
 # Multiple R-squared: 0.1222,	Adjusted R-squared: 0.1015 
 # F-statistic: 5.894 on 3 and 127 DF,  p-value: 0.0008469 
-
-lm2 <- lm(snowcovTs20mean ~ pc2score, data=soilTData)
-summary(lm2)
-#             Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)  0.66711    0.05587  11.939  < 2e-16 ***
-# pc2score     0.09064    0.02309   3.926  0.00014 ***
-# Multiple R-squared: 0.1067,	Adjusted R-squared: 0.09979 
-# F-statistic: 15.41 on 1 and 129 DF,  p-value: 0.00014 
-
 
 # 2009
 varframe.09 <- varframe[climData.sub$yearClim==2009,] # Boolean 2009 rows
@@ -248,6 +257,8 @@ loadings <- ts20.09.pca$rotation
 rownames(loadings) <- colnames(varframe.09)
 scores <- ts20.09.pca$x
 rownames(scores) <- 1:dim(scores)[1]
+# Look at loadings
+loadings[,1:4]
 
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
@@ -257,7 +268,7 @@ biplot(cbind(scores[,1], scores[,3]), cbind(loadings[,1], loadings[,3]),
 # Built-in biplot function - axes 2 & 3
 biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 
-# Are axes 1, 2, and 3 normal?
+# Are axes 1-4 normal?
 qqnorm(scores[,1])
 qqline(scores[,1])
 plot(density(scores[,1]))# mostly, a little negative skew
@@ -265,8 +276,10 @@ qqnorm(scores[,2])
 qqline(scores[,2]) # yes
 qqnorm(scores[,3])
 qqline(scores[,3]) # bit of positive skew
+qqnorm(scores[,4])
+qqline(scores[,4]) # yes, except at extremes 
 
-# Assign scores for pc1, 2, & 3 to thier observation (rows)
+# Assign scores for pc1-4 to thier observation (rows)
 varframe.cmplt.09 <- (soilTData$yearTsoil==2009 & complete.cases(varframe))
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
@@ -277,11 +290,24 @@ soilTData$pc2score[varframe.cmplt.09] <- scores[,2]
 soilTData$pc3score[varframe.cmplt.09] <- scores[,3]
 soilTData$pc4score[varframe.cmplt.09] <- scores[,4]
 
-# Now it should be possible to do a multiple regression model with the 3
+# Now it should be possible to do a multiple regression model with the 4
 # principal components. Note that using site as a predictor results in
 # all singularities (invalid model)
-lm1 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score, data=soilTData)
+lm1 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score+pc4score, data=soilTData)
+AIC(lm1) # 307.7004
 summary(lm1)
+#             Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.54842    0.05669   9.674  < 2e-16 ***
+# pc1score    -0.01330    0.01650  -0.806 0.421834    
+# pc2score     0.15700    0.02268   6.924 1.46e-10 ***
+# pc3score    -0.14195    0.03735  -3.800 0.000215 ***
+# pc4score     0.17070    0.05785   2.951 0.003719 ** 
+# Multiple R-squared: 0.3388,	Adjusted R-squared: 0.3199 
+# F-statistic: 17.93 on 4 and 140 DF,  p-value: 6.556e-12 
+
+lm2 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score, data=soilTData)
+AIC(lm2) # 314.4483
+summary(lm2)
 #             Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)  0.54842    0.05822   9.420  < 2e-16 ***
 # pc1score    -0.01330    0.01695  -0.784 0.434087    
@@ -289,15 +315,6 @@ summary(lm1)
 # pc3score    -0.14195    0.03836  -3.700 0.000308 ***
 # Multiple R-squared: 0.2977,	Adjusted R-squared: 0.2827 
 # F-statistic: 19.92 on 3 and 141 DF,  p-value: 8.012e-11 
-
-lm2 <- lm(snowcovTs20mean ~ pc2score + pc3score, data=soilTData)
-summary(lm2)
-#             Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)  0.54842    0.05814   9.432  < 2e-16 ***
-# pc2score     0.15700    0.02326   6.751 3.47e-10 ***
-# pc3score    -0.14195    0.03831  -3.706 0.000301 ***
-# Multiple R-squared: 0.2946,	Adjusted R-squared: 0.2847 
-# F-statistic: 29.65 on 2 and 142 DF,  p-value: 1.732e-11 
 
 # 2011
 varframe.11 <- varframe[climData.sub$yearClim==2011,] # Boolean 2011 rows
@@ -316,6 +333,8 @@ loadings <- ts20.11.pca$rotation
 rownames(loadings) <- colnames(varframe.11)
 scores <- ts20.11.pca$x
 rownames(scores) <- 1:dim(scores)[1]
+# Look at loadings
+loadings[,1:4]
 
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
@@ -325,7 +344,7 @@ biplot(cbind(scores[,1], scores[,3]), cbind(loadings[,1], loadings[,3]),
 # Built-in biplot function - axes 2 & 3
 biplot(scores[,2:3], loadings[,2:3], xlab=rownames(scores), cex=0.7)
 
-# Are axes 1, 2, and 3 normal?
+# Are axes 1-4 normal?
 qqnorm(scores[,1])
 qqline(scores[,1])
 plot(density(scores[,1]))# yes
@@ -333,8 +352,10 @@ qqnorm(scores[,2])
 qqline(scores[,2]) # yes
 qqnorm(scores[,3])
 qqline(scores[,3]) # yes except for at the extremes, some neg. skew
+qqnorm(scores[,4])
+qqline(scores[,4]) # yes
 
-# Assign scores for pc1, 2, & 3 to thier observation (rows)
+# Assign scores for pc1-4 to thier observation (rows)
 varframe.cmplt.11 <- (soilTData$yearTsoil==2011 & complete.cases(varframe))
 soilTData$pc1score <- NA
 soilTData$pc2score <- NA
@@ -345,16 +366,28 @@ soilTData$pc2score[varframe.cmplt.11] <- scores[,2]
 soilTData$pc3score[varframe.cmplt.11] <- scores[,3]
 soilTData$pc4score[varframe.cmplt.11] <- scores[,4]
 
-# Now it should be possible to do a multiple regression model with the 3
+# Now it should be possible to do a multiple regression model with the 4
 # principal components. Note that using site as a predictor results in
 # all singularities (invalid model)
-lm1 <- lm(snowcovTs20mean ~ pc1score + pc2score + pc3score, data=soilTData)
+lm1 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score+pc4score, data=soilTData)
+AIC(lm1) # 240.6223
 summary(lm1)
+#              Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)  0.877093   0.036902  23.768  < 2e-16 ***
+# pc1score     0.034941   0.010551   3.312  0.00114 ** 
+# pc2score     0.109620   0.014906   7.354 8.53e-12 ***
+# pc3score    -0.049654   0.023059  -2.153  0.03274 *  
+# pc4score    -0.006519   0.039927  -0.163  0.87050    
+# Multiple R-squared: 0.297,	Adjusted R-squared:  0.28 
+# F-statistic: 17.43 on 4 and 165 DF,  p-value: 6.021e-12
+
+lm2 <- lm(snowcovTs20mean ~ pc1score+pc2score+pc3score, data=soilTData)
+AIC(lm2) # 238.6498
+summary(lm2)
 #             Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)  0.87709    0.03679  23.838  < 2e-16 ***
 # pc1score     0.03494    0.01052   3.321   0.0011 ** 
 # pc2score     0.10962    0.01486   7.376  7.4e-12 ***
 # pc3score    -0.04965    0.02299  -2.160   0.0322 *  
 # Multiple R-squared: 0.2969,	Adjusted R-squared: 0.2842 
-# F-statistic: 23.37 on 3 and 166 DF,  p-value: 1.145e-12
-
+# F-statistic: 23.37 on 3 and 166 DF,  p-value: 1.145e-12 
