@@ -1,13 +1,16 @@
-% binseries.m
-% Binning function
-% Bin the vwc datapoints and then generate a mean for each bin
-% Data:
-% x, y1, y2 = x data, ydata and ydata2 (usually std of y1)
-% Binning parameters:
-% topEdge = upper x range of bins
-% botEdge = lower x range of bins
-% numBins = number of bins
-
+% ## binseries.m
+% A function for binning 2 data series and then generating a means for each bin.
+%
+% Usage
+%
+%    [binMean1, binMean2] = binseries(x, y1, y2, topEdge, botEdge, numBins)
+%
+% * x, y1, y2 = xdata, ydata and ydata2 (usually a std of y1) series
+% * topEdge = upper x range of bins
+% * botEdge = lower x range of bins
+% * numBins = number of bins
+% * binMean1 = mean of ydata bins
+% * binMean2 = mean of ydata2 bins
 
 function [binMean1, binMean2] = binseries(x, y1, y2, topEdge, botEdge, numBins)
     addpath('/home/greg/data/code_resources/m_common/nanstats/');

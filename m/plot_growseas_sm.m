@@ -1,8 +1,8 @@
 function n = plot_growseas_sm()
 % plot_growseas_sm.m
 %
-% Reads SNOTEL data files and makes plots characterizing growing season 
-% variability in soil VWC (entire network or individual sites), and its 
+% Reads SNOTEL data files and makes plots characterizing growing season
+% variability in soil VWC (entire network or individual sites), and its
 % relationship to snowpack.
 %
 % Feb 20, 2012 - Greg Maurer
@@ -12,10 +12,10 @@ close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 
 % Add any needed tools
-addpath('/home/greg/data/code_resources/m_common/'); 
+addpath('/home/greg/data/code_resources/m_common/');
 addpath('/home/greg/data/code_resources/m_common/nanstats/');
-%addpath('/home/greg/data/code_resources/m_common/linreg/'); 
-addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
+%addpath('/home/greg/data/code_resources/m_common/linreg/');
+addpath('/home/greg/data/code_resources/m_common/hline_vline/');
 
 % Set data path and file name, read in file
 processeddatapath = '../processed_data/';
@@ -34,7 +34,7 @@ vwcData = csvread([processeddatapath...
 %     vwcData = csvread([processeddatapath...
 %         'wyear_soilwatersummary_daily.txt'], 1,0);
 
-% climData includes more than just soil sites, 
+% climData includes more than just soil sites,
 % Get a subset corresponding to the sites and years in tsData
 matchsoil = ismember(climData(:, 1:2), tsData(:, 1:2), 'rows');
 
@@ -72,25 +72,6 @@ headers = headerCell{1};
 for i=1:length(headers)
     eval([headers{i} 'N = vwcDataN(:,i);']);
 end
-
-%----------------------------------------------------
-% Aggregate some values and select sets of sites
-JASprecipAgg = accumarray(aggindex, JASprecip, [numel(soilsites) 1], @nanmean);
-maxsweAgg = accumarray(aggindex, maxswe, [numel(soilsites) 1], @nanmean);
-elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @nanmean);
-
-% Lists of sites with particular elev/swe characteristics - monsites get 
-% high summer precip (> 200mm)
-sites_hihi = soilsites(elevAgg>2750 & maxsweAgg>500);
-sites_lohi = soilsites(elevAgg<2250 & maxsweAgg>500);
-sites_hilo = soilsites(elevAgg>2750 & maxsweAgg<300);
-sites_lolo = soilsites(elevAgg<2250 & maxsweAgg<300);
-mtest = JASprecipAgg > 125;
-monsites = soilsites(mtest);
-monsites_hihi = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)>500);
-monsites_lohi = monsites(elevAgg(mtest)<2250 & maxsweAgg(mtest)>500);
-monsites_hilo = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)<300);
-monsites_lolo = monsites(elevAgg(mtest)<2250 & maxsweAgg(mtest)<300);
 
 %----------------------------------------------------
 % FIG 1 - Plot soil moisture vs max swe snowmelt day
@@ -195,16 +176,16 @@ x = meltdoy; %split into x and y
 y = jasVWC5mean;
 y2 = jasVWC5sd;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(321); % 5cm  
+subplot(321); % 5cm
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([140 310]); ylim([0 45]);
-title('Summer VWC vs snowmelt day'); 
+title('Summer VWC vs snowmelt day');
 ylabel('5cm VWC');
 
 y = jasVWC20mean;
 y2 = jasVWC20sd;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(323); % 20cm  
+subplot(323); % 20cm
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([140 310]); ylim([0 45]);
 ylabel('20cm VWC');
@@ -213,7 +194,7 @@ ylabel('20cm VWC');
 y = jasVWC50mean;
 y2 = jasVWC50sd;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(325); % 50cm  
+subplot(325); % 50cm
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([140 310]); ylim([0 45]);
 xlabel('Snowmelt day'); ylabel('50cm VWC');
@@ -269,16 +250,16 @@ x = meltdoy; %split into x and y
 y = jasVWC5meanN;
 y2 = jasVWC5sdN;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(321); % 5cm  
+subplot(321); % 5cm
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([140 310]); ylim([0 1]);
-title('Summer VWC vs snowmelt day'); 
+title('Summer VWC vs snowmelt day');
 ylabel('5cm VWC-norm');
 
 y = jasVWC20meanN;
 y2 = jasVWC20sdN;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(323); % 20cm  
+subplot(323); % 20cm
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([140 310]); ylim([0 1]);
 ylabel('20cm VWC-norm');
@@ -287,7 +268,7 @@ ylabel('20cm VWC-norm');
 y = jasVWC50meanN;
 y2 = jasVWC50sdN;
 [binMean, binStd] = binseries(x, y, y2, topEdge, botEdge, numBins);
-subplot(325); % 50cm  
+subplot(325); % 50cm
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([140 310]); ylim([0 1]);
 xlabel('Snowmelt day'); ylabel('50cm VWC-norm');
@@ -306,7 +287,7 @@ y2 = jasVWC5sdN;
 subplot(322);
 errorbar(xax(1:numBins), binMean, binStd, 'ok');
 xlim([0 1650]); ylim([0 1]);
-title('Summer VWC vs peak SWE'); 
+title('Summer VWC vs peak SWE');
 ylabel('5cm VWC');
 
 y = jasVWC20meanN;
@@ -335,7 +316,7 @@ polyorder = 1;
 
 x = meltdoy; %split into x and y
 y = jasVWC5meanN;
-subplot(321); % 5cm  
+subplot(321); % 5cm
 errorbar(x, y, jasVWC5sdN, 'o', 'Color', [0.8 0.8 0.8],...
     'MarkerEdgeColor', [0.8 0.8 0.8], 'MarkerFaceColor', 'w');
 hold on;
@@ -343,11 +324,11 @@ hold on;
 plot(xfit, yfit, '-k', 'LineWidth', 2);
 text(150, 0.75, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlim([140 310]); ylim([0 1]);
-title('Summer VWC vs snowmelt day'); 
+title('Summer VWC vs snowmelt day');
 ylabel('5cm VWC-norm');
 
 y = jasVWC20meanN;
-subplot(323); % 20cm  
+subplot(323); % 20cm
 errorbar(x, y, jasVWC20sdN, 'o', 'Color', [0.8 0.8 0.8],...
     'MarkerEdgeColor', [0.8 0.8 0.8], 'MarkerFaceColor', 'w');
 hold on;
@@ -358,7 +339,7 @@ xlim([140 310]); ylim([0 1]);
 ylabel('20cm VWC-norm');
 
 y = jasVWC50meanN;
-subplot(325); % 50cm  
+subplot(325); % 50cm
 errorbar(x, y, jasVWC50sdN, 'o', 'Color', [0.8 0.8 0.8],...
     'MarkerEdgeColor', [0.8 0.8 0.8], 'MarkerFaceColor', 'w');
 hold on
@@ -372,7 +353,7 @@ ylabel('50cm VWC-norm');
 
 x = maxswe; %split into x and y
 y = jasVWC5meanN;
-subplot(322); % 5cm  
+subplot(322); % 5cm
 errorbar(x, y, jasVWC5sdN, 'o', 'Color', [0.8 0.8 0.8],...
     'MarkerEdgeColor', [0.8 0.8 0.8], 'MarkerFaceColor', 'w');
 hold on;
@@ -380,10 +361,10 @@ hold on;
 plot(xfit, yfit, '-k', 'LineWidth', 2);
 text(150, 0.75, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlim([0 1650]); ylim([0 1]);
-title('Summer VWC vs peak SWE'); 
+title('Summer VWC vs peak SWE');
 
 y = jasVWC20meanN;
-subplot(324); % 20cm  
+subplot(324); % 20cm
 errorbar(x, y, jasVWC20sdN, 'ok', 'Color', [0.8 0.8 0.8],...
     'MarkerEdgeColor', [0.8 0.8 0.8], 'MarkerFaceColor', 'w');
 hold on;
@@ -393,7 +374,7 @@ text(150, 0.75, ['r^2 = ' num2str(rsq, 2)]); % r^2 values
 xlim([0 1650]); ylim([0 1]);
 
 y = jasVWC50meanN;
-subplot(326); % 50cm  
+subplot(326); % 50cm
 errorbar(x, y, jasVWC50sdN, 'o', 'Color', [0.8 0.8 0.8],...
     'MarkerEdgeColor', [0.8 0.8 0.8], 'MarkerFaceColor', 'w');
 hold on
@@ -533,7 +514,7 @@ title('Little Bear');
 
 % -----------------------------------------------------------
 % FIG 8 - Month soil water content vs elevation
-fignum = fignum+1;    
+fignum = fignum+1;
 h = figure(fignum);
 set(h, 'Name', ['Mean monthly 20cm VWC (normalized) vs elevation - '...
     'All SNOTEL/years']);
@@ -573,7 +554,7 @@ for i=plotorder
     [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [800, 3600]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized'); % r^2 values
-%     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
+    %     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     title(months(i+3,:));
     xlim([800, 3600]); ylim([0, 1]);
     hline(0, '--k');
@@ -592,7 +573,7 @@ for i=plotorder
     [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [800, 3600]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized'); % r^2 values
-%     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
+    %     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     title(months(i+6,:));
     xlim([800, 3600]); ylim([0, 1]);
     hline(0, '--k');
@@ -602,7 +583,7 @@ for i=plotorder
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
-
+    
     subplot(4,3, i+9);
     eval(['y1 = ' months(i+9,:) 'VWC20meanN;']);
     %eval(['y2 = ' months(i+9,:) 'Ts50mean;']);
@@ -611,7 +592,7 @@ for i=plotorder
     [~, rsq, xfit, yfit] = fitline(x, y1, polyorder, [800, 3600]);
     plot(xfit, yfit, '-k', 'LineWidth', 2);
     text(0.1, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized'); % r^2 values
-%     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
+    %     plot(x, y2, '.', 'Color', [0.4,0.4,0.4]);
     title(months(i+9,:));
     xlim([800, 3600]); ylim([0, 1]);
     hline(0, '--k');
@@ -625,6 +606,24 @@ for i=plotorder
     end
 end
 
+%----------------------------------------------------
+% Aggregate some values and select sets of sites
+JASprecipAgg = accumarray(aggindex, JASprecip, [numel(soilsites) 1], @nanmean);
+maxsweAgg = accumarray(aggindex, maxswe, [numel(soilsites) 1], @nanmean);
+elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @nanmean);
+
+% Lists of sites with particular elev/swe characteristics - monsites get
+% high summer precip (> 200mm)
+sites_hihi = soilsites(elevAgg>2750 & maxsweAgg>500);
+sites_lohi = soilsites(elevAgg<2250 & maxsweAgg>500);
+sites_hilo = soilsites(elevAgg>2750 & maxsweAgg<300);
+sites_lolo = soilsites(elevAgg<2250 & maxsweAgg<300);
+mtest = JASprecipAgg > 125;
+monsites = soilsites(mtest);
+monsites_hihi = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)>450);
+monsites_lohi = monsites(elevAgg(mtest)<2750 & maxsweAgg(mtest)>450);
+monsites_hilo = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)<300);
+monsites_lolo = monsites(elevAgg(mtest)<2750 & maxsweAgg(mtest)<300);
 % -----------------------------------------------------------------------
 % Examine the seasonal variability in temp or vwc at a set of 4 sites.
 % These sites have been chosen to represent elevation/temp and SWE
@@ -632,145 +631,79 @@ end
 %
 % 2 plots = Sensor timeseries for each site and then seasonal histograms
 
-% 828 = TrialLk, 333 = BenLomTrail, 452=DonkeyRes, 573=Big BendNV
-sensoroutput = 'vwc';
 sensordepth = 2; %(1=5cm, 2=20cm, 3=50cm);
 startwy = 2006;
 
-% Select TEMP or VWC data and set distribution bins and plot axes
-if strcmpi(sensoroutput, 'vwc');
-    sensorcolumn = sensordepth + 3; % get proper column using sensordepth
-    xmin = 0;
-    % If running RAW SENSOR DATA (no normalization)
-    % xedges = 0:1:100; % raw sm data bins (0-100)
-    % xmax = 75
-    % If running NORMALIZED data with smnormalize
-    xedges = 0:0.02:1; % normalized vwc bins (0-1)
-    xmax = 1; % these axes are good for normalized data
-    ymax = 0.25;
-    disp('*** Running in normalized soil moisture data mode ***');
-elseif strcmpi(sensoroutput, 'temp');
-    sensorcolumn = sensordepth + 6; % get proper column using sensordepth
-    xedges = -15:0.5:35; % soil temp bins -15-35 deg C
-    xmax = 35; % corresponding x axis limits
-    xmin = -15;
-    ymax = 0.2;
-end
-
-% Set up PLOT 1 - add each site's timeseries on iteration through following
-% loop
-figure3 = figure();
+% Set distribution bins and plot axes
+sensorcolumn = sensordepth + 3; % get proper column using sensordepth
+xmin = 0;
+% If running RAW SENSOR DATA (no normalization)
+% xedges = 0:1:100; % raw sm data bins (0-100)
+% xmax = 75
+% If running NORMALIZED data with smnormalize
+xedges = 0:0.02:1; % normalized vwc bins (0-1)
+xmax = 1; % these axes are good for normalized data
+ymax = 0.125;
+disp('*** Running in normalized soil moisture data mode ***');
 
 % Allocate for histogram and mean matrices - fill in following loop
-histograms = zeros(length(xedges), 16);
-means = zeros(16, 1);
+histograms = zeros(length(xedges), 8);
+means = zeros(8, 1);
 
-for i = 1:length(siteIDs);
-    % Load hourly data from site  w/ loadsnotel:
-    siteHourly = loadsnotel(siteIDs(i), 'hourly', 'exclude');
-    % Get rid of wateryears prior to startwy
-    wyexclude = siteHourly{10}>startwy-1;
-    for j = 1:10
-        siteHourly{j} = siteHourly{j}(wyexclude);
-    end
-    % Parse out the desired sensor depth, normalize if plotting vwc
-    if strcmpi(sensoroutput, 'vwc')
-        sensordata = filterseries(siteHourly{sensorcolumn}, 'sigma', 25, 3);
-        % SPECIAL Case for Taylor Cyn - There is some bad data that makes it
-        % past filter and messes up normalization - remove it
-        if siteIDs(i) == 336 %811n for TaylorCyn, 336 for BigBend
-            test = sensordata<10; %18 for TaylorCyn, 10 for BigBend
-            sensordata(test)=nan;
-        end
-        sensordata = smnormalize(sensordata, 1);
-    else
-        sensordata = siteHourly{sensorcolumn};
-    end
-    
-    % Create date arrays
-    datevec_h = datevec(strcat(siteHourly{2}, siteHourly{3}),...
-        'yyyy-mm-ddHH:MM');
-    datenum_h = datenum(datevec_h);
-    
-    % PLOT 1 - add the entire timeseries for site i
-    ticklocations = linspace(min(datenum_h), max(datenum_h), 20);
-    set(figure3, 'Name', ['Site ' num2str(siteIDs(i))...
-        ' - Full sensor timeseries']);
-    subplot (4, 1, i)
-    plot(datenum_h, sensordata, 'k');
-    set(gca, 'XTick', ticklocations);
-    set(gca, 'XTickLabel', ticklocations);
-    datetick('x', 12, 'keepticks');
-    ylabel(sensoroutput);
-    title(['Site ' num2str(siteIDs(i))]);
-    
-    % Create logical tests and pull desired quarters (3 months intervals)
-    testOND = (datevec_h(:,2)==10 | datevec_h(:,2)==11 | datevec_h(:,2)==12);
-    testJFM = (datevec_h(:,2)==1 | datevec_h(:,2)==2 | datevec_h(:,2)==3);
-    testAMJ = (datevec_h(:,2)==4 | datevec_h(:,2)==5 | datevec_h(:,2)==6);
-    testJAS = (datevec_h(:,2)==7 | datevec_h(:,2)==8 | datevec_h(:,2)==9);
-    sensordata_OND = sensordata(testOND,:);
-    sensordata_JFM = sensordata(testJFM,:);
-    sensordata_AMJ = sensordata(testAMJ,:);
-    sensordata_JAS = sensordata(testJAS,:);
-    
-    % Generate histograms for each quarter's sensor data
-    histOND = histc(sensordata_OND, xedges);
-    histJFM = histc(sensordata_JFM, xedges);
-    histAMJ = histc(sensordata_AMJ, xedges);
-    histJAS = histc(sensordata_JAS, xedges);
-    
-    % Normalize and put histograms in the histograms matrix
-    % (in plotting order)
-    histograms(:, i) = histOND./sum(histOND);
-    histograms(:, i+4) = histJFM./sum(histJFM);
-    histograms(:, i+8) = histAMJ./sum(histAMJ);
-    histograms(:, i+12) = histJAS./sum(histJAS);
-    
-    % Calculate mean and standard deviations of data from each quarter and
-    % place in appropriate vector (in plotting order)
-    means(i) = mean(sensordata_OND(~isnan(sensordata_OND)));
-    means(i+4) = mean(sensordata_JFM(~isnan(sensordata_JFM)));
-    means(i+8) = mean(sensordata_AMJ(~isnan(sensordata_AMJ)));
-    means(i+12) = mean(sensordata_JAS(~isnan(sensordata_JAS)));
-    % stddevOND = std(sensordata_OND(~isnan(sensordata_OND)));
-    % stddevJFM = std(sensordata_JFM(~isnan(sensordata_JFM)));
-    % stddevAMJ = std(sensordata_AMJ(~isnan(sensordata_AMJ)));
-    % stddevJAS = std(sensordata_JAS(~isnan(sensordata_JAS)));
+% Put normalized histograms in the histograms matrix
+% (in plotting order)
+histograms(:,1) = gethistn(sites_hihi);
+histograms(:,2) = gethistn(sites_hilo);
+histograms(:,3) = gethistn(sites_lohi);
+histograms(:,4) = gethistn(sites_lolo);
+histograms(:,5) = gethistn(monsites_hihi);
+histograms(:,6) = gethistn(monsites_hilo);
+histograms(:,7) = gethistn(monsites_lohi);
+histograms(:,8) = gethistn(monsites_lolo);
 
-end
-    clear testOND testJFM testAMJ testJAS;
+
+% Calculate mean and standard deviations of data from each quarter and
+% place in appropriate vector (in plotting order)
+% means(i) = mean(sensordata_OND(~isnan(sensordata_OND)));
+% means(i+4) = mean(sensordata_JFM(~isnan(sensordata_JFM)));
+% means(i+8) = mean(sensordata_AMJ(~isnan(sensordata_AMJ)));
+% means(i+12) = mean(sensordata_JAS(~isnan(sensordata_JAS)));
+% stddevOND = std(sensordata_OND(~isnan(sensordata_OND)));
+% stddevJFM = std(sensordata_JFM(~isnan(sensordata_JFM)));
+% stddevAMJ = std(sensordata_AMJ(~isnan(sensordata_AMJ)));
+% stddevJAS = std(sensordata_JAS(~isnan(sensordata_JAS)));
+
+
+clear testJAS;
 
 % PLOT 2. Plot quarterly distributions for all sites
 titlelabels = {'Hi SWE/Hi Elev' 'Hi SWE/Low Elev' 'Low SWE/Hi Elev'...
     'Low SWE/Low Elev'};
-monthlabels = {'Oct-Dec' '' '' '' 'Jan-Mar' '' '' '' 'Apr-Jun' '' '' ''...
-    'Jul-Sep'};
+monlabels = {'Normal precip' '' '' '' 'Monsoon precip' '' '' ''};
 
-figure4 = figure('position',[100 0 1000 800],'paperpositionmode',...
+figure4 = figure('position',[100 0 1000 500],'paperpositionmode',...
     'auto', 'color','none','InvertHardcopy','off');
-set(figure4, 'Name', ['4 SNOTEL Sites - ' sensoroutput ...
-    ' quarterly histograms - all years combined']);
+set(figure4, 'Name', ['Multi-site quarterly histograms - 2006-2011']);
 set(figure4, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
 
-% Loop through 16 subplots and plot histograms and means
-for i = 1:16;
-    subplot (4, 4, i)
+% Loop through 8 subplots and plot histograms and means
+for i = 1:8;
+    subplot (2, 4, i)
     bar (xedges, histograms(:, i), 'Facecolor', [0.7 0.7 0.7]);
     hold on
     plot([means(i) means(i)], [0 1], '--k', 'Linewidth', 1.5);
     axis([xmin xmax 0 ymax]);
     set(gca, 'position', [0.925 0.925 1.15 1.19] .* get(gca, 'position'),...
         'Xtick', [0.5]);
-    if i==1 || i==5 || i==9 || i==13;
+    if i==1 || i==5;
         %ylabel('Frequency');
-        text(0.1, 0.8, monthlabels(i), 'Units', 'normalized');
+        text(0.1, 0.8, monlabels(i), 'Units', 'normalized');
         set(gca, 'XTick', [0;0.5])
-        if i==5;
-            text(-0.35, -1,'Normalized frequency of ocurrence',...
+        if i==1;
+            text(-0.35, -0.8,'Normalized frequency of ocurrence',...
                 'Units', 'normalized', 'Rotation', 90);
         end
-    elseif i==16;
+    elseif i==8;
         set(gca, 'Xtick', [0.5;1]);
         set(gca, 'YtickLabel', '');
     else
@@ -781,14 +714,13 @@ for i = 1:16;
         %    'Fontsize', 18, 'Fontangle', 'italic');
         title(titlelabels{i}, 'Fontsize', 18, 'Fontangle', 'italic');
         set(gca, 'XtickLabel', '');
-    elseif i < 13
-        set(gca, 'XtickLabel', '');
-    elseif i 
     end
 end
 
 figpath = '../figures/';
-print(figure4,'-depsc2','-painters',[figpath 'figJ.eps'])
+print(figure4,'-depsc2','-painters',[figpath 'figK.eps'])
+
+end
 
 
 

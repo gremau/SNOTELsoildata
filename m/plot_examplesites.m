@@ -1,18 +1,20 @@
-% plot_examplesites.m
-%
+% ## plot\_examplesites.m
 % This makes a number of figures that highlight snow-soil interactions
 % at particular sites.
-% **File input:** The first 4 figures directly load hourly or daily data. 
-%                 The last 2 use the summary files
-% **User input:** User can select different sites to plot in figs 2, 4, 
-%                 5, 6 in the code
 % 
-% Fig 1 = 2 year SWE/temp comparison at Mosby Mtn.
-% Fig 2 = Multi-year SWE/Tsoil/VWC time series at a site (changeable)
-% Fig 3 = Full VWC timeseries of 4 sites - the data for Fig 4
-% Fig 4 = VWC Frequency histograms for 4 contrasting sites
-% Fig 5 = Scatterplot/Regression of snowcov. Tsoil vs pre-onset T at 1 site
-% Fig 6 = Scatterplot/Regression of summer (JAS) VWC vs meltday at 1 site
+% * **File input:** The first 4 figures directly load hourly or daily data. 
+% The last 2 use the summary files
+% * **User input:** User can select different sites to plot in figs 2, 4,
+% 5, 6 in the code
+% 
+% Figures:
+% 
+% 1. 2 year SWE/temp comparison at Mosby Mtn.
+% 2. Multi-year SWE/Tsoil/VWC time series at a site (changeable)
+% 3. Full VWC timeseries of 4 sites - the data for Fig 4
+% 4. VWC Frequency histograms for 4 contrasting sites
+% 5. Scatterplot/Regression of snowcov. Tsoil vs pre-onset T at 1 site
+% 6. Scatterplot/Regression of summer (JAS) VWC vs meltday at 1 site
 
 close all;
 clear all;

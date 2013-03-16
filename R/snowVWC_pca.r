@@ -122,7 +122,6 @@ lm4 <- lm(jfmVWC20mean ~ pc1score+pc2score+pc3score+pc4score
 	  + as.factor(yearVWC) + as.factor(siteVWC), data=soilVWCData)
 AIC(lm4) # -1222.722
 
-
 summary(lm1)
 #              Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)  0.465341   0.006680  69.666  < 2e-16 ***
