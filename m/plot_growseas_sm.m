@@ -718,7 +718,7 @@ for i = 1:8;
 end
 
 figpath = '../figures/';
-print(figure4,'-depsc2','-painters',[figpath 'figK.eps'])
+print(figure4,'-depsc2','-painters',[figpath 'figL.eps'])
 
 end
 

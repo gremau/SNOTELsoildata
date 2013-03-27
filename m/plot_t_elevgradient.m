@@ -495,9 +495,12 @@ h = figure(fignum);
 set(h, 'Name','(UT) January Air/Soil T gradients');
 
 % Get selected state site out of all data
-selectState = 'CO';
+selectState = 'UT';
 selectIDs = siteIDs(strcmpi(states, selectState));
+% To do all sites...
+% selectIDs = siteIDs;
 st_test = ismember(siteClim, selectIDs);
+
 
 subplot (1,1,1);
 errorbar(elev(st_test), janTairMean(st_test), janTairSd(st_test), ...
@@ -582,8 +585,8 @@ legend(handles([1 4]), {'T_{air}',...
 % Plot moist adiabatic lapse rate
 % plot([900 3500], [4, -9], ':k')
 
-figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figD_old.eps']) 
+% figpath = '../figures/';
+% print(h,'-depsc2','-painters',[figpath 'figD_old.eps']) 
 
 % -------------------------------------------------------------
 % FIG 11 - January/July soil T gradients - Utah data only
@@ -652,8 +655,8 @@ legend(handles([1 3]), {'January', 'July'});
 xlabel('Elevation (m)');
 ylabel('Mean monthly T_{soil} (^oC)')
 
-figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figC_old.eps']) 
+% figpath = '../figures/';
+% print(h,'-depsc2','-painters',[figpath 'figC_old.eps']) 
 
 
 % -------------------------------------------------------------
@@ -661,10 +664,10 @@ print(h,'-depsc2','-painters',[figpath 'figC_old.eps'])
 
 % Assign x and y variables
 x = elevAgg(st_testAgg);
-y1 = janTs5meanAgg(st_testAgg);
-sd1 = janTs5sdAgg(st_testAgg);
-y2 = julTs5meanAgg(st_testAgg);
-sd2 = julTs5sdAgg(st_testAgg);
+y1 = janTs20meanAgg(st_testAgg);
+sd1 = janTs20sdAgg(st_testAgg);
+y2 = julTs20meanAgg(st_testAgg);
+sd2 = julTs20sdAgg(st_testAgg);
 
 fignum = fignum+1;    
 h = figure('position',[100 0 1100 500],'paperpositionmode',...
@@ -747,7 +750,7 @@ text(0.8, 0.9, 'T_{air}', 'Units', 'normalized', 'Fontangle', 'italic',...
     'Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figC_5cm.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figC_UT20cm.eps']) 
 
 
 junk = 99;

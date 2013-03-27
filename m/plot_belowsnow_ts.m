@@ -398,7 +398,7 @@ for i=plotorder
     end
 end
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figG.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figE.eps']) 
 
 % FIG 6 - Plot a small subset of months/depths and use better fitlines
 fignum = fignum+1;    
@@ -453,7 +453,7 @@ for i=plotorder
     end
 end
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figG2.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figE2.eps']) 
 
 %------------------------------------------------------
 % FIG 7 - Soil temp and offset - plot for wasatch and uinta sites

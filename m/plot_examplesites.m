@@ -113,7 +113,7 @@ set(gca,'XTick', lowTicks, 'YTickLabel', '',...
 datetick('x', 'mmm', 'keeplimits', 'keepticks');
 
 figpath = '../figures/';
-print(figure1,'-depsc2','-painters',[figpath 'figF.eps']) 
+print(figure1,'-depsc2','-painters',[figpath 'figD.eps']) 
 clear all;
 
 %% -----------------------------------------------------------------------
@@ -411,7 +411,7 @@ for i = 1:16;
 end
 
 figpath = '../figures/';
-print(figure4,'-depsc2','-painters',[figpath 'figJ.eps'])
+print(figure4,'-depsc2','-painters',[figpath 'figK.eps'])
 
 %% -----------------------------------------------------------------------
 % Look at linear regressions of Mean annual soil temperature and mean
@@ -503,10 +503,10 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, snowTsSitelabel, 'Units', 'normalized');
 text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Onset day of water year'); ylabel('Mean snow-covered T_{soil} (^oC)');
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean snow-covered T_{soil} (^oC)');
 
 figpath = '../figures/';
-print(figure5,'-depsc2','-painters',[figpath 'figE.eps'])
+print(figure5,'-depsc2','-painters',[figpath 'figF.eps'])
     
 % FIG 2 - Plot a regression of winter VWC vs early winter SWE
 figure6 = figure('position',[100 0 600 400],'paperpositionmode',...
@@ -528,7 +528,7 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, snowVwcSitelabel, 'Units', 'normalized');
 text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter VWC (20cm)');
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter VWC');
 
 figpath = '../figures/';
 print(figure6,'-depsc2','-painters',[figpath 'figH.eps'])
@@ -556,4 +556,4 @@ text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
 xlabel('Peak SWE (mm)'); ylabel('Mean summer VWC (50cm)');
 
 figpath = '../figures/';
-print(figure6,'-depsc2','-painters',[figpath 'figH2.eps'])
+print(figure7,'-depsc2','-painters',[figpath 'figJ.eps'])

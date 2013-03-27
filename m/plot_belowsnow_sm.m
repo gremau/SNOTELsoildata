@@ -547,7 +547,7 @@ text(0.1, 0.9, 'Cumulative', 'Units', 'normalized', 'Fontangle', 'italic',...
     'Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figX.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figG.eps']) 
 
 junk = 99;
 end
