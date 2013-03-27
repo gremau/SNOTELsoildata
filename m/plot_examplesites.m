@@ -21,7 +21,7 @@ clear all;
 addpath('/home/greg/data/code_resources/m_common/linreg/'); 
 addpath('/home/greg/data/code_resources/m_common/');
 
-% -----------------------------------------------------------------------
+%% -----------------------------------------------------------------------
 % Compare a site with a low and high early season snowpack
 % Load Mosby Mtn hourly and daily data
 siteID = 643; % 643=Mosby mtn, 
@@ -116,7 +116,7 @@ figpath = '../figures/';
 print(figure1,'-depsc2','-painters',[figpath 'figF.eps']) 
 clear all;
 
-% -----------------------------------------------------------------------
+%% -----------------------------------------------------------------------
 % Examine the interannual variability in Ts and vwc at one site
 % Load hourly and daily data
 siteID = 432; % 828=TrialLake, 972=LouisMeadow, 432=CurrantCreek
@@ -246,7 +246,7 @@ text(0.95, 0.85, 'C', 'Units', 'normalized');
 figpath = '../figures/';
 print(figure2,'-depsc2','-painters',[figpath 'figB.eps'])
 
-% -----------------------------------------------------------------------
+%% -----------------------------------------------------------------------
 % Examine the seasonal variability in temp or vwc at a set of 4 sites.
 % These sites have been chosen to represent elevation/temp and SWE
 % gradients
@@ -413,34 +413,27 @@ end
 figpath = '../figures/';
 print(figure4,'-depsc2','-painters',[figpath 'figJ.eps'])
 
-% -----------------------------------------------------------------------
+%% -----------------------------------------------------------------------
 % Look at linear regressions of Mean annual soil temperature and mean
 % summer soil moisture versus snowpack at 2 sites. These are examples to
 % put regression results in context.
 %
-% 2 plots = One site regression for MAST and one for JAS VWC
+% 2 plots = One site regression for winter Tsoil and one for JAS VWC
 
 % Add any needed tools
 addpath('/home/greg/data/code_resources/m_common/'); 
 addpath('/home/greg/data/code_resources/m_common/nanstats/');
-addpath('/home/greg/data/code_resources/m_common/linear/'); 
+addpath('/home/greg/data/code_resources/m_common/linreg/'); 
 addpath('/home/greg/data/code_resources/m_common/hline_vline/'); 
 
 % Use this site as an example:
-% mastSite = 828;
-% mastSitelabel = 'Trial Lake';
-mastSite = 393;
-mastSitelabel = 'Chalk Creek';
-% mastSite = 332;
-% mastSitelabel = 'Ben Lomond Peak';
-% vwcSite = 333;
-% vwcSitelabel = 'Ben Lomond Trail';
-% vwcSites = 390;
-% vwcSitelabel = 'Castle Valley';
-% vwcSite = 766;
-% vwcSitelabel = 'Snowbird';
-vwcSite = 839;
-vwcSitelabel = 'Upper Rio Grande';
+snowTsSite = 348;
+snowTsSitelabel = 'Black Flat Creek, UT';
+snowVwcSite = 417;
+snowVwcSitelabel = 'Corral Canyon, NV';
+gsVwcSite = 392;
+gsVwcSitelabel = 'Chalk Creek 1, UT';
+
 
 % Set processed data path
 processeddatapath = '../processed_data/';
@@ -461,40 +454,11 @@ soilClim = climData(matchsoil, :);
 site_cl = soilClim(:, 1);
 year_cl = soilClim(:, 2);
 maxswe = soilClim(:, 3)*25.4;
-maxsweday = soilClim(:, 4);
-maxdepth = soilClim(:, 5);
 onsetdoy = soilClim(:, 6);
-meltdoy = soilClim(:, 7);
-snowduration = soilClim(:, 8);
-totaldaysSC = soilClim(:, 9); % Total days, may vary from duration above
-maxcontinSC = soilClim(:, 10);% Length of longest continuos snowpack
-numcontinSC = soilClim(:, 11);% # of continuous snowcovered periods
-accumprecip = soilClim(:, 12)*25.4;
-JASprecip = soilClim(:, 13)*25.4;
-maat = soilClim(:, 80);
-maat_sd = soilClim(:, 81);
-
-preonsetTair = soilClim(:, 82);
-preonsetTairSd = soilClim(:, 83);
-premeltTair = soilClim(:, 84);
-premeltTairSd = soilClim(:, 85);
-postmeltTair = soilClim(:, 86);
-postmeltTairSd = soilClim(:, 87);
-elev = soilClim(:, 88);
-lat = soilClim(:, 89);
-lon = soilClim(:, 90);
-ltMeanSWE = soilClim(:, 91);
-ltMeanPrecip = soilClim(:, 92);
-
+decSWEmean = soilClim(:,25)*25.4;
 
 % Seasonal/yearly soil temp means
 site_ts = tsData(:, 1);
-mast5cm = tsData(:, 99);
-sdast5cm = tsData(:, 100);
-mast20cm = tsData(:, 101);
-sdast20cm = tsData(:, 102);
-mast50cm = tsData(:, 103);
-sdast50cm = tsData(:, 104);
 % Snowcovered soil temp means
 snowcovTs5mean = tsData(:, 105);
 snowcovTs5sd = tsData(:, 106);
@@ -504,12 +468,12 @@ snowcovTs50mean = tsData(:, 109);
 snowcovTs50sd = tsData(:, 110);
 
 % Seasonal soil moisture
-amjVWC5mean = vwcDataN(:, 87);
-amjVWC5sd = vwcDataN(:, 88);
-amjVWC20mean = vwcDataN(:, 89);
-amjVWC20sd = vwcDataN(:, 90);
-amjVWC50mean = vwcDataN(:, 91);
-amjVWC50sd = vwcDataN(:, 92);
+jfmVWC5mean = vwcDataN(:, 81);
+jfmVWC5sd = vwcDataN(:, 82);
+jfmVWC20mean = vwcDataN(:, 83);
+jfmVWC20sd = vwcDataN(:, 84);
+jfmVWC50mean = vwcDataN(:, 85);
+jfmVWC50sd = vwcDataN(:, 86);
 jasVWC5mean = vwcDataN(:, 93);
 jasVWC5sd = vwcDataN(:, 94);
 jasVWC20mean = vwcDataN(:, 95);
@@ -517,32 +481,18 @@ jasVWC20sd = vwcDataN(:, 96);
 jasVWC50mean = vwcDataN(:, 97);
 jasVWC50sd = vwcDataN(:, 98);
 
-preonsetVWC5 = vwcDataN(:, 99);
-preonsetVWC5sd = vwcDataN(:, 100);
-preonsetVWC20 = vwcDataN(:, 101);
-preonsetVWC20sd = vwcDataN(:, 102);
-preonsetVWC50 = vwcDataN(:, 103);
-preonsetVWC50sd = vwcDataN(:, 104);
-
 sites = unique(site_cl);
 
-% The variables to use  
-diff5cm = mast5cm-maat; diff20cm = mast20cm-maat; diff50cm = mast50cm-maat;
-inter = preonsetTair .* onsetdoy;
-Yvars = {'snowcovTs20mean' 'jasVWC20mean'};
-Xvars = {'inter' 'meltdoy'};
-
-
-% FIG 1 - Plot the results for the MAST site
+% FIG 1 - Plot a regression of snowcov Tsoil vs early winter SWE
 figure5 = figure('position',[100 0 600 400],'paperpositionmode',...
     'auto', 'color','none','InvertHardcopy','off');
 set(figure5, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
-set(figure5, 'Name', ['Regression: Y = ' Yvars{1} ', X = ' Xvars{1} ...
-    ', Site = ' num2str(mastSite)]);
-test = site_cl==mastSite;
-% Be sure that the variables here are used for all sites above
-eval(['ysite = ' Yvars{1} '(test);']);
-eval(['xsite = ' Xvars{1} '(test);']);
+set(figure5, 'Name', ['Regression: Y = snowcovTs20mean, X = onsetdoy '...
+    ', Site = ' num2str(snowTsSite)]);
+test = site_cl==snowTsSite;
+
+ysite = snowcovTs20mean(test);
+xsite = decSWEmean(test);
 
 plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
@@ -550,24 +500,24 @@ xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
 [b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
-text(0.6, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
+text(0.1, 0.9, snowTsSitelabel, 'Units', 'normalized');
+text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Number of snow-covered days'); ylabel('Mean annual T_{soil} (^oC)');
-title(mastSitelabel);
+xlabel('Onset day of water year'); ylabel('Mean snow-covered T_{soil} (^oC)');
 
 figpath = '../figures/';
 print(figure5,'-depsc2','-painters',[figpath 'figE.eps'])
     
-% FIG 2 - Plot the results for the VWC site
+% FIG 2 - Plot a regression of winter VWC vs early winter SWE
 figure6 = figure('position',[100 0 600 400],'paperpositionmode',...
     'auto', 'color','none','InvertHardcopy','off');
 set(figure6, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
-set(figure6, 'Name', ['Regression: Y = ' Yvars{2} ', X = ' Xvars{2} ...
-    ', Site = ' num2str(vwcSite)]);
-test = site_cl==vwcSite;
-% Be sure that the variables here are used for all sites above
-eval(['ysite = ' Yvars{2} '(test);']);
-eval(['xsite = ' Xvars{2} '(test);']);
+set(figure6, 'Name', ['Regression: Y = jfmVWC20mean, X = decSWEmean' ...
+    ', Site = ' num2str(snowVwcSite)]);
+test = site_cl==snowVwcSite;
+
+ysite = jfmVWC20mean(test);
+xsite = decSWEmean(test);
 
 plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
@@ -575,10 +525,35 @@ xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
 [b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
-text(0.6, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
+text(0.1, 0.9, snowVwcSitelabel, 'Units', 'normalized');
+text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Day of Snowmelt'); ylabel('Mean summer VWC (20cm)');
-title(vwcSitelabel);
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter VWC (20cm)');
 
 figpath = '../figures/';
 print(figure6,'-depsc2','-painters',[figpath 'figH.eps'])
+
+% FIG 3 - Plot summer VWC vs peak SWE
+figure7 = figure('position',[100 0 600 400],'paperpositionmode',...
+    'auto', 'color','none','InvertHardcopy','off');
+set(figure7, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
+set(figure7, 'Name', ['Regression: Y = jasVWC20mean, X = maxswe' ...
+    ', Site = ' num2str(gsVwcSite)]);
+test = site_cl==gsVwcSite;
+
+ysite = jasVWC50mean(test);
+xsite = maxswe(test);
+
+plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
+hold on;
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k', 'LineWidth', 1.5);
+text(0.1, 0.9, gsVwcSitelabel, 'Units', 'normalized');
+text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
+    'Units', 'Normalized'); % r^2 & p
+xlabel('Peak SWE (mm)'); ylabel('Mean summer VWC (50cm)');
+
+figpath = '../figures/';
+print(figure6,'-depsc2','-painters',[figpath 'figH2.eps'])

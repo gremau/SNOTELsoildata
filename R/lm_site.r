@@ -29,7 +29,7 @@ for (i in 1:length(sites)) {
 	# Subset for the site
 	tmp <- reg.dat[reg.dat$siteClim==sites[i],]
 	# Assign the independent variable
-	y <- tmp$snowcovTs5mean
+	y <- tmp$snowcovTs20mean
 	# Create a list of independent variables
 	# peak SWE, onsetdoy, preonset Tair, nov & dec SWE
 	xlist <- data.frame(tmp$maxswe,tmp$onsetdoy,tmp$preonsetTair,
@@ -84,7 +84,7 @@ for (i in 1:length(sites)) {
 	# Subset for the site
 	tmp <- reg.dat[reg.dat$siteClim==sites[i],]
 	# Assign the independent variable
-	y <- tmp$jfmVWC5mean
+	y <- tmp$jfmVWC20mean
 	# Create a list of independent variables
 	# peak SWE, onsetdoy, preonset Tair, nov & dec SWE, etc
 	xlist <- data.frame(tmp$maxswe,tmp$onsetdoy,tmp$preonsetTair,
@@ -137,7 +137,7 @@ for (i in 1:length(sites)) {
 	# Subset for the site
 	tmp <- reg.dat[reg.dat$siteClim==sites[i],]
 	# Assign the independent variable
-	y <- tmp$jasVWC50mean
+	y <- tmp$jasVWC20mean
 	# Create a list of independent variables
 	# peak SWE, meltdoy, JAS Tair, JAS precip, winter Tsoil
 	xlist <- data.frame(tmp$maxswe,tmp$meltdoy,tmp$jasMAT,
