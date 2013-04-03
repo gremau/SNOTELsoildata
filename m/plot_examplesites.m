@@ -66,19 +66,19 @@ plot(decday_d(testHigh_d), wteq(testHigh_d), '-k', 'LineWidth', 2);
 %plot(decday_d(testHigh_d), wteq(testHigh_d), 'Color', rgb('Gold'),...
  %   'LineWidth', 2);
 xlim([highStart highEnd]); ylim([0 700]);
+text(0.1, 0.8, '2004-5', 'Units', 'normalized', 'Fontangle', 'italic');
 ylabel('SWE (mm)');
 set(gca,'XTick', highTicks, 'XTickLabel', '','YTick', sweyticks,...
     'Position',[0.10 0.6 0.39 0.25]);
-title('2004-5', 'Fontsize', 20, 'Fontangle', 'italic');
 %
 subplot(2,2,2);
 plot(decday_d(testLow_d), wteq(testLow_d), '-k', 'LineWidth', 2);
 %plot(decday_d(testLow_d), wteq(testLow_d), 'Color', rgb('Gold'),...
  %   'LineWidth', 2);
 xlim([lowStart lowEnd]); ylim([0 700]);
+text(0.1, 0.8, '2009-10', 'Units', 'normalized', 'Fontangle', 'italic');
 set(gca,'XTick', lowTicks, 'XTickLabel', '', 'YTickLabel', '', ...
     'Position',[0.52 0.6 0.39 0.25]);
-title('2009-10', 'Fontsize', 20, 'Fontangle', 'italic');
 %
 subplot(2,2,3);
 plot(decday_d(testHigh_d), airT(testHigh_d), 'Color', [0.5,0.5,0.5],...
@@ -174,7 +174,7 @@ xlim([0 367]); ylim([-5 450]);
 ylabel('SWE (mm)');
 set(gca,'XTick',ticklocs, 'XTickLabel', '', 'Ytick', [100;200;300;400],...
     'Position', get(gca, 'position') .* [1 .9 1 1.23]);
-text(0.95, 0.85, 'A', 'Units', 'normalized');
+text(0.95, 0.85, 'a', 'Units', 'normalized');
 %title('Currant Creek, UT', 'Fontsize', 20, 'Fontangle', 'italic');
 %
 subplot(3,1,2);
@@ -215,7 +215,7 @@ ylabel('T_{soil} (^oC)');
 %legend([h1 h2], 'T_{soil}', 'T_{air}', 'location', 'southeast');
 set(gca,'XTick',ticklocs, 'XTickLabel', '',...
     'Position', get(gca, 'position') .* [1 .9 1 1.23]);
-text(0.95, 0.85, 'B', 'Units', 'normalized');
+text(0.95, 0.85, 'b', 'Units', 'normalized');
 
 subplot(3,1,3);
 vwcConcat = []; doyConcat = [];
@@ -241,7 +241,7 @@ xlim([0 367]); ylim([-2 35]);
 ylabel('VWC (%)');
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths,...
     'Position', get(gca, 'position') .* [1 .9 1 1.23]);
-text(0.95, 0.85, 'C', 'Units', 'normalized');
+text(0.95, 0.85, 'c', 'Units', 'normalized');
 
 figpath = '../figures/';
 print(figure2,'-depsc2','-painters',[figpath 'figB.eps'])
@@ -496,14 +496,16 @@ xsite = decSWEmean(test);
 
 plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
+xlim([30,125]);
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
 [b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, snowTsSitelabel, 'Units', 'normalized');
-text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
+text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01'],...% num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Mean Dec. SWE (mm)'); ylabel('Mean snow-covered T_{soil} (^oC)');
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean below-snow T_{soil} (^oC)');
+set(gca, 'Ytick', [-0.5;0;0.5;1;1.5;2]);
 
 figpath = '../figures/';
 print(figure5,'-depsc2','-painters',[figpath 'figF.eps'])
@@ -521,14 +523,15 @@ xsite = decSWEmean(test);
 
 plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
 hold on;
+xlim([0, 200]);
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
 [b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, snowVwcSitelabel, 'Units', 'normalized');
-text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
+text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '], ... %num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter VWC');
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter qtr. VWC (norm.)');
 
 figpath = '../figures/';
 print(figure6,'-depsc2','-painters',[figpath 'figH.eps'])
@@ -551,9 +554,10 @@ xrange = xlim(gca);
 [b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
 plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, gsVwcSitelabel, 'Units', 'normalized');
-text(0.1, 0.8,['r^2 = ' num2str(rsq, 2) ', p = ' num2str(stats(3), 2)],...
+text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '],... num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Peak SWE (mm)'); ylabel('Mean summer VWC (50cm)');
+xlabel('Peak SWE (mm)'); ylabel('Mean summer qtr. VWC (norm.)');
+set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9]);
 
 figpath = '../figures/';
 print(figure7,'-depsc2','-painters',[figpath 'figJ.eps'])

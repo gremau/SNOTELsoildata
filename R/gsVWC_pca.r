@@ -231,6 +231,7 @@ summary(lm2)
 # Multiple R-squared: 0.2765,	Adjusted R-squared: 0.2601 
 # F-statistic: 16.82 on 3 and 132 DF,  p-value: 2.599e-09
 
+
 # 2009
 varframe.09 <- varframe[climData.sub$yearClim==2009,] # Boolean 2009 rows
 varframe.cmplt <- complete.cases(varframe.09)

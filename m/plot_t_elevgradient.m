@@ -753,4 +753,169 @@ figpath = '../figures/';
 print(h,'-depsc2','-painters',[figpath 'figC_UT20cm.eps']) 
 
 
+% -------------------------------------------------------------
+% FIG 14 - January/July Tsoil and Tair gradients - State and all sites
+
+% To do all sites...
+selectIDs_all = siteIDs;
+all_test = ismember(siteClim, selectIDs_all);
+% Get selected state site out of aggregated data
+all_testAgg = ismember(siteClimAgg, selectIDs_all);
+
+fignum = fignum+1;    
+h = figure('position',[100 0 1100 950],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(h, 'Name','(State/all) January/July Air & Soil T gradients',...
+    'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
+
+% Assign x and y variables - STATE SITES Tsoil
+x = elevAgg(st_testAgg);
+y1 = janTs20meanAgg(st_testAgg);
+sd1 = janTs20sdAgg(st_testAgg);
+y2 = julTs20meanAgg(st_testAgg);
+sd2 = julTs20sdAgg(st_testAgg);
+
+
+subplot(2,2,1);
+% Plot January Ts by elevation and regression
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerSize', 10, ...
+    'MarkerFaceColor', 'w');
+hold on;
+% No idea why, but this is necessary to make non-transparent circles
+scatter(x, y1, 100, 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'w')
+xfit = linspace(1600, 3450);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, -3.5, ['r^2 = ' num2str(stats(1),2)]);
+end
+% Plot July Ts by elevation and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
+    'MarkerSize', 10);
+% No idea why, but this is necessary to make non-transparent circles
+scatter(x, y2, 100, 'MarkerEdgeColor', 'k', 'MarkerFaceColor', [0.7 0.7 0.7])
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
+handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, 9, ['r^2 = ' num2str(stats(1),2)]);
+end
+set(gca, 'position', [0.9 0.9 1.15 1.2] .* get(gca, 'position'));
+xlim([1500 3550]);ylim([-13 30]);
+set(gca,'Ytick',[-10;-5;0;5;10;15;20;25;30],'XtickLabel','');
+legend(handles([1 3]), {'January', 'July'}, 'Location', 'Southeast');
+text(0.60, 0.9, 'a. Utah T_{soil}', 'Units', 'normalized',...
+    'Fontangle', 'italic','Fontsize', 20);
+%xlabel('Elevation (m)');
+text(-0.15, -.3, 'Mean monthly T (^oC)', 'Units', 'normalized', 'Rotation', 90)
+
+% Assign x and y variables - STATE SITES Tair
+y1 = janTairMeanAgg(st_testAgg);
+sd1 = janTairSdAgg(st_testAgg);
+y2 = julTairMeanAgg(st_testAgg);
+sd2 = julTairSdAgg(st_testAgg);
+
+subplot(2,2,2);
+% Plot January Tair by elevation and regression
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
+    'MarkerSize', 10);
+hold on;
+% No idea why, but this is necessary to make non-transparent circles
+scatter(x, y1, 100, 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'w')
+xfit = linspace(1600, 3450);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, 5.2, ['r^2 = ' num2str(stats(1),2)]);
+end
+% Plot July Tair by elevation and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
+    'MarkerSize', 10);
+% No idea why, but this is necessary to make non-transparent circles
+scatter(x, y2, 100, 'MarkerEdgeColor', 'k', 'MarkerFaceColor', [0.7 0.7 0.7])
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
+handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, 12, ['r^2 = ' num2str(stats(1),2)]);
+end
+% Plot moist adiabatic lapse rate
+%plot([1600 3400], [18, 9], ':k');
+set(gca, 'position', [0.90 0.9 1.15 1.2] .* get(gca, 'position'));
+xlim([1500 3550]);ylim([-13 27]);
+set(gca, 'YtickLabel', [],'XtickLabel', '');
+text(0.60, 0.9, 'b. Utah T_{air}', 'Units', 'normalized',...
+    'Fontangle', 'italic','Fontsize',20);
+
+
+% Assign x and y variables - ALL SITES Tsoil
+x = elevAgg(all_testAgg);
+y1 = janTs20meanAgg(all_testAgg);
+sd1 = janTs20sdAgg(all_testAgg);
+y2 = julTs20meanAgg(all_testAgg);
+sd2 = julTs20sdAgg(all_testAgg);
+
+subplot(2,2,3);
+% Plot January Ts by elevation and regression
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
+    'MarkerSize', 10);
+hold on;
+xfit = linspace(1600, 3450);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, -4.5, ['r^2 = ' num2str(stats(1),2)]);
+end
+% Plot July Ts by elevation and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
+    'MarkerSize', 10);
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
+handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, 24.5, ['r^2 = ' num2str(stats(1),2)]);
+end
+set(gca, 'position', [0.90 0.9 1.15 1.2] .* get(gca, 'position'));
+xlim([1500 3550]);ylim([-13 30]);
+set(gca,'Ytick',[-10;-5;0;5;10;15;20;25;30],'Xtick',[1500;2000;2500;3000]);
+%legend(handles([1 3]), {'January', 'July'}, 'Location', 'Southeast');
+text(0.60, 0.9, 'c. All sites T_{soil}', 'Units', 'normalized',...
+    'Fontangle', 'italic','Fontsize', 20);
+text(0.85, -0.15, 'Elevation (m)', 'Units', 'normalized');
+%xlabel('Elevation (m)');
+%ylabel('Mean monthly T (^oC)')
+
+% Assign x and y variables - ALL SITES Tair
+y1 = janTairMeanAgg(all_testAgg);
+sd1 = janTairSdAgg(all_testAgg);
+y2 = julTairMeanAgg(all_testAgg);
+sd2 = julTairSdAgg(all_testAgg);
+
+subplot(2,2,4);
+% Plot January Tair by elevation and regression
+handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
+    'MarkerSize', 10);
+hold on;
+xfit = linspace(1600, 3450);
+[b,bint,resid,rint,stats] = regress2(y1, [x ones(size(x))]);
+handles(2) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(3000, 2, ['r^2 = ' num2str(stats(1),2) ]);
+end
+% Plot July Tair by elevation and regression
+handles(3) = errorbar(x, y2, sd2, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7],...
+    'MarkerSize', 10);
+[b,bint,resid,rint,stats] = regress2(y2, [x ones(size(x))]);
+handles(4) = plot(xfit, polyval(b, xfit), '--k', 'Linewidth', 1.5);
+if stats(3) < 0.01
+    text(1600, 8, ['r^2 = ' num2str(stats(1),2)]);
+end
+% Plot moist adiabatic lapse rate
+%plot([1600 3400], [18, 9], ':k');
+set(gca, 'position', [0.90 0.9 1.15 1.2] .* get(gca, 'position'));
+xlim([1500 3550]);ylim([-13 27]);
+set(gca, 'YtickLabel', [],'Xtick',[2000;2500;3000;3500]);
+text(0.60, 0.9, 'd. All sites T_{air}', 'Units', 'normalized',...
+    'Fontangle', 'italic','Fontsize',20);
+
+figpath = '../figures/';
+print(h,'-depsc2','-painters',[figpath 'figC2_20cm.eps']) 
+
 junk = 99;

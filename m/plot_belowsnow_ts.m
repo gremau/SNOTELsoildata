@@ -419,7 +419,7 @@ beta_init = [1.5 2 0.01];
 % Logistic fit -> K./(1+exp(-r*(t-t0)));
 % nlfunc = inline('(b(1)./(1 + exp(-b(2).*x))) - b(3)', 'b', 'x');
 % beta_init = [1.5 0.01 1];
-
+lables = {'a', 'b'};
 for i=plotorder
     subplot(1, 2, i);
     eval(['x = ' lower(months(i,:)) 'SWEmean;']);
@@ -433,8 +433,9 @@ for i=plotorder
     rsq = 1 - (nansum(r.^2)/((length(y)-1) * nanvar(y)));
     plot(0:1500, nlfunc(coeffs, 0:1500), '-k', 'Linewidth', 1.5);
     % Mean Squared error and r-squared values
-    text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
-    text(0.6, 0.9, ['r^2 = ' num2str(rsq, 2)], 'units', 'normalized');
+    %text(0.6, 0.8, ['RMSE = ' num2str(rmse, 2)], 'units', 'normalized');
+    text(0.9, 0.9, lables{i}, 'units', 'normalized');
+    text(0.7, 0.4, ['R^2 = ' num2str(rsq, 2)], 'units', 'normalized');
     % Plot horizontal zero line
     l = hline(0, ':k');
     set(l, 'linewidth', 2);

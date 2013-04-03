@@ -37,6 +37,17 @@ mean(tsRange[,2], na.rm=TRUE) # 1.0779 1.0858 1.0290
 max(tsRange[,2], na.rm=TRUE) # 7.5136 7.1708 7.424
 min(tsRange[,2], na.rm=TRUE) # 0.0197 0.0528 0.0666
 
+## Inter-annual variability in Tair========== 
+tair <- climData.sub$scovmat
+sitevec2 <- climData.sub$siteClim
+tairAgg <- aggregate(tair, by=list(sitevec2),FUN=mean, na.rm=TRUE)
+tairSdAgg <- aggregate(tair, by=list(sitevec2),FUN=sd,na.rm=TRUE)
+# Calculate the mean of the means (+sd) and the mean of the sd (by site)
+sapply(tairAgg, mean, na.rm=TRUE) # -1.774 snowcovered and 11.2666 snow-free
+sapply(tairAgg, sd, na.rm=TRUE) # 1.697 and 1.42334
+sapply(tairSdAgg, mean, na.rm=TRUE) # 0.717 and 0.8490
+
+
 ## GRADIENTS with elevation or SWE? ==========
 # Is there an elevation gradient in snowcov tsoil standard deviation?
 elevAgg <- aggregate(climData.sub$elev, by=list(sitevec),FUN=mean, na.rm=TRUE)

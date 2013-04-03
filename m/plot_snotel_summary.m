@@ -191,7 +191,7 @@ xlim([700 3700]); ylim([0 40]);
 %vline(nanmean(elevAllAgg), '--k');
 %h = vline(nanmean(elevSoilAgg), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 text(0.05, 0.4, 'Elevation (m)', 'Units', 'normalized');
-text(0.95, 0.85, 'A', 'Units', 'normalized');
+text(0.95, 0.85, 'a', 'Units', 'normalized');
 %ylabel('Frequency');
 
 subplot (4, 2, 2)
@@ -206,7 +206,7 @@ set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 %h=vline(nanmean(maat(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-5 15]); ylim([0 500]);
 text(0.55, 0.4, 'Mean annual T_{air} (^oC)', 'Units', 'normalized');
-text(0.95, 0.85, 'B', 'Units', 'normalized');
+text(0.95, 0.85, 'b', 'Units', 'normalized');
 
 subplot (4, 2, 3)
 xedges = linspace(0, 2500, 60);
@@ -222,7 +222,7 @@ xlim([-10 2500]); ylim([0 500]);
 text(0.55, 0.4, 'Annual precip (mm)', 'Units', 'normalized');
 %ylabel('Frequency');
 text(-0.15, -1,'Frequency of ocurrence', 'Units', 'normalized', 'Rotation', 90);
-text(0.95, 0.85, 'C', 'Units', 'normalized');
+text(0.95, 0.85, 'c', 'Units', 'normalized');
 
 subplot (4, 2, 4)
 xedges = linspace(0, 800, 60);
@@ -237,7 +237,7 @@ set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 xlim([-20 570]); ylim([0 600]);
 text(0.535, 0.5, ['Jul+Aug+Sep' 10  'precip (mm)'],...
     'Units', 'normalized');
-text(0.95, 0.85, 'D', 'Units', 'normalized');
+text(0.95, 0.85, 'd', 'Units', 'normalized');
 
 subplot (4, 2, 5)
 xedges = linspace(100, 2000, 60);
@@ -252,7 +252,7 @@ set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 xlim([-2 2000]); ylim([0 400]);
 text(0.55, 0.4, 'Peak SWE (mm)', 'Units', 'normalized');
 %ylabel('Frequency');
-text(0.95, 0.85, 'E', 'Units', 'normalized');
+text(0.95, 0.85, 'e', 'Units', 'normalized');
 
 subplot (4, 2, 6)
 xedges = linspace(0, 365, 60);
@@ -266,7 +266,7 @@ set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 %h=vline(nanmean(totaldaysSC(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 300]); ylim([0 500]);
 text(0.05, 0.4, 'Total snow-covered days', 'Units', 'normalized');
-text(0.95, 0.85, 'F', 'Units', 'normalized');
+text(0.95, 0.85, 'f', 'Units', 'normalized');
 
 ticklocs = [0, 32, 62, 93, 121];
 tickmonths = ['Oct 1 '; 'Nov 1 '; 'Dec 1 '; 'Jan 1 '; 'Feb 1 '];
@@ -284,7 +284,7 @@ xlim([-2 125]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
 text(0.55, 0.4, 'Snowpack onset day', 'Units', 'normalized');
 %ylabel('Frequency');
-text(0.95, 0.85, 'G', 'Units', 'normalized');
+text(0.95, 0.85, 'g', 'Units', 'normalized');
 
 ticklocs = [122, 150, 181, 211, 242, 272, 303, 334];
 tickmonths = ['Feb 1 '; 'Mar 1 '; 'Apr 1 '; 'May 1 '; 'Jun 1 ';...
@@ -302,7 +302,7 @@ set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 xlim([100 340]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
 text(0.05, 0.4, 'Day of snowmelt', 'Units', 'normalized');
-text(0.95, 0.85, 'H', 'Units', 'normalized');
+text(0.95, 0.85, 'h', 'Units', 'normalized');
 
 figpath = '../figures/';
 print(fig,'-depsc2','-painters',[figpath 'figA.eps']) 
