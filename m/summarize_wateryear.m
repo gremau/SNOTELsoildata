@@ -130,8 +130,8 @@ for i = 1:length(climatesummary)
     % Max snow depth
     climatesummary(i, 5) = nanmax(nancheck(dailydata{10}(wyeartest_c)));
     % Then find snowpack onset day, snowmelt day, snowpack duration...
-    % First, mark days where swe < 0.1, WARNING - NaN's are counted as snow
-    snowfree = nancheck(dailydata{4}(wyeartest_c)) < 0.1;
+    % First, mark days where swe < 0.2, WARNING - NaN's are counted as snow
+    snowfree = nancheck(dailydata{4}(wyeartest_c)) < 0.2;
     if sum(snowfree)==0 % if no days are snow-free, set nans
         totaldaysSC = nan; % Total SC days
         maxcontinSC = nan; % Length of longest snowcovered period
