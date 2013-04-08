@@ -2,5 +2,8 @@
 syntax: glob
 
 *~
+*.sty
+*.html
 obsolete/*
 figures/*
+R/figure/*

@@ -438,7 +438,7 @@ for i=plotorder
     text(0.7, 0.4, ['R^2 = ' num2str(rsq, 2)], 'units', 'normalized');
     % Plot horizontal zero line
     l = hline(0, ':k');
-    set(l, 'linewidth', 2);
+    %set(l, 'linewidth', 2);
     
     set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
     xlim([0, 700]); ylim([-6, 6]);

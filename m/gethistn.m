@@ -1,6 +1,6 @@
-function histn = gethistn(sitelist)
+function [histmean,histn] = gethistn(sitelist)
 
-sensordepth = 2; %(1=5cm, 2=20cm, 3=50cm);
+sensordepth = 3; %(1=5cm, 2=20cm, 3=50cm);
 startwy = 2006;
 
 % Set distribution bins and plot axes
@@ -44,6 +44,7 @@ for i = 1:length(sitelist);
     testJAS = (datevec_h(:,2)>6 & datevec_h(:,2)<10);
     a = [a; sensordata(testJAS)];
 end
+histmean = nanmean(a);
 histogram = histc(a, xedges);
 histn = histogram./sum(histogram);
 end

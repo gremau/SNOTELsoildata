@@ -608,24 +608,30 @@ end
 
 %----------------------------------------------------
 % Aggregate some values and select sets of sites
+totPrecipAgg = accumarray(aggindex,accumprecip,[numel(soilsites) 1],@nanmean);
 JASprecipAgg = accumarray(aggindex, JASprecip, [numel(soilsites) 1], @nanmean);
 maxsweAgg = accumarray(aggindex, maxswe, [numel(soilsites) 1], @nanmean);
 elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @nanmean);
+% Percent of total precip falling in JAS period
+pctJAS = JASprecipAgg./totPrecipAgg;
 
 % Lists of sites with particular elev/swe characteristics - monsites get
-% high summer precip (> 200mm)
-sites_hihi = soilsites(elevAgg>2750 & maxsweAgg>500);
-sites_lohi = soilsites(elevAgg<2250 & maxsweAgg>500);
-sites_hilo = soilsites(elevAgg>2750 & maxsweAgg<300);
-sites_lolo = soilsites(elevAgg<2250 & maxsweAgg<300);
-mtest = JASprecipAgg > 125;
+% high summer precip (> 20% of total)
+no_mtest = pctJAS <= 0.20; %don't want to have the same sites in each
+sites_hihi = soilsites(elevAgg(no_mtest)>2750 & maxsweAgg(no_mtest)>600);
+sites_hilo = soilsites(elevAgg(no_mtest)<2300 & maxsweAgg(no_mtest)>600);
+sites_lohi = soilsites(elevAgg(no_mtest)>2650 & maxsweAgg(no_mtest)<450);
+sites_lolo = soilsites(elevAgg(no_mtest)<2175 & maxsweAgg(no_mtest)<400);
+mtest = pctJAS > 0.20;
 monsites = soilsites(mtest);
-monsites_hihi = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)>450);
-monsites_lohi = monsites(elevAgg(mtest)<2750 & maxsweAgg(mtest)>450);
-monsites_hilo = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)<300);
-monsites_lolo = monsites(elevAgg(mtest)<2750 & maxsweAgg(mtest)<300);
+% These elevation and SWE breaks are around the mean - tried to get a
+% large number of sites
+monsites_hihi = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)>350);
+monsites_hilo = monsites(elevAgg(mtest)<2950 & maxsweAgg(mtest)>350);
+monsites_lohi = monsites(elevAgg(mtest)>3000 & maxsweAgg(mtest)<325);
+monsites_lolo = monsites(elevAgg(mtest)<2850 & maxsweAgg(mtest)<300);
 % -----------------------------------------------------------------------
-% Examine the seasonal variability in temp or vwc at a set of 4 sites.
+% Examine the seasonal variability in vwc at a set of 4 sites.
 % These sites have been chosen to represent elevation/temp and SWE
 % gradients
 %
@@ -643,7 +649,7 @@ xmin = 0;
 % If running NORMALIZED data with smnormalize
 xedges = 0:0.02:1; % normalized vwc bins (0-1)
 xmax = 1; % these axes are good for normalized data
-ymax = 0.125;
+ymax = 0.1;
 disp('*** Running in normalized soil moisture data mode ***');
 
 % Allocate for histogram and mean matrices - fill in following loop
@@ -652,14 +658,14 @@ means = zeros(8, 1);
 
 % Put normalized histograms in the histograms matrix
 % (in plotting order)
-histograms(:,1) = gethistn(sites_hihi);
-histograms(:,2) = gethistn(sites_hilo);
-histograms(:,3) = gethistn(sites_lohi);
-histograms(:,4) = gethistn(sites_lolo);
-histograms(:,5) = gethistn(monsites_hihi);
-histograms(:,6) = gethistn(monsites_hilo);
-histograms(:,7) = gethistn(monsites_lohi);
-histograms(:,8) = gethistn(monsites_lolo);
+[means(1,1), histograms(:,1)] = gethistn(sites_hihi);
+[means(2,1), histograms(:,2)] = gethistn(sites_hilo);
+[means(3,1), histograms(:,3)] = gethistn(sites_lohi);
+[means(4,1), histograms(:,4)] = gethistn(sites_lolo);
+[means(5,1), histograms(:,5)] = gethistn(monsites_hihi);
+[means(6,1), histograms(:,6)] = gethistn(monsites_hilo);
+[means(7,1), histograms(:,7)] = gethistn(monsites_lohi);
+[means(8,1), histograms(:,8)] = gethistn(monsites_lolo);
 
 
 % Calculate mean and standard deviations of data from each quarter and
@@ -679,7 +685,7 @@ clear testJAS;
 % PLOT 2. Plot quarterly distributions for all sites
 titlelabels = {'Hi SWE/Hi Elev' 'Hi SWE/Low Elev' 'Low SWE/Hi Elev'...
     'Low SWE/Low Elev'};
-monlabels = {'Normal precip' '' '' '' 'Monsoon precip' '' '' ''};
+monlabels = {'< 20%' '' '' '' '> 20%' '' '' ''};
 
 figure4 = figure('position',[100 0 1000 500],'paperpositionmode',...
     'auto', 'color','none','InvertHardcopy','off');
@@ -689,36 +695,40 @@ set(figure4, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
 % Loop through 8 subplots and plot histograms and means
 for i = 1:8;
     subplot (2, 4, i)
-    bar (xedges, histograms(:, i), 'Facecolor', [0.7 0.7 0.7]);
+    if i < 5;
+        bar(xedges, histograms(:,i),'Facecolor',[0.9 0.9 0.9]);
+    else
+        bar(xedges, histograms(:, i), 'Facecolor', [0.4 0.4 0.4]);
+    end
     hold on
-    plot([means(i) means(i)], [0 1], '--k', 'Linewidth', 1.5);
+    plot([means(i,1) means(i,1)], [0 1], '--k', 'Linewidth', 1);
     axis([xmin xmax 0 ymax]);
-    set(gca, 'position', [0.925 0.925 1.15 1.19] .* get(gca, 'position'),...
-        'Xtick', [0.5]);
+    set(gca, 'position', [0.925 0.925 1.15 1.19] .* get(gca, 'position'));
+    set(gca, 'XTick', [0, 0.5, 1], 'XtickLabel', {'','0.5',''},...
+        'Ytick', [0.05;0.1],'Xminortick', 'on');
     if i==1 || i==5;
         %ylabel('Frequency');
-        text(0.1, 0.8, monlabels(i), 'Units', 'normalized');
-        set(gca, 'XTick', [0;0.5])
+        text(0.6, 0.9, monlabels(i), 'Units', 'normalized');
+        set(gca, 'XTickLabel', {'0','0.5',''}, 'Ytick', [0.05;0.1])
         if i==1;
-            text(-0.35, -0.8,'Normalized frequency of ocurrence',...
+            text(-0.35, -0.7,'Normalized frequency of ocurrence',...
                 'Units', 'normalized', 'Rotation', 90);
         end
     elseif i==8;
-        set(gca, 'Xtick', [0.5;1]);
+        set(gca, 'XtickLabel', {'', '0.5', '1'});
         set(gca, 'YtickLabel', '');
+        text(-1.51, -0.15,'Normalized VWC','Units', 'normalized');
     else
         set(gca, 'YtickLabel', '');
     end
     if i < 5
-        %title({['Site ' num2str(siteIDs(i))]; titlelabels{i}},...
-        %    'Fontsize', 18, 'Fontangle', 'italic');
-        title(titlelabels{i}, 'Fontsize', 18, 'Fontangle', 'italic');
+        title(titlelabels{i}, 'Fontsize', 14, 'Fontangle', 'italic');
         set(gca, 'XtickLabel', '');
     end
 end
 
 figpath = '../figures/';
-print(figure4,'-depsc2','-painters',[figpath 'figL.eps'])
+print(figure4,'-depsc2','-painters',[figpath 'figL_50cm.eps'])
 
 end
 
