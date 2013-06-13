@@ -535,5 +535,33 @@ hold on
 plot(janSWEmean(uintaTest), offset50(uintaTest), 'ob');
 xlabel('Mean SWE');
 
+%------------------------------------------------------
+% FIG 8
+
+xedges = -15:0.5:10; % normalized vwc bins (0-1)
+histair = histc(janTairMean, xedges);
+histair = histair/sum(histair)
+histsoil = histc(janTs20mean, xedges);
+histsoil = histsoil/sum(histsoil)
+
+fignum = fignum+1;    
+h = figure(fignum);
+h = figure('position',[100 0 650 550],'paperpositionmode',...
+    'auto', 'color','white','InvertHardcopy','off');
+set(h, 'Name', 'Mean monthly temp vs Mean SWE - all sites/wateryears');
+set(h, 'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
+
+bar(xedges, histair ,'Facecolor',[0.9 0.9 0.9]);
+hold on
+bar(xedges, histsoil ,'Facecolor',[0.4 0.4 0.4]);
+xlim([-15 10]);
+ylim([0,0.3]);
+set(gca,'Ytick', [0.05,0.1,0.15,0.2,0.25,0.3]);
+xlabel('January mean temperature (^oC)');
+ylabel('Normalized frequency of occurrence');
+legend('T_{air}', 'T_{soil}');
+
+figpath = '../figures/';
+print(h,'-depsc2','-painters',[figpath 'figM.eps']) 
 
 junk = 99;

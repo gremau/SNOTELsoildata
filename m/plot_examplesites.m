@@ -1,4 +1,4 @@
-% ## plot\_examplesites.m
+% ## `plot_examplesites.m`
 % This makes a number of figures that highlight snow-soil interactions
 % at particular sites.
 % 
@@ -238,7 +238,7 @@ zeroline = line(get(gca, 'XLim'), [0, 0]);
 set(zeroline, 'Color', 'k', 'LineStyle', ':', 'LineWidth', 1.5);
 % Set axes limits, tick locations, labels, position, etc
 xlim([0 367]); ylim([-2 35]);
-ylabel('VWC (%)');
+ylabel('WC (%)');
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths,...
     'Position', get(gca, 'position') .* [1 .9 1 1.23]);
 text(0.95, 0.85, 'c', 'Units', 'normalized');
@@ -531,7 +531,7 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, snowVwcSitelabel, 'Units', 'normalized');
 text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '], ... %num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter qtr. VWC (norm.)');
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter qtr. WC (norm.)');
 
 figpath = '../figures/';
 print(figure6,'-depsc2','-painters',[figpath 'figH.eps'])
@@ -556,8 +556,77 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, gsVwcSitelabel, 'Units', 'normalized');
 text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '],... num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Peak SWE (mm)'); ylabel('Mean summer qtr. VWC (norm.)');
+xlabel('Peak SWE (mm)'); ylabel('Mean summer qtr. WC (norm.)');
 set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9]);
 
 figpath = '../figures/';
 print(figure7,'-depsc2','-painters',[figpath 'figJ.eps'])
+
+
+% --------------------------------------------------------------
+% 3 plots from above, but all in one figure
+
+% FIG 2 - Plot a regression of snowcov Tsoil vs early winter SWE
+figure8 = figure('position',[100 0 620 1200],'paperpositionmode',...
+    'auto', 'color','none','InvertHardcopy','off');
+set(figure8, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
+set(figure8, 'Name', ['Regression: Y = snowcovTs20mean, X = onsetdoy '...
+    ', Site = ' num2str(snowTsSite)]);
+
+%subplot 1
+test = site_cl==snowTsSite;
+ysite = snowcovTs20mean(test);
+xsite = decSWEmean(test);
+
+subplot(3,1,1);
+plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
+hold on;
+xlim([30,125]);
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k', 'LineWidth', 1.5);
+text(0.1, 0.9, ['a. ' snowTsSitelabel], 'Units', 'normalized');
+text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01'],...% num2str(stats(3), 2)],...
+    'Units', 'Normalized'); % r^2 & p
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean below-snow T_{soil} (^oC)');
+set(gca, 'Ytick', [-0.5;0;0.5;1;1.5;2]);
+
+% subplot 2
+test = site_cl==snowVwcSite;
+ysite = jfmVWC20mean(test);
+xsite = decSWEmean(test);
+
+subplot(3,1,2);
+plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
+hold on;
+xlim([0, 200]);
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k', 'LineWidth', 1.5);
+text(0.1, 0.9, ['b. ' snowVwcSitelabel], 'Units', 'normalized');
+text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '], ... %num2str(stats(3), 2)],...
+    'Units', 'Normalized'); % r^2 & p
+xlabel('Mean Dec. SWE (mm)'); ylabel({'Mean winter qtr.' 'WC (norm.)'});
+
+% subplot 3
+test = site_cl==gsVwcSite;
+ysite = jasVWC50mean(test);
+xsite = maxswe(test);
+
+subplot(3,1,3);
+plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
+hold on;
+xrange = xlim(gca);
+[coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
+[b,bint,resid,rint,stats] = regress2(ysite, [xsite ones(size(xsite))]);
+plot(xfit, yfit,'--k', 'LineWidth', 1.5);
+text(0.1, 0.9, ['c. ' gsVwcSitelabel], 'Units', 'normalized');
+text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '],... num2str(stats(3), 2)],...
+    'Units', 'Normalized'); % r^2 & p
+xlabel('Peak SWE (mm)'); ylabel({'Mean summer qtr.' 'WC (norm.)'});
+set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9]);
+
+figpath = '../figures/';
+print(figure8,'-depsc2','-painters',[figpath 'figF2.eps'])
