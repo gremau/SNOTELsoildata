@@ -128,6 +128,8 @@ dailyData = loadsnotel(siteID, 'daily', 'exclude');
 % Parse out the date/times
 decday_h = datenum(strcat(hourlyData{2}, hourlyData{3}), 'yyyy-mm-ddHH:MM');
 wyears_h = unique(hourlyData{10});
+% Remove first (incomplete) wyear for site 432
+wyears_h = wyears_h(2:end);
 startdays = datenum(wyears_h(:)-1, 9, 30);
 decday_d = datenum(dailyData{2}, 'yyyy-mm-dd');
 
@@ -181,18 +183,20 @@ subplot(3,1,2);
 tsConcat = []; doyConcat = [];taConcat = []; doy_dConcat = [];
 for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
-    wyTs = ts(hourlytest);
+    wyTs = interpseries(ts(hourlytest));
+    disp(length(wyTs));
     doys = decday_h(hourlytest) - startdays(i);
+    disp(length(doys));
     plot(doys, wyTs, 'Color', [0.5,0.5,0.5], 'Linewidth', 1.5);
     hold on;
     tsConcat = [tsConcat; wyTs];
     doyConcat = [doyConcat; doys];
     %Do this for Tair also
-    dailytest = dailyData{21}==wyears_h(i);
-    wyTair = Tair(dailytest);
-    doys_d = decday_d(dailytest) - startdays(i);
-    taConcat = [taConcat; wyTair];
-    doy_dConcat = [doy_dConcat; doys_d];
+    %dailytest = dailyData{21}==wyears_h(i);
+    %wyTair = Tair(dailytest);
+    %doys_d = decday_d(dailytest) - startdays(i);
+    %taConcat = [taConcat; wyTair];
+    %doy_dConcat = [doy_dConcat; doys_d];
 end;
 % Plot Tsoil mean
 [doyvals, ~, doyindex] = unique(doyConcat);
@@ -202,10 +206,10 @@ tsMean = accumarray(doyConcat, tsConcat,...
 h1 = plot(doyvals, tsMean, '-k', 'Linewidth', 1.5);
 %h1 = plot(doyvals, tsMean, '-', 'Color', rgb('DarkRed'), 'Linewidth', 2);
 % Plot Tair mean
-[doyvals, ~, doyindex] = unique(doy_dConcat);
-doy_dConcat = [doyindex ones(size(doyindex))];
-taMean = accumarray(doy_dConcat, taConcat,...
-    [numel(unique(doy_dConcat)) 1], @nanmean);
+%[doyvals, ~, doyindex] = unique(doy_dConcat);
+%doy_dConcat = [doyindex ones(size(doyindex))];
+%taMean = accumarray(doy_dConcat, taConcat,...
+%    [numel(unique(doy_dConcat)) 1], @nanmean);
 %h2 = plot(doyvals, taMean, '--k', 'Linewidth', 2);
 % Set axes limits, tick locations, labels, position, etc
 zeroline = line(get(gca, 'XLim'), [0, 0]);
@@ -221,7 +225,7 @@ subplot(3,1,3);
 vwcConcat = []; doyConcat = [];
 for i = 1:length(wyears_h)
     hourlytest = hourlyData{10}==wyears_h(i);
-    wyVwc = vwc(hourlytest);
+    wyVwc = interpseries(vwc(hourlytest));
     doys = decday_h(hourlytest) - startdays(i);
     plot(doys, vwc(hourlytest), 'Color', [0.5,0.5,0.5], 'Linewidth', 1.5);
     hold on;
@@ -508,7 +512,7 @@ xlabel('Mean Dec. SWE (mm)'); ylabel('Mean below-snow T_{soil} (^oC)');
 set(gca, 'Ytick', [-0.5;0;0.5;1;1.5;2]);
 
 figpath = '../figures/';
-print(figure5,'-depsc2','-painters',[figpath 'figF.eps'])
+%print(figure5,'-depsc2','-painters',[figpath 'figGold.eps'])
     
 % FIG 2 - Plot a regression of winter VWC vs early winter SWE
 figure6 = figure('position',[100 0 600 400],'paperpositionmode',...
@@ -534,7 +538,7 @@ text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '], ... %num2str(stats(3), 2
 xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter qtr. WC (norm.)');
 
 figpath = '../figures/';
-print(figure6,'-depsc2','-painters',[figpath 'figH.eps'])
+%print(figure6,'-depsc2','-painters',[figpath 'figHold.eps'])
 
 % FIG 3 - Plot summer VWC vs peak SWE
 figure7 = figure('position',[100 0 600 400],'paperpositionmode',...
@@ -560,7 +564,7 @@ xlabel('Peak SWE (mm)'); ylabel('Mean summer qtr. WC (norm.)');
 set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9]);
 
 figpath = '../figures/';
-print(figure7,'-depsc2','-painters',[figpath 'figJ.eps'])
+%print(figure7,'-depsc2','-painters',[figpath 'figJold.eps'])
 
 
 % --------------------------------------------------------------
@@ -629,4 +633,4 @@ xlabel('Peak SWE (mm)'); ylabel({'Mean summer qtr.' 'WC (norm.)'});
 set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9]);
 
 figpath = '../figures/';
-print(figure8,'-depsc2','-painters',[figpath 'figF2.eps'])
+print(figure8,'-depsc2','-painters',[figpath 'figG.eps'])

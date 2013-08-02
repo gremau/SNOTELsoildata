@@ -685,7 +685,7 @@ clear testJAS;
 % PLOT 2. Plot quarterly distributions for all sites
 titlelabels = {'Hi SWE/Hi Elev' 'Hi SWE/Low Elev' 'Low SWE/Hi Elev'...
     'Low SWE/Low Elev'};
-monlabels = {'< 20%' '' '' '' '> 20%' '' '' ''};
+monlabels = {['Low' 10 'summer' 10 'rain'] '' '' '' ['High' 10 'summer' 10 'rain'] '' '' ''};
 
 figure4 = figure('position',[100 0 1000 500],'paperpositionmode',...
     'auto', 'color','none','InvertHardcopy','off');
@@ -708,7 +708,7 @@ for i = 1:8;
         'Ytick', [0.05;0.1],'Xminortick', 'on');
     if i==1 || i==5;
         %ylabel('Frequency');
-        text(0.6, 0.9, monlabels(i), 'Units', 'normalized');
+        text(0.5, 0.7, monlabels(i), 'Units', 'normalized');
         set(gca, 'XTickLabel', {'0','0.5',''}, 'Ytick', [0.05;0.1])
         if i==1;
             text(-0.35, -0.7,'Normalized frequency of ocurrence',...
@@ -717,7 +717,7 @@ for i = 1:8;
     elseif i==8;
         set(gca, 'XtickLabel', {'', '0.5', '1'});
         set(gca, 'YtickLabel', '');
-        text(-1.51, -0.15,'Normalized VWC','Units', 'normalized');
+        text(-1.51, -0.15,'Normalized WC','Units', 'normalized');
     else
         set(gca, 'YtickLabel', '');
     end

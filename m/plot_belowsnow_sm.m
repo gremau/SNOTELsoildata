@@ -506,13 +506,12 @@ end
 set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
 ylim([-0.2 0.6]);
 hline(0, ':k');
-ylabel('Change in VWC');
+ylabel('Change in WC (normalized)');
 set(gca, 'xtick', [1;2;3;4;5;6;7], 'xticklabel', months);
 legend([h7;h8;h9], {'5cm', '20cm', '50cm'}, 'location', 'northeast');
 text(0.05, 0.9, 'a. Month-to-month', 'units', 'normalized', 'fontangle', 'italic',...
     'Fontsize', 20);
 %text(0.95, -0.11, 'Month', 'units', 'normalized');
-ylabel('Normalized VWC change')
 
 
 subplot(1,2,2);
@@ -551,7 +550,7 @@ text(0.05, 0.9, 'b. Cumulative', 'Units', 'normalized', 'Fontangle', 'italic',..
     'Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figG.eps']) 
+print(h,'-depsc2','-painters',[figpath 'figF.eps']) 
 
 junk = 99;
 end
