@@ -637,7 +637,7 @@ monsites_lolo = monsites(elevAgg(mtest)<2850 & maxsweAgg(mtest)<300);
 %
 % 2 plots = Sensor timeseries for each site and then seasonal histograms
 
-sensordepth = 2; %(1=5cm, 2=20cm, 3=50cm);
+sensordepth = 1; %(1=5cm, 2=20cm, 3=50cm);
 startwy = 2006;
 
 % Set distribution bins and plot axes
@@ -655,17 +655,18 @@ disp('*** Running in normalized soil moisture data mode ***');
 % Allocate for histogram and mean matrices - fill in following loop
 histograms = zeros(length(xedges), 8);
 means = zeros(8, 1);
+meds = zeros(8, 1);
 
 % Put normalized histograms in the histograms matrix
 % (in plotting order)
-[means(1,1), histograms(:,1)] = gethistn(sites_hihi);
-[means(2,1), histograms(:,2)] = gethistn(sites_hilo);
-[means(3,1), histograms(:,3)] = gethistn(sites_lohi);
-[means(4,1), histograms(:,4)] = gethistn(sites_lolo);
-[means(5,1), histograms(:,5)] = gethistn(monsites_hihi);
-[means(6,1), histograms(:,6)] = gethistn(monsites_hilo);
-[means(7,1), histograms(:,7)] = gethistn(monsites_lohi);
-[means(8,1), histograms(:,8)] = gethistn(monsites_lolo);
+[means(1,1), meds(1,1), histograms(:,1)] = gethistn(sites_hihi, sensordepth, startwy);
+[means(2,1), meds(2,1), histograms(:,2)] = gethistn(sites_hilo, sensordepth, startwy);
+[means(3,1), meds(3,1), histograms(:,3)] = gethistn(sites_lohi, sensordepth, startwy);
+[means(4,1), meds(4,1), histograms(:,4)] = gethistn(sites_lolo, sensordepth, startwy);
+[means(5,1), meds(5,1), histograms(:,5)] = gethistn(monsites_hihi, sensordepth, startwy);
+[means(6,1), meds(6,1), histograms(:,6)] = gethistn(monsites_hilo, sensordepth, startwy);
+[means(7,1), meds(7,1), histograms(:,7)] = gethistn(monsites_lohi, sensordepth, startwy);
+[means(8,1), meds(8,1), histograms(:,8)] = gethistn(monsites_lolo, sensordepth, startwy);
 
 
 % Calculate mean and standard deviations of data from each quarter and
@@ -692,6 +693,9 @@ figure4 = figure('position',[100 0 1000 500],'paperpositionmode',...
 set(figure4, 'Name', ['Multi-site quarterly histograms - 2006-2011']);
 set(figure4, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
 
+% display either the mean of median of the distribution
+stat = meds; %meds;
+
 % Loop through 8 subplots and plot histograms and means
 for i = 1:8;
     subplot (2, 4, i)
@@ -701,7 +705,7 @@ for i = 1:8;
         bar(xedges, histograms(:, i), 'Facecolor', [0.4 0.4 0.4]);
     end
     hold on
-    plot([means(i,1) means(i,1)], [0 1], '--k', 'Linewidth', 1);
+    plot([stat(i,1) stat(i,1)], [0 1], '--k', 'Linewidth', 1);
     axis([xmin xmax 0 ymax]);
     set(gca, 'position', [0.925 0.925 1.15 1.19] .* get(gca, 'position'));
     set(gca, 'XTick', [0, 0.5, 1], 'XtickLabel', {'','0.5',''},...
@@ -717,7 +721,7 @@ for i = 1:8;
     elseif i==8;
         set(gca, 'XtickLabel', {'', '0.5', '1'});
         set(gca, 'YtickLabel', '');
-        text(-1.51, -0.15,'Normalized WC','Units', 'normalized');
+        text(-1.51, -0.15,'Normalized \theta','Units', 'normalized');
     else
         set(gca, 'YtickLabel', '');
     end
@@ -728,7 +732,7 @@ for i = 1:8;
 end
 
 figpath = '../figures/';
-print(figure4,'-depsc2','-painters',[figpath 'figL_50cm.eps'])
+print(figure4,'-depsc2','-painters',[figpath 'figL_5cm_med.eps'])
 
 end
 

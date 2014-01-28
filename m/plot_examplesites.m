@@ -242,7 +242,7 @@ zeroline = line(get(gca, 'XLim'), [0, 0]);
 set(zeroline, 'Color', 'k', 'LineStyle', ':', 'LineWidth', 1.5);
 % Set axes limits, tick locations, labels, position, etc
 xlim([0 367]); ylim([-2 35]);
-ylabel('WC (%)');
+ylabel('\theta (%)');
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths,...
     'Position', get(gca, 'position') .* [1 .9 1 1.23]);
 text(0.95, 0.85, 'c', 'Units', 'normalized');
@@ -260,12 +260,12 @@ print(figure2,'-depsc2','-painters',[figpath 'figB.eps'])
 % Set list of sites, sensor output(vwc or temp), and sensor depth
 siteIDs = [828, 333, 452, 336]; % elev/swe: hi/hi, low/hi, hi/low, low/low
 % 828 = TrialLk, 333 = BenLomTrail, 452=DonkeyRes, 573=Big BendNV
-sensoroutput = 'vwc';
+sensoroutput = '\theta';
 sensordepth = 2; %(1=5cm, 2=20cm, 3=50cm);
 startwy = 2006;
 
 % Select TEMP or VWC data and set distribution bins and plot axes
-if strcmpi(sensoroutput, 'vwc');
+if strcmpi(sensoroutput, '\theta');
     sensorcolumn = sensordepth + 3; % get proper column using sensordepth
     xmin = 0;
     % If running RAW SENSOR DATA (no normalization)
@@ -301,7 +301,7 @@ for i = 1:length(siteIDs);
         siteHourly{j} = siteHourly{j}(wyexclude);
     end
     % Parse out the desired sensor depth, normalize if plotting vwc
-    if strcmpi(sensoroutput, 'vwc')
+    if strcmpi(sensoroutput, '\theta')
         sensordata = filterseries(siteHourly{sensorcolumn}, 'sigma', 25, 3);
         % SPECIAL Case for Taylor Cyn - There is some bad data that makes it
         % past filter and messes up normalization - remove it
@@ -535,7 +535,7 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, snowVwcSitelabel, 'Units', 'normalized');
 text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '], ... %num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter qtr. WC (norm.)');
+xlabel('Mean Dec. SWE (mm)'); ylabel('Mean winter qtr. \theta (norm.)');
 
 figpath = '../figures/';
 %print(figure6,'-depsc2','-painters',[figpath 'figHold.eps'])
@@ -560,7 +560,7 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, gsVwcSitelabel, 'Units', 'normalized');
 text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '],... num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Peak SWE (mm)'); ylabel('Mean summer qtr. WC (norm.)');
+xlabel('Peak SWE (mm)'); ylabel('Mean summer qtr. \theta (norm.)');
 set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9]);
 
 figpath = '../figures/';
@@ -571,9 +571,10 @@ figpath = '../figures/';
 % 3 plots from above, but all in one figure
 
 % FIG 2 - Plot a regression of snowcov Tsoil vs early winter SWE
-figure8 = figure('position',[100 0 620 1200],'paperpositionmode',...
-    'auto', 'color','none','InvertHardcopy','off');
-set(figure8, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 16);
+figure8 = figure('position',[100 100 310 680],...
+    'paperpositionmode', 'auto','color','white',...
+    'InvertHardcopy','off');
+set(figure8, 'DefaultAxesFontSize',10, 'DefaultTextFontSize', 10);
 set(figure8, 'Name', ['Regression: Y = snowcovTs20mean, X = onsetdoy '...
     ', Site = ' num2str(snowTsSite)]);
 
@@ -583,7 +584,7 @@ ysite = snowcovTs20mean(test);
 xsite = decSWEmean(test);
 
 subplot(3,1,1);
-plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
+plot(xsite, ysite, 'ok', 'MarkerSize', 6, 'MarkerFaceColor', 'Black');
 hold on;
 xlim([30,125]);
 xrange = xlim(gca);
@@ -593,8 +594,12 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, ['a. ' snowTsSitelabel], 'Units', 'normalized');
 text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01'],...% num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Mean Dec. SWE (mm)'); ylabel('Mean below-snow T_{soil} (^oC)');
-set(gca, 'Ytick', [-0.5;0;0.5;1;1.5;2]);
+xlabel('Mean Dec. SWE (mm)'); 
+ylabel({'Mean below-snow T_{soil}' '(^oC)'});
+x=get(gca, 'OuterPosition');
+x(1) = 0; x(3)=1;
+set(gca, 'Ytick', [-0.5;0;0.5;1;1.5;2],...
+    'OuterPosition', x, 'units', 'normalized');
 
 % subplot 2
 test = site_cl==snowVwcSite;
@@ -602,7 +607,7 @@ ysite = jfmVWC20mean(test);
 xsite = decSWEmean(test);
 
 subplot(3,1,2);
-plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
+plot(xsite, ysite, 'ok', 'MarkerSize', 6, 'MarkerFaceColor', 'Black');
 hold on;
 xlim([0, 200]);
 xrange = xlim(gca);
@@ -612,7 +617,10 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, ['b. ' snowVwcSitelabel], 'Units', 'normalized');
 text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '], ... %num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Mean Dec. SWE (mm)'); ylabel({'Mean winter qtr.' 'WC (norm.)'});
+xlabel('Mean Dec. SWE (mm)'); ylabel({'Mean winter qtr.' '\theta (norm.)'});
+x=get(gca, 'OuterPosition');
+x(1) = 0; x(3)=1;
+set(gca,  'OuterPosition', x, 'units', 'normalized');
 
 % subplot 3
 test = site_cl==gsVwcSite;
@@ -620,7 +628,7 @@ ysite = jasVWC50mean(test);
 xsite = maxswe(test);
 
 subplot(3,1,3);
-plot(xsite, ysite, 'ok', 'MarkerSize', 10, 'MarkerFaceColor', 'Black');
+plot(xsite, ysite, 'ok', 'MarkerSize', 6, 'MarkerFaceColor', 'Black');
 hold on;
 xrange = xlim(gca);
 [coeffs, rsq, xfit, yfit] = fitline(xsite, ysite, 1, xrange);
@@ -629,8 +637,14 @@ plot(xfit, yfit,'--k', 'LineWidth', 1.5);
 text(0.1, 0.9, ['c. ' gsVwcSitelabel], 'Units', 'normalized');
 text(0.1, 0.8,['R^2 = ' num2str(rsq, 2) ', p < 0.01 '],... num2str(stats(3), 2)],...
     'Units', 'Normalized'); % r^2 & p
-xlabel('Peak SWE (mm)'); ylabel({'Mean summer qtr.' 'WC (norm.)'});
-set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9]);
+xlabel('Peak SWE (mm)'); ylabel({'Mean summer qtr.' '\theta (norm.)'});
+x=get(gca, 'OuterPosition');
+x(1) = 0; x(3)=1;
+set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9],...
+    'OuterPosition', x, 'units', 'normalized');
+
+%set(gcf, 'OuterPosition', [99 94 370 732]);
+%pos2 = get(gcf, 'Position')
 
 figpath = '../figures/';
 print(figure8,'-depsc2','-painters',[figpath 'figG.eps'])

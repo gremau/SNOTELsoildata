@@ -79,10 +79,10 @@ end
 siteClimAgg = accumarray(aggindex, siteClim, [numel(soilsites) 1], @mean);
 elevAgg = accumarray(aggindex, elev, [numel(soilsites) 1], @mean);
 % Tair and StdDev
-julTairMeanAgg = accumarray(aggindex, julTairMean, [numel(soilsites) 1], @nanmean);
-julTairSdAgg = accumarray(aggindex, julTairSd, [numel(soilsites) 1], @mean);
-janTairMeanAgg = accumarray(aggindex, janTairMean, [numel(soilsites) 1], @nanmean);
-janTairSdAgg = accumarray(aggindex, janTairSd, [numel(soilsites) 1], @mean);
+julTairmeanAgg = accumarray(aggindex, julTairmean, [numel(soilsites) 1], @nanmean);
+julTairsdAgg = accumarray(aggindex, julTairsd, [numel(soilsites) 1], @mean);
+janTairmeanAgg = accumarray(aggindex, janTairmean, [numel(soilsites) 1], @nanmean);
+janTairsdAgg = accumarray(aggindex, janTairsd, [numel(soilsites) 1], @mean);
 %Tsoil (mean and StdDev) for 5 and 20cm
 julTs5meanAgg = accumarray(aggindex, julTs5mean, [numel(soilsites) 1], @nanmean);
 julTs20meanAgg = accumarray(aggindex, julTs20mean, [numel(soilsites) 1], @nanmean);
@@ -101,7 +101,7 @@ h = figure(fignum);
 set(h, 'Name','Jan/July Air and soil temperature gradients, All SNOTEL');
 
 subplot (2, 2, 1)
-plot(elev, julTairMean, 'ok', 'MarkerFaceColor', 'r');
+plot(elev, julTairmean, 'ok', 'MarkerFaceColor', 'r');
 hold on
 plot(elev, julTs20mean, 'ok', 'MarkerFaceColor', 'k');
 xlabel('Elevation(m)');
@@ -110,7 +110,7 @@ title('July');
 legend('Air', 'Soil(20cm)');
 
 subplot (2, 2, 2)
-plot(elev, janTairMean, 'ok', 'MarkerFaceColor', 'b');
+plot(elev, janTairmean, 'ok', 'MarkerFaceColor', 'b');
 hold on
 plot(elev, janTs20mean, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
@@ -121,7 +121,7 @@ title('January');
 legend('Air', 'Soil', 'Moist adiabatic lapse( 5^oC/km)');
 
 subplot (2, 2, 3)
-plot(elevAgg, julTairMeanAgg, 'ok', 'MarkerFaceColor', 'r');
+plot(elevAgg, julTairmeanAgg, 'ok', 'MarkerFaceColor', 'r');
 hold on
 plot(elevAgg, julTs20meanAgg, 'ok', 'MarkerFaceColor', 'k');
 xlabel('Elevation(m)');
@@ -130,7 +130,7 @@ title('July (mean of all wateryears)');
 legend('Air', 'Soil(20cm)');
 
 subplot (2, 2, 4)
-plot(elevAgg, janTairMeanAgg, 'ok', 'MarkerFaceColor', 'b');
+plot(elevAgg, janTairmeanAgg, 'ok', 'MarkerFaceColor', 'b');
 hold on
 plot(elevAgg, janTs20meanAgg, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
@@ -196,8 +196,8 @@ set(h, 'Name', 'Other landscape gradients');
 subplot (2,2,1)
 plot(elev, maat, '.', 'Color', [0.7 0.7 0.7]);
 hold on
-plot(elevAgg, julTairMeanAgg, '.m');
-plot(elevAgg, janTairMeanAgg, '.b');
+plot(elevAgg, julTairmeanAgg, '.m');
+plot(elevAgg, janTairmeanAgg, '.b');
 xlabel('Elevation(m)');
 ylabel('Mean T (^oC)');
 xlim([700 3700]);
@@ -222,8 +222,8 @@ latAgg = accumarray(aggindex, lat, [numel(soilsites) 1], @mean);
 plot(lat, maat, '.', 'Color', ...
     [0.7 0.7 0.7]);
 hold on
-plot(latAgg, julTairMeanAgg, '.', 'Color', [0.4 0.4 0.4]);
-plot(latAgg, janTairMeanAgg, '.k');
+plot(latAgg, julTairmeanAgg, '.', 'Color', [0.4 0.4 0.4]);
+plot(latAgg, janTairmeanAgg, '.k');
 xlabel('Latitude');
 ylabel('Mean T (^oC)');
 title('Mean temperature vs latitude');
@@ -255,7 +255,7 @@ polyorder = 1;
 for i=plotorder
     subplot(4, 3, i);
     x = elev;
-    eval(['y1 = ' months(i,:) 'TairMean;']);
+    eval(['y1 = ' months(i,:) 'Tairmean;']);
     eval(['y2 = ' months(i,:) 'Ts5mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -274,7 +274,7 @@ for i=plotorder
     end
     
     subplot(4,3, i+3)
-    eval(['y1 = ' months(i+3,:) 'TairMean;']);
+    eval(['y1 = ' months(i+3,:) 'Tairmean;']);
     eval(['y2 = ' months(i+3,:) 'Ts20mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -290,7 +290,7 @@ for i=plotorder
     end
     
     subplot(4,3, i+6);
-    eval(['y1 = ' months(i+6,:) 'TairMean;']);
+    eval(['y1 = ' months(i+6,:) 'Tairmean;']);
     eval(['y2 = ' months(i+6,:) 'Ts50mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -306,7 +306,7 @@ for i=plotorder
     end
 
     subplot(4,3, i+9);
-    eval(['y1 = ' months(i+9,:) 'TairMean;']);
+    eval(['y1 = ' months(i+9,:) 'Tairmean;']);
     eval(['y2 = ' months(i+9,:) 'Ts50mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -338,7 +338,7 @@ polyorder = 1;
 for i=plotorder
     subplot(3, 5, i);
     x = elev;
-    eval(['y1 = ' months(i,:) 'TairMean;']);
+    eval(['y1 = ' months(i,:) 'Tairmean;']);
     eval(['y2 = ' months(i,:) 'Ts5mean;']);
     plot(x, y1, '.', 'Color', [0.7,0.7,0.7]);
     hold on;
@@ -396,7 +396,7 @@ set(h, 'Name','Restricted gradients');
 swetest = ltMeanSWE<600 & ltMeanSWE>400;
 
 subplot (2, 2, 1)
-plot(ltMeanSWE(swetest), julTairMean(swetest), '.k');
+plot(ltMeanSWE(swetest), julTairmean(swetest), '.k');
 xlabel('Mean peak SWE(mm)');
 ylabel('Mean July temp (Celsius)');
 title('Constant SWE - July air temp');
@@ -412,7 +412,7 @@ title('Constant SWE - elevation');
 temptest = elev<2550 & elev>2350;
 
 subplot (2, 2, 3)
-plot(elev(temptest), julTairMean(temptest), '.k');
+plot(elev(temptest), julTairmean(temptest), '.k');
 xlabel('elevation(m)');
 ylabel('Mean July temperature (Celsius');
 title('Constant elevation - July temperature');
@@ -430,7 +430,7 @@ h = figure(fignum);
 set(h, 'Name','Dec Air/Soil gradient - All SNOTEL/years');
 
 subplot (1,2,1);
-plot(elev, decTairMean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
+plot(elev, decTairmean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
 plot(elev, decTs20mean, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
@@ -440,7 +440,7 @@ ylabel('Mean temp (Celsius)');
 legend('Air', 'Soil(20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 
 subplot (1,2,2);
-plot(elev, decTairMean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
+plot(elev, decTairmean, 'ok', 'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
 plot(elev, decTs5mean, 'ok', 'MarkerFaceColor', 'w');
 % Plot moist adiabatic lapse rate
@@ -456,7 +456,7 @@ h = figure(fignum);
 set(h, 'Name','Dec Air/Soil gradient and offset - All SNOTEL/years');
 
 subplot (1,2,1);
-errorbar(elev, decTairMean, decTairSd, 'ok',...
+errorbar(elev, decTairmean, decTairsd, 'ok',...
     'MarkerFaceColor', [0.7 0.7 0.7]);
 hold on
 errorbar(elev, decTs20mean, decTs20sd, 'ok', 'MarkerFaceColor', 'w');
@@ -468,7 +468,7 @@ legend('Air', 'Soil (20cm)', 'Moist adiabatic lapse( 5^oC/km)');
 title('Air & soil temp.');
 
 subplot(1,2,2);
-offset = abs(decTairMean - decTs20mean);
+offset = abs(decTairmean - decTs20mean);
 plot(elev, offset(:,1), 'ok', 'MarkerFaceColor', 'b');
 hold on;
 
@@ -503,7 +503,7 @@ st_test = ismember(siteClim, selectIDs);
 
 
 subplot (1,1,1);
-errorbar(elev(st_test), janTairMean(st_test), janTairSd(st_test), ...
+errorbar(elev(st_test), janTairmean(st_test), janTairsd(st_test), ...
     'ok', 'MarkerFaceColor', [0.7 0.7 0.7], 'Color', [0.7 0.7 0.7], ...
     'MarkerEdgeColor', 'k');
 hold on
@@ -531,8 +531,8 @@ st_testAgg = ismember(siteClimAgg, selectIDs);
 
 % Assign to x and y variables
 x = elevAgg(st_testAgg);
-y1 = janTairMeanAgg(st_testAgg);
-sd1 = janTairSdAgg(st_testAgg);
+y1 = janTairmeanAgg(st_testAgg);
+sd1 = janTairsdAgg(st_testAgg);
 y2 = janTs20meanAgg(st_testAgg);
 sd2 = janTs20sdAgg(st_testAgg);
 
@@ -711,10 +711,10 @@ text(0.85, -0.1, 'Elevation (m)', 'Units', 'normalized');
 ylabel('Mean monthly T (^oC)')
 
 % Assign x and y variables
-y1 = janTairMeanAgg(st_testAgg);
-sd1 = janTairSdAgg(st_testAgg);
-y2 = julTairMeanAgg(st_testAgg);
-sd2 = julTairSdAgg(st_testAgg);
+y1 = janTairmeanAgg(st_testAgg);
+sd1 = janTairsdAgg(st_testAgg);
+y2 = julTairmeanAgg(st_testAgg);
+sd2 = julTairsdAgg(st_testAgg);
 
 subplot(1,2,2);
 % Plot January Tair by elevation and regression
@@ -776,7 +776,7 @@ y2 = julTs20meanAgg(st_testAgg);
 sd2 = julTs20sdAgg(st_testAgg);
 
 
-subplot(2,2,1);
+subplot(2,2,3);
 % Plot January Ts by elevation and regression
 handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerSize', 10, ...
     'MarkerFaceColor', 'w');
@@ -801,20 +801,20 @@ if stats(3) < 0.01
 end
 set(gca, 'position', [0.9 0.9 1.15 1.2] .* get(gca, 'position'));
 xlim([1500 3550]);ylim([-13 30]);
-set(gca,'Ytick',[-10;-5;0;5;10;15;20;25;30],'XtickLabel','');
+set(gca,'Ytick',[-10;-5;0;5;10;15;20;25;30],'Xtick',[1500;2000;2500;3000]);
 legend(handles([1 3]), {'January', 'July'}, 'Location', 'Southeast');
-text(0.60, 0.9, 'a. Utah T_{soil}', 'Units', 'normalized',...
+text(0.85, -0.15, 'Elevation (m)', 'Units', 'normalized');
+text(0.60, 0.9, 'c. Utah T_{soil}', 'Units', 'normalized',...
     'Fontangle', 'italic','Fontsize', 20);
 %xlabel('Elevation (m)');
-text(-0.15, -.3, 'Mean monthly T (^oC)', 'Units', 'normalized', 'Rotation', 90)
 
 % Assign x and y variables - STATE SITES Tair
-y1 = janTairMeanAgg(st_testAgg);
-sd1 = janTairSdAgg(st_testAgg);
-y2 = julTairMeanAgg(st_testAgg);
-sd2 = julTairSdAgg(st_testAgg);
+y1 = janTairmeanAgg(st_testAgg);
+sd1 = janTairsdAgg(st_testAgg);
+y2 = julTairmeanAgg(st_testAgg);
+sd2 = julTairsdAgg(st_testAgg);
 
-subplot(2,2,2);
+subplot(2,2,4);
 % Plot January Tair by elevation and regression
 handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
@@ -841,8 +841,8 @@ end
 %plot([1600 3400], [18, 9], ':k');
 set(gca, 'position', [0.90 0.9 1.15 1.2] .* get(gca, 'position'));
 xlim([1500 3550]);ylim([-13 27]);
-set(gca, 'YtickLabel', [],'XtickLabel', '');
-text(0.60, 0.9, 'b. Utah T_{air}', 'Units', 'normalized',...
+set(gca, 'YtickLabel', [],'Xtick', [2000;2500;3000;3500]);
+text(0.60, 0.9, 'd. Utah T_{air}', 'Units', 'normalized',...
     'Fontangle', 'italic','Fontsize',20);
 
 
@@ -853,7 +853,7 @@ sd1 = janTs20sdAgg(all_testAgg);
 y2 = julTs20meanAgg(all_testAgg);
 sd2 = julTs20sdAgg(all_testAgg);
 
-subplot(2,2,3);
+subplot(2,2,1);
 % Plot January Ts by elevation and regression
 handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
@@ -874,21 +874,21 @@ if stats(3) < 0.01
 end
 set(gca, 'position', [0.90 0.9 1.15 1.2] .* get(gca, 'position'));
 xlim([1500 3550]);ylim([-13 30]);
-set(gca,'Ytick',[-10;-5;0;5;10;15;20;25;30],'Xtick',[1500;2000;2500;3000]);
+set(gca,'Ytick',[-10;-5;0;5;10;15;20;25;30],'XtickLabels',[]);
 %legend(handles([1 3]), {'January', 'July'}, 'Location', 'Southeast');
-text(0.60, 0.9, 'c. All sites T_{soil}', 'Units', 'normalized',...
+text(0.60, 0.9, 'a. All sites T_{soil}', 'Units', 'normalized',...
     'Fontangle', 'italic','Fontsize', 20);
-text(0.85, -0.15, 'Elevation (m)', 'Units', 'normalized');
+text(-0.15, -.3, 'Mean monthly T (^oC)', 'Units', 'normalized', 'Rotation', 90)
 %xlabel('Elevation (m)');
 %ylabel('Mean monthly T (^oC)')
 
 % Assign x and y variables - ALL SITES Tair
-y1 = janTairMeanAgg(all_testAgg);
-sd1 = janTairSdAgg(all_testAgg);
-y2 = julTairMeanAgg(all_testAgg);
-sd2 = julTairSdAgg(all_testAgg);
+y1 = janTairmeanAgg(all_testAgg);
+sd1 = janTairsdAgg(all_testAgg);
+y2 = julTairmeanAgg(all_testAgg);
+sd2 = julTairsdAgg(all_testAgg);
 
-subplot(2,2,4);
+subplot(2,2,2);
 % Plot January Tair by elevation and regression
 handles(1) = errorbar(x, y1, sd1, 'ok', 'MarkerFaceColor', 'White',...
     'MarkerSize', 10);
@@ -911,8 +911,8 @@ end
 %plot([1600 3400], [18, 9], ':k');
 set(gca, 'position', [0.90 0.9 1.15 1.2] .* get(gca, 'position'));
 xlim([1500 3550]);ylim([-13 27]);
-set(gca, 'YtickLabel', [],'Xtick',[2000;2500;3000;3500]);
-text(0.60, 0.9, 'd. All sites T_{air}', 'Units', 'normalized',...
+set(gca, 'YtickLabel', [],'XtickLabels',[]);
+text(0.60, 0.9, 'b. All sites T_{air}', 'Units', 'normalized',...
     'Fontangle', 'italic','Fontsize',20);
 
 figpath = '../figures/';

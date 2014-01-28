@@ -161,14 +161,14 @@ plot(elev, onsetdoy, 'ok', 'MarkerFaceColor', 'k');
 hold on;
 plot(elev(testsoil), onsetdoy(testsoil), 'or');
 xlabel('Elevation (m)'); ylabel('Day of year');
-title('Snowpack onset day');
+title('Snowpack start day');
 
 subplot (4, 2, 8)
 plot(elev, meltdoy, 'ok', 'MarkerFaceColor', 'k');
 hold on;
 plot(elev(testsoil), meltdoy(testsoil), 'or');
 xlabel('Elevation (m)'); ylabel('Day of year');
-title('Day of snowmelt');
+title('Snow-free day');
 
 %------------------------------------------------------------------
 % FIG 2 - Histograms of entire network and soil subset - 2001-2011
@@ -240,7 +240,7 @@ text(0.535, 0.5, ['Jul+Aug+Sep' 10  'precip (mm)'],...
 text(0.95, 0.85, 'd', 'Units', 'normalized');
 
 subplot (4, 2, 5)
-xedges = linspace(100, 2000, 60);
+xedges = linspace(10, 2000, 60);
 networkhist = histc(maxswe(testyears), xedges);
 soilhist = histc(maxswe(testsoil & testyears), xedges);
 bar(xedges, networkhist, 'k');
@@ -282,7 +282,7 @@ set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 %h=vline(nanmean(onsetdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([-2 125]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
-text(0.55, 0.4, 'Snowpack onset day', 'Units', 'normalized');
+text(0.55, 0.4, 'Snowpack start day', 'Units', 'normalized');
 %ylabel('Frequency');
 text(0.95, 0.85, 'g', 'Units', 'normalized');
 
@@ -301,7 +301,7 @@ set(gca, 'position', [0.95 0.975 1.1 1.05] .* get(gca, 'position'));
 %h=vline(nanmean(meltdoy(testsoil)), '--'); set(h, 'Color', [0.5 0.5 0.5]);
 xlim([100 340]); ylim([0 700]);
 set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths);
-text(0.05, 0.4, 'Day of snowmelt', 'Units', 'normalized');
+text(0.05, 0.4, 'Snow-free day', 'Units', 'normalized');
 text(0.95, 0.85, 'h', 'Units', 'normalized');
 
 figpath = '../figures/';

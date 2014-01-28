@@ -111,7 +111,7 @@ for i=plotorder
     set(gca, 'XTickLabel', '');
     if i==1
         legend('Location', 'Northwest', '5cm', '20cm', '50cm', '20cm polyfit');
-        text(-0.35, -0.45, 'Mean monthly soil VWC', 'Units', 'normalized', 'Rotation', 90);
+        text(-0.35, -0.45, 'Mean monthly \theta', 'Units', 'normalized', 'Rotation', 90);
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
@@ -137,7 +137,7 @@ for i=plotorder
         set(gca, 'YTickLabel', '');
     end
     if i==2
-        text(1, -0.2, 'Pre-onset VWC', 'Units', 'normalized');
+        text(1, -0.2, 'Pre-onset \theta', 'Units', 'normalized');
     end
 end
 
@@ -145,7 +145,7 @@ end
 % FIG 2 - Plot winter soil moisture vs prior month's soil moisture
 fignum = fignum+1;
 h = figure(fignum);
-set(h, 'Name', 'Winter monthly VWC vs prior month VWC');
+set(h, 'Name', 'Winter monthly \theta vs prior month VWC');
 
 polyorder = 1;
 plotorder = 1:4;
@@ -176,7 +176,7 @@ for i=plotorder
     set(gca, 'XTickLabel', '');
     if i==1
         legend('Location', 'Northwest', '5cm', '20cm', '50cm', '20cm polyfit');
-        text(-0.35, -0.45, 'Mean monthly soil VWC', 'Units', 'normalized', 'Rotation', 90);
+        text(-0.35, -0.45, 'Mean monthly \theta', 'Units', 'normalized', 'Rotation', 90);
     elseif i>1
         set(gca, 'YTickLabel', '');
     end
@@ -205,7 +205,7 @@ for i=plotorder
         set(gca, 'YTickLabel', '');
     end
     if i==2
-        text(1, -0.2, 'Prior month VWC', 'Units', 'normalized');
+        text(1, -0.2, 'Prior month \theta', 'Units', 'normalized');
     end
 end
 
@@ -264,16 +264,16 @@ for i = 1:3;
     plot(0:45, 0:45, ':k');
     pos = get(gca,'position'); % get subplot axis position
     set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
-    ylabel([months(i,:) ' VWC (normalized)']);
+    ylabel([months(i,:) ' \theta (normalized)']);
     xlim(xaxlim); ylim(yaxlim);
     if i==1
         legend('5cm', '20cm', '50cm', 'Location', 'NorthWest');
-        title('Month mean VWC vs pre-snowpack VWC');
+        title('Month mean \theta vs pre-snowpack VWC');
         set(gca, 'XTickLabels', '');
     elseif i < 3
         set(gca, 'XTickLabels', '');
     elseif i==3
-        xlabel('Pre-snowpack VWC (normalized)');
+        xlabel('Pre-snowpack \theta (normalized)');
     end
     
 end
@@ -325,10 +325,10 @@ end
 plot(0:45, 0:45, ':k', 'linewidth', 2);
 pos = get(gca,'position'); % get subplot axis position
 %set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
-ylabel('Mean monthly VWC (%)');
+ylabel('Mean monthly \theta (%)');
 xlim(xaxlim); ylim(yaxlim);
 legend('October','December','February','April','Location','Southeast');
-xlabel('Pre-onset VWC (normalized)');
+xlabel('Pre-onset \theta (normalized)');
 
 
 % figpath = '../figures/';
@@ -387,10 +387,10 @@ end
 plot(0:45, 0:45, ':k', 'linewidth', 1.5);
 pos = get(gca,'position'); % get subplot axis position
 %set(gca,'position',pos.*[1 .90 1 1.22]); % change its height
-ylabel('Mean monthly VWC (normalized)');
+ylabel('Mean monthly \theta (normalized)');
 xlim(xaxlim); ylim(yaxlim);
 legend([h1; h8], {'October','May'}, 'Location', 'Southeast');
-xlabel('Pre-onset VWC (normalized)');
+xlabel('Pre-onset \theta (normalized)');
 
 
 % figpath = '../figures/';
@@ -428,7 +428,7 @@ for i = 1:length(months);
         '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ob' char(39)...
         ', ' char(39) 'MarkerSize' char(39) ', 10);']);
 end
-ylabel('Change in VWC');
+ylabel('Change in \theta');
 xlabel('Month');
 
 %-------------------------------------------------------------------------
@@ -464,7 +464,7 @@ for i = 1:length(months);
         '),  nanstd(delta50cm' months(i,:) ')/sqrt(n),' char(39) 'ob' char(39)...
         ', ' char(39) 'MarkerSize' char(39) ', 10);']);
 end
-ylabel('Change in VWC');
+ylabel('Change in \theta');
 xlabel('Month');
 
 % -------------------------------------------------------------
@@ -472,7 +472,7 @@ xlabel('Month');
 fignum = fignum+1;    
 h = figure('position',[100 0 1100 500],'paperpositionmode',...
     'auto','color', 'white','InvertHardcopy','off');
-set(h, 'Name','Change in below-snow VWC',...
+set(h, 'Name','Change in below-snow \theta',...
     'DefaultAxesFontSize',18, 'DefaultTextFontSize', 18);
 
 subplot(1,2,1);
@@ -506,7 +506,7 @@ end
 set(gca, 'position', [0.90 1 1.15 1] .* get(gca, 'position'));
 ylim([-0.2 0.6]);
 hline(0, ':k');
-ylabel('Change in WC (normalized)');
+ylabel('Change in \theta (normalized)');
 set(gca, 'xtick', [1;2;3;4;5;6;7], 'xticklabel', months);
 legend([h7;h8;h9], {'5cm', '20cm', '50cm'}, 'location', 'northeast');
 text(0.05, 0.9, 'a. Month-to-month', 'units', 'normalized', 'fontangle', 'italic',...

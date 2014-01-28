@@ -22,10 +22,10 @@ remove <- !is.na(finder$included_soil)
 climData.sub <- subset(climData, remove)
 
 # First create jasMAT - the sum of jul, aug, sept Air T
-climData.sub$jasMAT <- (climData.sub$julTairMean+climData.sub$augTairMean
-	   +climData.sub$sepTairMean)
+climData.sub$jasMAT <- (climData.sub$julTairmean+climData.sub$augTairmean
+                        +climData.sub$sepTairmean)
 # And JFM MAT - the sum of jan, feb and march MAT
-climData.sub$jfmMAT <- (climData.sub$janTairMean+climData.sub$febTairMean
-	   +climData.sub$marTairMean)
+climData.sub$jfmMAT <- (climData.sub$janTairmean+climData.sub$febTairmean
+                        +climData.sub$marTairmean)
 
 rm(finder, remove, soilrows, climrows, datapath)

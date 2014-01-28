@@ -514,9 +514,9 @@ xlabel('Mean SWE');
 ylabel('50cm Ts (^oC)');
 
 % Mean month soil temps vs air temps
-offset5 = janTs5mean - janTairMean;
-offset20 = janTs20mean - janTairMean;
-offset50 = janTs50mean - janTairMean;
+offset5 = janTs5mean - janTairmean;
+offset20 = janTs20mean - janTairmean;
+offset50 = janTs50mean - janTairmean;
 
 subplot 322;
 plot(janSWEmean(wasatchTest), offset5(wasatchTest), 'om');
@@ -539,7 +539,7 @@ xlabel('Mean SWE');
 % FIG 8
 
 xedges = -15:0.5:10; % normalized vwc bins (0-1)
-histair = histc(janTairMean, xedges);
+histair = histc(janTairmean, xedges);
 histair = histair/sum(histair)
 histsoil = histc(janTs20mean, xedges);
 histsoil = histsoil/sum(histsoil)
@@ -559,7 +559,8 @@ ylim([0,0.3]);
 set(gca,'Ytick', [0.05,0.1,0.15,0.2,0.25,0.3]);
 xlabel('January mean temperature (^oC)');
 ylabel('Normalized frequency of occurrence');
-legend('T_{air}', 'T_{soil}');
+leg = legend('T_{air}', 'T_{soil}');
+set(leg,'FontSize',15);
 
 figpath = '../figures/';
 print(h,'-depsc2','-painters',[figpath 'figM.eps']) 
