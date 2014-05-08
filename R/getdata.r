@@ -13,7 +13,7 @@ soilVWCData <- read.csv(paste(datapath,
 			      sep=''))
 
 # Get subset of climData that matches the soil data using merge
-climrows <- data.frame(siteID=climData$siteClim,year=climData$year)
+climrows <- data.frame(siteID=climData$siteClim,year=climData$yearClim)
 climrows$included_clim <- TRUE
 soilrows <- data.frame(siteID=soilVWCData$siteVWC,year=soilVWCData$yearVWC)
 soilrows$included_soil <- TRUE

@@ -19,8 +19,11 @@ siteID = uint16(siteID); % Convert input to int just in case
 if strcmpi(interval, 'daily')
     datapath = '../rawdata/allsensors_daily/';
     %A list of sites/years that should be contained in the data
-    listfiles = csvread([datapath 'filelist.txt']);
+    listfiles = csvread('../processed_data/filelist_daily.txt');
     checkyears = sort(listfiles(listfiles(:,1)==siteID, 2));
+    % A list of sensors and water years to exclude
+    excludeWY = csvread('../processed_data/excludefiles_daily.txt', 2, 0);
+    excludeSens = csvread('../processed_data/excludesensors_daily.txt', 2, 0);
     % A complete datafile has this many sensors
     completesensorset = 20;
     % Columns to find in daily files (note spaces after -2 sensors)
@@ -34,8 +37,11 @@ if strcmpi(interval, 'daily')
 elseif strcmpi(interval, 'hourly')
     datapath = '../rawdata/soilsensors_hourly/';
     %A list of sites/years that should be contained in the data
-    listfiles = csvread([datapath 'filelist.txt']);
+    listfiles = csvread('../processed_data/filelist_hourly.txt');
     checkyears = sort(listfiles(listfiles(:,1)==siteID, 2));
+    % A list of sensors and water years to exclude
+    excludeWY = csvread('../processed_data/excludefiles_hourly.txt', 2, 0);
+    excludeSens = csvread('../processed_data/excludesensors_hourly.txt', 2, 0);
     % A complete datafile has this many sensors
     completesensorset = 9;
     % Columns to find in hourly files (note spaces after -2 sensors)
@@ -71,10 +77,8 @@ elseif strcmpi(varargin{1}, 'exclude')
     exclude = 1;
     excludeCols = cell(length(checkyears),1);
     % Read in excludefiles.txt and parse out siteID
-    excludeWY = csvread([datapath 'excludefiles.txt'], 2, 0);
     excludeWY = sort(excludeWY(excludeWY(:,1)==siteID, 2));
     % Read in excludesensors.txt and parse out siteID
-    excludeSens = csvread([datapath 'excludesensors.txt'], 2, 0);
     excludeSens = sortrows(excludeSens(excludeSens(:,1)==siteID, 2:end));
     % Build up list of excluded columns for each year of site data
     for i = 1:size(excludeSens,1)
@@ -84,7 +88,7 @@ elseif strcmpi(varargin{1}, 'exclude')
     end
     for i = 1:length(excludeWY)
         excludeCols{ismember(checkyears, excludeWY(i))} = ...
-            [4:completesensorset];
+            4:completesensorset;
     end
 end
 clear excludeWY excludeSens excludeTest;

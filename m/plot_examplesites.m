@@ -141,7 +141,7 @@ vwc = filterseries(hourlyData{5}, 'sigma', 25, 3);
 
 % Overlap all years of Tair and Tsoil data (AGU 2011 poster)
 figure2 = figure('position',[100 0 1100 800],'paperpositionmode',...
-    'auto', 'color','none','InvertHardcopy','off');
+    'auto', 'color','white','InvertHardcopy','off');
 set(figure2, 'Name', ['Site ' num2str(siteID) ' - ' ...
     ' 2 year comparison']);
 set(figure2, 'DefaultAxesFontSize',16, 'DefaultTextFontSize', 18);
@@ -249,7 +249,7 @@ text(0.95, 0.85, 'c', 'Units', 'normalized');
 
 figpath = '../figures/';
 print(figure2,'-depsc2','-painters',[figpath 'figB.eps'])
-
+print(figure2,'-dtiff','-r300',[figpath 'figB.tif'])
 %% -----------------------------------------------------------------------
 % Examine the seasonal variability in temp or vwc at a set of 4 sites.
 % These sites have been chosen to represent elevation/temp and SWE

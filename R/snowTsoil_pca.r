@@ -4,6 +4,7 @@
 # designed for testing the predictors of mean below-snow Tsoil at 20cm depth.
 
 source('getdata.r')
+library(xtable)
 
 # climData.sub should have the same sites/years in the same order as soilTData
 # and soilVWCData
