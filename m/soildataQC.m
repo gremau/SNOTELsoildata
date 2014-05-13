@@ -21,7 +21,7 @@ addpath('~/data/code_resources/m_common/hline_vline/');
 addpath('testing/');
 
 % Get a list of hourly files
-hrFilelist = csvread('../rawdata/soilsensors_hourly/filelist.txt');
+hrFilelist = csvread('../processed_data/filelist_hourly.txt');
 hrFilelist = unique(hrFilelist(:,1));
 
 % Ask user for site number
@@ -34,8 +34,9 @@ exclude = input('Exclude bad data with loadsnotel.m?  (y/n) : ', 's');
 % What filter parameters to use?
 filter1 = 'sigma';
 threshold1 = 3;
-filter2 = 'mean';
-threshold2 = 3;
+% Mean filter sucks, stopped using it
+%filter2 = 'mean';
+%threshold2 = 3;
 
 % Some data must be removed from the datasets provided by NRCS. These data
 % fall into two categories:
@@ -197,9 +198,6 @@ if any(hrFilelist==siteID)
     ts5_F1 = filterseries(ts5, filter1, 25, threshold1);
     ts20_F1 = filterseries(ts20, filter1, 25, threshold1);
     ts50_F1 = filterseries(ts50, filter1, 25, threshold1);
-    ts5_F2 = filterseries(ts5, filter2, 25, threshold2);
-    ts20_F2 = filterseries(ts20, filter2, 25, threshold2);
-    ts50_F2 = filterseries(ts50, filter2, 25, threshold2);
     
     % PLOT unfiltered and FILTER 1 timeseries
     fignum = fignum+1;
@@ -216,54 +214,11 @@ if any(hrFilelist==siteID)
     title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
     legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
     
-    % PLOT unfiltered and FILTER 2 timeseries
-    fignum = fignum+1;
-    h = figure(fignum);
-    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly Ts @ 3 depths']);
-    subplot(3, 1, 1)
-    plot(decday_h, ts5, '.r', decday_h, ts5_F2, '.k');
-    title('Ts -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
-    subplot(3, 1, 2)
-    plot(decday_h, ts20, '.r', decday_h, ts20_F2, '.k');
-    title('Ts -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
-    subplot(3, 1, 3)
-    plot(decday_h, ts50, '.r', decday_h, ts50_F2, '.k');
-    title('Ts - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
-    legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
-    
-    % HISTOGRAMS of unfiltered and filtered Ts data
-    fignum = fignum + 1;
-    h = figure(fignum);
-    set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
-        ' Histogram of filtered 5cm Tsoil values']);
-    % Number of bins
-    xedges = linspace(-20, 47.5, 51);
-    % Sort the raw and filtered series into bins
-    u1 = histc(ts5, xedges);    % Unfiltered data
-    f1 = histc(ts5_F1, xedges); % Filter 1
-    f2 = histc(ts5_F2, xedges); % Filter 2
-    % Now plot the histograms
-    subplot(1,2,1);
-    title(['Filtered with ' filter1]);
-    bar(xedges, u1, 'r'); % Unfiltered values in red
-    hold on;
-    bar(xedges, f1, 'k'); % Filtered values in black
-    ylabel({'Frequency'}); xlabel('Tsoil');
-    subplot(1,2,2);
-    title(['Filtered with ' filter2]);
-    bar(xedges, u1, 'r'); % Unfiltered values in red
-    hold on;
-    bar(xedges, f2, 'k'); % Filtered values in black
-    ylabel('Frequency'); xlabel('Tsoil');
-    
     %******* TEST VWC FILTERING *******
     % Generate filtered VWC data
     vwc5_F1 = filterseries(vwc5, filter1, 25, threshold1);
     vwc20_F1 = filterseries(vwc20, filter1, 25, threshold1);
     vwc50_F1 = filterseries(vwc50, filter1, 25, threshold1);
-    vwc5_F2 = filterseries(vwc5, filter2, 25, threshold2);
-    vwc20_F2 = filterseries(vwc20, filter2, 25, threshold2);
-    vwc50_F2 = filterseries(vwc50, filter2, 25, threshold2);
     
     % PLOT unfiltered and FILTER 1 timeseries
     fignum = fignum+1;
@@ -280,44 +235,31 @@ if any(hrFilelist==siteID)
     title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
     legend('Raw data', ['Filtered using ' filter1], 'Location', 'NorthWest');
     
-    % PLOT unfiltered and FILTER 2 timeseries
-    fignum = fignum+1;
-    h = figure(fignum);
-    set(h, 'Name', ['Site ' num2str(siteID) ' - Hourly VWC @ 3 depths']);
-    subplot(3, 1, 1)
-    plot(decday_h, vwc5, '.r', decday_h, vwc5_F2, '.k');
-    title('VWC -5cm'); datetick('x', 'mmm-yy', 'keeplimits');
-    subplot(3, 1, 2)
-    plot(decday_h, vwc20, '.r', decday_h, vwc20_F2, '.k');
-    title('VWC -20cm'); datetick('x', 'mmm-yy', 'keeplimits');
-    subplot(3, 1, 3)
-    plot(decday_h, vwc50, '.r', decday_h, vwc50_F2, '.k');
-    title('VWC - 50cm'); datetick('x', 'mmm-yy', 'keeplimits');
-    legend('Raw data', ['Filtered using ' filter2], 'Location', 'NorthWest');
-    
-    % HISTOGRAMS of unfiltered and filtered VWC data
+    %****HISTOGRAMS of unfiltered and filtered Tsoil and VWC data******
     fignum = fignum + 1;
     h = figure(fignum);
     set(h, 'Name', ['Site ' num2str(siteID) ' - ' ...
         ' Histogram of filtered values']);
     % Number of bins
-    xedges = linspace(-1, 47.5, 51);
+    xedges_ts = linspace(-20, 47.5, 51);
+    xedges_vwc = linspace(-1, 47.5, 51);
     % Sort the raw and filtered series into bins
-    u1 = histc(vwc5, xedges);    % Unfiltered data
-    f1 = histc(vwc5_F1, xedges); % Filter 1
-    f2 = histc(vwc5_F2, xedges); % Filter 2
+    uts = histc(ts5, xedges_ts);    % Unfiltered data
+    uvwc = histc(vwc5, xedges_vwc);    % Unfiltered data
+    fts = histc(ts5_F1, xedges_ts); % Filter 1
+    fvwc = histc(vwc5_F1, xedges_vwc); % Filter 2
     % Now plot the histograms
     subplot(1,2,1);
+    bar(xedges_ts, uts, 'r'); % Unfiltered values in red
+    hold on;
+    bar(xedges_ts, fts, 'k'); % Filtered values in black
     title(['Filtered with ' filter1]);
-    bar(xedges, u1, 'r'); % Unfiltered values in red
-    hold on;
-    bar(xedges, f1, 'k'); % Filtered values in black
-    ylabel({'Frequency'}); xlabel('VWC');
+    ylabel({'Frequency'}); xlabel('Tsoil');
     subplot(1,2,2);
-    title(['Filtered with ' filter2]);
-    bar(xedges, u1, 'r'); % Unfiltered values in red
+    bar(xedges_vwc, uvwc, 'r'); % Unfiltered values in red
     hold on;
-    bar(xedges, f2, 'k'); % Filtered values in black
+    bar(xedges_vwc, fvwc, 'k'); % Filtered values in black
+    title(['Filtered with ' filter1]);
     ylabel('Frequency'); xlabel('VWC');
 end
 
@@ -325,17 +267,10 @@ end
 wteq_F1 = filterseries(wteq, filter1, 11, threshold1);
 precip_F1 = filterseries(precip, filter1, 11, threshold1);
 snowd_F1 = filterseries(snowd, filter1, 11, threshold1);
-wteq_F2 = filterseries(wteq, filter2, 11, threshold2);
-precip_F2 = filterseries(precip, filter2, 11, threshold2);
-snowd_F2 = filterseries(snowd, filter2, 11, threshold2);
 airTobs_F1 = filterseries(airTobs, filter1, 11, threshold1);
 airTmax_F1 = filterseries(airTmax, filter1, 11, threshold1);
 airTmin_F1 = filterseries(airTmin, filter1, 11, threshold1);
 airTavg_F1 = filterseries(airTavg, filter1, 11, threshold1);
-airTobs_F2 = filterseries(airTobs, filter2, 11, threshold2);
-airTmax_F2 = filterseries(airTmax, filter2, 11, threshold2);
-airTmin_F2 = filterseries(airTmin, filter2, 11, threshold2);
-airTavg_F2 = filterseries(airTavg, filter2, 11, threshold2);
 
 % PLOT unfiltered and FILTER 1 precip timeseries
 fignum = fignum+1;
@@ -351,21 +286,6 @@ subplot(3, 1, 3)
 plot(decday_d, snowd, '.r', decday_d, snowd_F1, '.k');
 title('Snow depth'); datetick('x', 'mmm-yy');
 legend('From loadsnotel.m', ['Filtered using ' filter1], 'Location', 'NorthWest');
-
-% PLOT unfiltered and FILTER 2 precip timeseries
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - PRECIP Filter 2']);
-subplot(3, 1, 1)
-plot(decday_d, wteq , '.r', decday_d, wteq_F2, '.k');
-title('Ts -5cm'); datetick('x', 'mmm-yy');
-subplot(3, 1, 2)
-plot(decday_d, precip, '.r', decday_d, precip_F2, '.k');
-title('Ts -20cm'); datetick('x', 'mmm-yy');
-subplot(3, 1, 3)
-plot(decday_d, snowd, '.r', decday_d, snowd_F2, '.k');
-title('Snow depth'); datetick('x', 'mmm-yy');
-legend('From loadsnotel.m', ['Filtered using ' filter2], 'Location', 'NorthWest');
 
 % PLOT unfiltered and FILTER 1 airT timeseries
 fignum = fignum+1;
@@ -384,24 +304,6 @@ subplot(4, 1, 4)
 plot(decday_d, airTavg, '.r', decday_d, airTavg_F1, '.k');
 title('Avg AirT'); datetick('x', 'mmm-yy')
 legend('from loadsnotel.m', ['Filtered using ' filter1], 'Location', 'NorthWest');
-
-% PLOT unfiltered and FILTER 2 airT timeseries
-fignum = fignum+1;
-h = figure(fignum);
-set(h, 'Name', ['Site ' num2str(siteID) ' - AIR T filter 2']);
-subplot(4, 1, 1)
-plot(decday_d, airTobs, '.r', decday_d, airTobs_F2, '.k');
-title('Observed AirT'); datetick('x', 'mmm-yy');
-subplot(4, 1, 2)
-plot(decday_d, airTmax, '.r', decday_d, airTmax_F2, '.k');
-title('Max AirT'); datetick('x', 'mmm-yy');
-subplot(4, 1, 3)
-plot(decday_d, airTmin, '.r', decday_d, airTmin_F2, '.k');
-title('Min AirT'); datetick('x', 'mmm-yy');
-subplot(4, 1, 4)
-plot(decday_d, airTavg, '.r', decday_d, airTavg_F2, '.k');
-title('Avg AirT'); datetick('x', 'mmm-yy')
-legend('from loadsnotel.m', ['Filtered using ' filter2], 'Location', 'NorthWest');
 
 
 % ******* TEST HOURLY SWE and ONSET/MELT CALCULATIONS ********
@@ -433,42 +335,123 @@ vline(meltDatenums, ':k');
 legend('Ts - 5cm'); 
 datetick('x', 'mmm-yy');
 
-% %PLOT timeseries of Ts during snowcovered and snowfree periods
-% fignum = fignum + 1;
-% h = figure(fignum);
-% set(h, 'Name', ['Site ' num2str(siteID) ' - ' Ts_label{i} ...
-%     ' Snowcover threshold tests']);
-% plot(decday_h(snowtest), Ts(snowtest), '-b', decday_h(freetest), ...
-%     Ts(freetest), '-r', decday_h, Ts, ':g', decday_h, runstd, 'm');
-% title(['Threshold = ' num2str(sd_threshold) ' degrees C, still produces snowfree points in winter']);
-% legend('Snowcover test', 'Snow-free test', 'All data');
-% 
-% % SUM up data for each month
-% sum_snowdays = zeros(12, 4);
-% sum_freedays = zeros(12, 4);
-% for j = 1:12
-%     monthtest = months == j;
-%     sum_snowdays(j,1) = j;
-%     sum_snowdays(j,2) = nanmean(Ts(snowtest & monthtest));
-%     sum_snowdays(j,3) = nanstd(Ts(snowtest & monthtest));
-%     sum_snowdays(j,4) = sum_snowdays(j,3)/sqrt(sum(snowtest & monthtest));
-%     sum_freedays(j,1) = j;
-%     sum_freedays(j,2) = nanmean(Ts(freetest & monthtest));
-%     sum_freedays(j,3) = nanstd(Ts(freetest & monthtest));
-%     sum_freedays(j,4) = sum_freedays(j,3)/sqrt(sum(freetest & monthtest));
-% end
-% 
-% % PLOT monthly snowcovered and snowfree temp + errors
-% fignum = fignum + 1;
-% h = figure(fignum);
-% set(h, 'Name', ['Site ' num2str(siteID) ' - ' Ts_label{i} ...
-%     ' Snow/snowfree mean Ts']);
-% errorbar(sum_snowdays(:,1), sum_snowdays(:,2), sum_snowdays(:,4));
-% hold on
-% errorbar(sum_freedays(:,1), sum_freedays(:,2), sum_freedays(:,4), 'r');
-% xlabel('Month');
-% ylabel('Celsius');
-% legend('Snow', 'Snow-free');
-% title(['Threshold = ' num2str(sd_threshold) ' degrees C']);
+% Some example sites
+
+if siteID==762
+    
+    fignum = fignum+1;
+    
+    fig1 = figure('position',[100 0 800 450],'paperpositionmode',...
+        'auto', 'color','none','InvertHardcopy','off');
+    set(fig1, 'Name', ['Data exclusion and filtering for site 762'])
+    set(fig1, 'DefaultAxesFontSize',11, 'DefaultTextFontSize', 11);
+    
+    subplot(2, 1, 1)
+    dlerrors = ts50Raw < -90;
+    incwy = decday_hRaw > datenum('Oct 1 2008') & ...
+        decday_hRaw < datenum('Sept 30 2009')
+    h1 = plot(decday_hRaw, ts50Raw, '.r');
+    hold on
+    h2 = plot(decday_h, ts50, '.k');
+    h3 = plot(decday_hRaw(dlerrors), ts50Raw(dlerrors), '.b');
+    h4 = plot(decday_hRaw(incwy), ts50Raw(incwy), '.g');
+    ylim([-105, 55]);
+    text(0.95, 0.9, 'a','Units', 'normalized');
+    datetick('x', 'mmm-yy', 'keeplimits');
+    legend([h1, h3, h4], 'Data removed after visual inspection',...
+        'Datalogger error', 'Incomplete water year',...
+        'Location', 'southeast');
+    set(gca, 'position', [1 .9 1 1.1] .* get(gca, 'position'));
+    
+    subplot(2, 1, 2)
+    h1 = plot(decday_h, ts50, '.r');
+    hold on
+    h2 = plot(decday_h, ts50_F1, '.k');
+    xlim([datenum('Sept 30, 2006'), datenum('Oct 1, 2011')]);
+    text(0.95, 0.9, 'b','Units', 'normalized');
+    datetick('x', 'mmm-yy', 'keeplimits');
+    legend([h1], 'Filtered data (> 3 S.D.)', 'Location', 'south');
+    text(-.07, .93,'T_{soil} (^oC)','Units', 'normalized', 'rotation', 90);
+    set(gca, 'position', [1 1 1 1.1] .* get(gca, 'position'));
+    
+    figpath = '../figures/';
+    print(fig1,'-depsc2','-painters',[figpath 'tsoil_exclude.eps']);
+    figpath = '../../manuscript_1/figs/';
+    print(fig1,'-depsc2','-painters',[figpath 'tsoil_exclude.eps'])
+    
+elseif siteID==550
+    
+    fignum = fignum+1;
+    
+    fig2 = figure('position',[100 0 800 450],'paperpositionmode',...
+        'auto', 'color','none','InvertHardcopy','off');
+    set(fig2, 'Name', ['Data exclusion and filtering for site 550'])
+    set(fig2, 'DefaultAxesFontSize',11, 'DefaultTextFontSize', 11);
+    
+    subplot(2, 1, 1)
+    dlerrors = vwc50Raw < -90;
+    %incwy = decday_hRaw > datenum('Oct 1 2008') & ...
+    %    decday_hRaw < datenum('Sept 30 2009')
+    h1 = plot(decday_hRaw, vwc50Raw, '.r');
+    hold on
+    h2 = plot(decday_h, vwc50, '.k');
+    h3 = plot(decday_hRaw(dlerrors), vwc50Raw(dlerrors), '.b');
+    %h4 = plot(decday_hRaw(incwy), vwc50Raw(incwy), '.g');
+    ylim([-105, 55]);
+    text(0.95, 0.9, 'a','Units', 'normalized');
+    datetick('x', 'mmm-yy', 'keeplimits');
+    legend([h1, h3], 'Data removed after visual inspection',...
+        'Datalogger error',...
+        'Location', 'southeast');
+    set(gca, 'position', [1 .9 1 1.1] .* get(gca, 'position'));
+    
+    subplot(2, 1, 2)
+    h1 = plot(decday_h, vwc50, '.r');
+    hold on
+    h2 = plot(decday_h, vwc50_F1, '.k');
+    xlim([datenum('Sept 30, 2006'), datenum('Oct 1, 2011')]);
+    text(0.95, 0.9, 'b','Units', 'normalized');
+    datetick('x', 'mmm-yy', 'keeplimits');
+    legend([h1], 'Filtered data (> 3 S.D.)', 'Location', 'south');
+    text(-.07, .93,'\theta (%)','Units', 'normalized', 'rotation', 90);
+    set(gca, 'position', [1 1 1 1.1] .* get(gca, 'position'));
+    
+    figpath = '../figures/';
+    print(fig2,'-depsc2','-painters',[figpath 'theta_exclude.eps']);
+    figpath = '../../manuscript_1/figs/';
+    print(fig2,'-depsc2','-painters',[figpath 'theta_exclude.eps'])
+    
+elseif siteID==342
+    
+    fignum = fignum+1;
+    
+    fig3 = figure('position',[100 0 800 250],'paperpositionmode',...
+        'auto', 'color','none','InvertHardcopy','off');
+    set(fig3, 'Name', ['Calibration problem at site 342'])
+    set(fig3, 'DefaultAxesFontSize',11, 'DefaultTextFontSize', 11);
+    
+    dlerrors = vwc50Raw < -90;
+    %incwy = decday_hRaw > datenum('Oct 1 2008') & ...
+    %    decday_hRaw < datenum('Sept 30 2009')
+    h1 = plot(decday_hRaw, vwc50Raw, '.r');
+    hold on
+    h2 = plot(decday_h, vwc50, '.k');
+    %h3 = plot(decday_hRaw(dlerrors), vwc50Raw(dlerrors), '.b');
+    %h4 = plot(decday_hRaw(incwy), vwc50Raw(incwy), '.g');
+    ylim([-5, 55]);
+    datetick('x', 'mmm-yy', 'keeplimits');
+    legend(h1, 'Data removed after visual inspection',...
+        'Location', 'northwest');
+    ylabel('\theta (%)');
+    %set(gca, 'position', [1 .9 1 1.1] .* get(gca, 'position'));
+    
+    figpath = '../figures/';
+    print(fig3,'-depsc2','-painters',[figpath 'calproblem.eps']);
+    figpath = '../../manuscript_1/figs/';
+    print(fig3,'-depsc2','-painters',[figpath 'calproblem.eps'])
+    
+end
+
+
 
 junk = 99;

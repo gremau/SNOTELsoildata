@@ -63,7 +63,7 @@ if ~isempty(newfiles)
     plotfilelist(newfiles);
     writechecklist;
 end
-
+% If not, review the others
 uinp = input('Continue reviewing other files? (y/n)', 's');
 if strcmpi(uinp, 'y')
     plotfilelist(checklist);
@@ -225,110 +225,126 @@ end;
     end
 
 % Plot DAILY sensors
-    function excl_m = plotdaily(excl, m, mraw, mexc)
-        decday_d = datenum(m{2});
-        wteq = m{4}; % water equivalent
-        prec = m{5}; % precip
-        snwd = m{10}; % snow depth
-        tobs = m{6}; % Air T
-        tmax = m{7}; % Max AirT
-        tmin = m{8}; % Min AirT
-        tavg = m{9}; % Avg AirT
-        vwc5 = m{11}; % 5cm VWC
-        vwc20 = m{12}; % 20cm VWC
-        vwc50 = m{13}; % 50cm VWC
-        ts5 = m{14}; % 5cm Ts
-        ts20 = m{15}; % 20cm Ts
-        ts50 = m{16}; % 50cm Ts
-        % Filtered
-        wteqF = filterseries(m{4}, type, windowsize, thresh);
-        precF = filterseries(m{5}, type, windowsize, thresh);
-        snwdF = filterseries(m{10}, type, windowsize, thresh);
-        tobsF = filterseries(m{6}, type, windowsize, thresh);
-        tmaxF = filterseries(m{7}, type, windowsize, thresh);
-        tminF = filterseries(m{8}, type, windowsize, thresh);
-        tavgF = filterseries(m{9}, type, windowsize, thresh);
-        vwc5F = filterseries(m{11}, type, windowsize, thresh);
-        vwc20F = filterseries(m{12}, type, windowsize, thresh);
-        vwc50F = filterseries(m{13}, type, windowsize, thresh);
-        ts5F = filterseries(m{14}, type, windowsize, thresh);
-        ts20F = filterseries(m{15}, type, windowsize, thresh);
-        ts50F = filterseries(m{16}, type, windowsize, thresh);
+    function excl_m = plotdaily(excl, m, mraw, mexc, siteID, year)
+        decday_d = datenum(m{2}, 'yyyy-mm-dd');
+        decday_raw = datenum(mraw{2}, 'yyyy-mm-dd');
+        decday_exc = datenum(mexc{2}, 'yyyy-mm-dd');
+        wteq = 4; % water equivalent
+        prec = 5; % precip
+        snwd = 10; % snow depth
+        tobs = 6; % Air T
+        tmax = 7; % Max AirT
+        tmin = 8; % Min AirT
+        tavg = 9; % Avg AirT
+        vwc5 = 11; % 5cm VWC
+        vwc20 = 12; % 20cm VWC
+        vwc50 = 13; % 50cm VWC
+        ts5 = 14; % 5cm Ts
+        ts20 = 15; % 20cm Ts
+        ts50 = 16; % 50cm Ts
+
         
         fignum = fignum+1;
         h = figure(fignum);
         ymin = 0;
         ymax = 45;
         set(h, 'Name', ['Precip at site ' num2str(siteID) ' - ' num2str(year)]);
-        subplot(3, 1, 1)
-        plot(decday_d, wteq, '.r', decday_d, wteqF, '.k');
+        sp1 = subplot(3, 1, 1)
+        plot(decday_raw, mraw{wteq}, '.r');
+        hold on
+        plot(decday_exc, mexc{wteq}, '.k', decday_d, filt(m{wteq}), '.b');
         title('1) SWE (snow pillow)'); datetick(); %ylim([ymin, ymax]);
-        subplot(3, 1, 2)
-        plot(decday_d, prec, '.r', decday_d, precF, '.k');
+        sp2 = subplot(3, 1, 2)
+        plot(decday_raw, mraw{prec}, '.r');
+        hold on
+        plot(decday_exc, mexc{prec}, '.k', decday_d, filt(m{prec}), '.b');
         title('2) Precip gauge'); datetick(); %ylim([ymin, 55]);
-        subplot(3, 1, 3)
-        plot(decday_d, snwd, '.r', decday_d, snwdF, '.k');
+        sp3 = subplot(3, 1, 3)
+        plot(decday_raw, mraw{snwd}, '.r');
+        hold on
+        plot(decday_exc, mexc{snwd}, '.k', decday_d, filt(m{snwd}), '.b');
         title('3) Snow Depth'); datetick(); %ylim([ymin, 100]);
-        precinput = input('Bad precip sensors?  [1, 2, or 3]: ');
-        badprec = zeros(1, 3);
-        badprec(precinput) = 1;
+        linkaxes([sp1, sp2, sp3]);
+        
+        badprec = getcheck(excl(1:3));
         
         fignum = fignum+1;
         h = figure(fignum);
         ymin = -25;
         ymax = 50;
         set(h, 'Name', ['AirT at site ' num2str(siteID) ' - ' num2str(year)]);
-        subplot(4, 1, 1)
-        plot(decday_d, tobs, '.r', decday_d, tobsF, '.k');
+        sp4 = subplot(4, 1, 1)
+        plot(decday_raw, mraw{tobs}, '.r');
+        hold on
+        plot(decday_exc, mexc{tobs}, '.k', decday_d, filt(m{tobs}), '.b');
         title('1) Air T obs'); datetick(); %ylim([ymin, ymax]);
-        subplot(4, 1, 2)
-        plot(decday_d, tmax, '.r', decday_d, tmaxF, '.k');
+        sp5 = subplot(4, 1, 2)
+        plot(decday_raw, mraw{tmax}, '.r');
+        hold on
+        plot(decday_exc, mexc{tmax}, '.k', decday_d, filt(m{tmax}), '.b');
         title('2) MAX Air T'); datetick(); %ylim([ymin, ymax]);
-        subplot(4, 1, 3)
-        plot(decday_d, tmin, '.r', decday_d, tminF, '.k');
+        sp6 = subplot(4, 1, 3)
+        plot(decday_raw, mraw{tmin}, '.r');
+        hold on
+        plot(decday_exc, mexc{tmin}, '.k', decday_d, filt(m{tmin}), '.b');
         title('3) MIN Air T'); datetick(); %ylim([ymin, ymax]);
-        subplot(4, 1, 4)
-        plot(decday_d, tavg, '.r', decday_d, tavgF, '.k');
+        sp7 = subplot(4, 1, 4)
+        plot(decday_raw, mraw{tavg}, '.r');
+        hold on
+        plot(decday_exc, mexc{tavg}, '.k', decday_d, filt(m{tavg}), '.b');
         title('4) AVG Air T'); datetick(); %ylim([ymin, ymax]);
-        airtinput = input('Bad air T sensors?  [1, 2, 3, or 4]: ');
-        badairt = zeros(1, 4);
-        badairt(airtinput) = 1;
+        linkaxes([sp4, sp5, sp6, sp7]);
+        
+        badairt = getcheck(excl(4:7));
         
         fignum = fignum+1;
         h = figure(fignum);
         ymin = -10;
         ymax = 45;
         set(h, 'Name', ['Ts at site ' num2str(siteID) ' - ' num2str(year)]);
-        subplot(3, 1, 1)
-        plot(decday_d, ts5, '.r', decday_d, ts5F, '.k');
+        sp8 = subplot(3, 1, 1)
+        plot(decday_raw, mraw{ts5}, '.r');
+        hold on
+        plot(decday_exc, mexc{ts5}, '.k', decday_d, filt(m{ts5}), '.b');
         title('1) Ts -5cm'); datetick(); ylim([ymin, ymax]);
-        subplot(3, 1, 2)
-        plot(decday_d, ts20, '.r', decday_d, ts20F, '.k');
+        sp9 = subplot(3, 1, 2)
+        plot(decday_raw, mraw{ts20}, '.r');
+        hold on
+        plot(decday_exc, mexc{ts20}, '.k', decday_d, filt(m{ts20}), '.b');
         title('2) Ts -20cm'); datetick(); ylim([ymin, ymax]);
-        subplot(3, 1, 3)
-        plot(decday_d, ts50, '.r', decday_d, ts50F, '.k');
+        sp10 = subplot(3, 1, 3)
+        plot(decday_raw, mraw{ts50}, '.r');
+        hold on
+        plot(decday_exc, mexc{ts50}, '.k', decday_d, filt(m{ts50}), '.b');
         title('3) Ts -50cm'); datetick(); ylim([ymin, ymax]);
-        tsinput = input('Bad Tsoil sensors?  [1, 2, or 3]: ');
-        badts = zeros(1, 3);
-        badts(tsinput) = 1;
+        linkaxes([sp8, sp9, sp10]);
+        
+        badts = getcheck(excl(8:10));
         
         fignum = fignum+1;
         h = figure(fignum);
         ymin = -5;
         ymax = 45;
         set(h, 'Name', ['VWC at site ' num2str(siteID) ' - ' num2str(year)]);
-        subplot(3, 1, 1)
-        plot(decday_d, vwc5, '.r', decday_d, vwc5F, '.k');
+        sp11 = subplot(3, 1, 1)
+        plot(decday_raw, mraw{vwc5}, '.r');
+        hold on
+        plot(decday_exc, mexc{vwc5}, '.k', decday_d, filt(m{vwc5}), '.b');
         title('1) VWC -5cm'); datetick(); ylim([ymin, ymax]);
-        subplot(3, 1, 2)
-        plot(decday_d, vwc20, '.r', decday_d, vwc20F, '.k');
+        sp12 = subplot(3, 1, 2)
+        plot(decday_raw, mraw{vwc20}, '.r');
+        hold on
+        plot(decday_exc, mexc{vwc20}, '.k', decday_d, filt(m{vwc20}), '.b');
         title('2) VWC -20cm'); datetick(); ylim([ymin, ymax]);
-        subplot(3, 1, 3)
-        plot(decday_d, vwc50, '.r', decday_d, vwc50F, '.k');
+        sp13 = subplot(3, 1, 3)
+        plot(decday_raw, mraw{vwc50}, '.r');
+        hold on
+        plot(decday_exc, mexc{vwc50}, '.k', decday_d, filt(m{vwc50}), '.b');
         title('3) VWC -50cm'); datetick(); ylim([ymin, ymax]);
-        vwcinput = input('Bad VWC sensors?  [1, 2, or 3]: ');
-        badvwc = zeros(1, 3);
-        badvwc(vwcinput) = 1;
+        linkaxes([sp11, sp12, sp13]);
+        
+        badvwc = getcheck(excl(11:13));
+        
         close all;
         
         excl_m = [badprec badairt badts badvwc];

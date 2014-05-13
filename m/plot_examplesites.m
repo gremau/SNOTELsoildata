@@ -113,7 +113,9 @@ set(gca,'XTick', lowTicks, 'YTickLabel', '',...
 datetick('x', 'mmm', 'keeplimits', 'keepticks');
 
 figpath = '../figures/';
-print(figure1,'-depsc2','-painters',[figpath 'figD.eps']) 
+print(figure1,'-depsc2','-painters',[figpath 'mosby.eps'])
+figpath = '../../manuscript_1/figs/';
+print(figure1,'-depsc2','-painters',[figpath 'mosby.eps']);
 clear all;
 
 %% -----------------------------------------------------------------------
@@ -248,8 +250,10 @@ set(gca,'XTick', ticklocs, 'XTickLabel', tickmonths,...
 text(0.95, 0.85, 'c', 'Units', 'normalized');
 
 figpath = '../figures/';
-print(figure2,'-depsc2','-painters',[figpath 'figB.eps'])
-print(figure2,'-dtiff','-r300',[figpath 'figB.tif'])
+print(figure2,'-depsc2','-painters',[figpath 'currantcreek.eps']);
+print(figure2,'-dtiff','-r300',[figpath 'currantcreek.tif']);
+figpath = '../../manuscript_1/figs/';
+print(figure2,'-depsc2','-painters',[figpath 'currantcreek.eps']);
 %% -----------------------------------------------------------------------
 % Examine the seasonal variability in temp or vwc at a set of 4 sites.
 % These sites have been chosen to represent elevation/temp and SWE
@@ -416,6 +420,8 @@ end
 
 figpath = '../figures/';
 print(figure4,'-depsc2','-painters',[figpath 'figK.eps'])
+figpath = '../../manuscript_1/figs/';
+print(figure4,'-depsc2','-painters',[figpath 'figK.eps']);
 
 %% -----------------------------------------------------------------------
 % Look at linear regressions of Mean annual soil temperature and mean
@@ -647,4 +653,6 @@ set(gca, 'Ytick', [0.5;0.6;0.7;0.8;0.9],...
 %pos2 = get(gcf, 'Position')
 
 figpath = '../figures/';
-print(figure8,'-depsc2','-painters',[figpath 'figG.eps'])
+print(figure8,'-depsc2','-painters',[figpath 'example_regs.eps'])
+figpath = '../../manuscript_1/figs/';
+print(figure8,'-depsc2','-painters',[figpath 'example_regs.eps']);

@@ -305,7 +305,9 @@ text(0.05, 0.4, 'Snow-free day', 'Units', 'normalized');
 text(0.95, 0.85, 'h', 'Units', 'normalized');
 
 figpath = '../figures/';
-print(fig,'-depsc2','-painters',[figpath 'figA.eps']) 
+print(fig,'-depsc2','-painters',[figpath 'snoteldist.eps'])
+figpath = '../../manuscript_1/figs/';
+print(fig,'-depsc2','-painters',[figpath 'snoteldist.eps']);
 
 % %------------------------------------------------------------------
 % % FIG 3 - 2d histogram of some data above (just as an example)

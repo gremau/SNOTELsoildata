@@ -750,7 +750,9 @@ text(0.8, 0.9, 'T_{air}', 'Units', 'normalized', 'Fontangle', 'italic',...
     'Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figC_UT20cm.eps']) 
+print(h,'-depsc2','-painters',[figpath 'elevgradients_UT20cm.eps'])
+figpath = '../../manuscript_1/figs/';
+print(h,'-depsc2','-painters',[figpath 'elevgradients_UT20cm.eps']);
 
 
 % -------------------------------------------------------------
@@ -916,6 +918,8 @@ text(0.60, 0.9, 'b. All sites T_{air}', 'Units', 'normalized',...
     'Fontangle', 'italic','Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figC2_20cm.eps']) 
+print(h,'-depsc2','-painters',[figpath 'elevgradients_20cm.eps']) 
+figpath = '../../manuscript_1/figs/';
+print(h,'-depsc2','-painters',[figpath 'elevgradients_20cm.eps']);
 
 junk = 99;

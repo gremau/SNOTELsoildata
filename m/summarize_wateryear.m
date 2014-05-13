@@ -23,6 +23,19 @@ clear;          % clear memory
 close all;      % clear any figures
 fignum=0;       % used to increment figure number for plots
 
+% Get access to nanmean, etc
+addpath('/home/greg/data/code_resources/m_common/nanstats/'); 
+
+% Set data path and file name, read in file
+rawdatapath = '/home/greg/data/rawdata/NRCSdata/';
+processeddatapath = '/home/greg/data/current/SNOTELsoil-climate/data_analysis/processed_data/';
+
+% Load list of sites with data in the daily data directory
+allsiteslist = sortrows(dlmread([processeddatapath ...
+    'filelist_daily.txt']));
+soilsiteslist = sortrows(dlmread([processeddatapath ...
+    'filelist_hourly.txt']));
+
 % Ask user input
 soilinput = input('Use hourly or daily soil data?: ', 's');
 if strcmpi(soilinput, 'daily')
@@ -31,6 +44,7 @@ if strcmpi(soilinput, 'daily')
     % Mark where the needed soil columns are in the datafile
     smcol = [11, 12, 13];
     stcol = [14, 15, 16];
+ 
 elseif strcmpi(soilinput, 'hourly')
     windowsize = 25;
     filtlist = 4:9;
@@ -44,21 +58,8 @@ else
     normstr = '';
 end
 
-% Get access to nanmean, etc
-addpath('/home/greg/data/code_resources/m_common/nanstats/'); 
-
-% Set data path and file name, read in file
-rawdatapath = '../rawdata/';
-processeddatapath = '../processed_data/';
-
 % Other useful variables
 wymonths = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-% Load list of sites with data in the daily data directory
-allsiteslist = sortrows(dlmread([rawdatapath ...
-    'allsensors_daily/filelist.txt']));
-soilsiteslist = sortrows(dlmread([rawdatapath ...
-    'soilsensors_hourly/filelist.txt']));
 
 % Get 30yr average data
 avgSWE = load7100Avg('swe');

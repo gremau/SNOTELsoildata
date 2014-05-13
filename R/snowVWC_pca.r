@@ -3,7 +3,9 @@
 # pca results) on below-snow soilVWC across the SNOTEL network. This pca is 
 # designed for testing the predictors of mean below-snow soil VWC at 20cm depth.
 
+setwd('/home/greg/data/current/SNOTELsoil-climate/data_analysis/R/')
 source('getdata.r')
+library(xtable)
 
 # climData.sub should have the same sites/years in the same order as soilTData
 # and soilVWCData
@@ -29,6 +31,33 @@ names(varframe) = sub("climData.sub.","",names(varframe))
 names(varframe) = sub("soilTData.","",names(varframe))
 names(varframe) = sub("soilVWCData.","",names(varframe))
 
+# We are going to make dataframes that will become a table later
+# We won't actually use them this time since the same pca is calculated in
+# snowTsoil_pca.r
+varexp.table <- data.frame(PC1all=numeric(), PC107=numeric(), 
+                           PC109=numeric(), PC111=numeric(), PC2all=numeric(),
+                           P207=numeric(), PC209=numeric(), PC211=numeric(),
+                           PC3all=numeric(), PC307=numeric(), PC309=numeric(),
+                           PC311=numeric(), PC4all=numeric(), PC407=numeric(),
+                           PC409=numeric(), PC411=numeric())
+
+loadings.table <- data.frame(PC1all=numeric(), PC107=numeric(), 
+                             PC109=numeric(), PC111=numeric(), PC2all=numeric(),
+                             P207=numeric(), PC209=numeric(), PC211=numeric(),
+                             PC3all=numeric(), PC307=numeric(), PC309=numeric(),
+                             PC311=numeric(), PC4all=numeric(), PC407=numeric(),
+                             PC409=numeric(), PC411=numeric())
+
+yearcount <- 0 # a year counter to set the correct column
+colref <- c(1,5,9,13)
+
+addtotable <- function(tab, toadd) {
+  colref <- colref + yearcount
+  tab[1:nrow(toadd),colref] <- toadd[,1:ncol(toadd)]
+  return(tab)
+}
+
+
 # What about the difference (MAST-MAT)?
 #varframe$Diff20cm <- (soilTData$mast20cm - climData.sub$maat)
 
@@ -45,6 +74,8 @@ summary(vwc20.pca)
 
 # We'll use any pc with SD > 1
 var_exp <- summary(vwc20.pca)$importance[,1:4]
+# Put them in the table (don't increment year yet)
+varexp.table <- addtotable(varexp.table, var_exp[,1:4])
 
 # Make a screeplot of this
 screeplot(vwc20.pca)
@@ -59,8 +90,9 @@ rownames(scores) <- 1:dim(scores)[1]
 # Look at loadings
 loadings[,1:4]
 
-# Put them in a matrix
-pc_loadings <- loadings[,1:4]
+# Put them in the table and increment year
+loadings.table <- addtotable(loadings.table, loadings[,1:4])
+yearcount <- yearcount + 1
 
 # Make a biplot of PCA 1 & 2 - note that the scaling factor of 10 may need to
 # be changed depending on the data set
@@ -135,6 +167,8 @@ summary(lm1)
 
 # Put them in a matrix
 lm_coeffs <- summary(lm1)$coefficients
+lm_coeffs <- rbind(lm_coeffs[,c(1,2,4)],
+                   c(NA, summary(lm1)$adj.r.squared, NA))
 
 summary(lm2)
 
@@ -158,7 +192,9 @@ vwc20.07.pca <- prcomp(data.matrix(varframe.07[varframe.cmplt,]),
 summary(vwc20.07.pca)
 
 # We'll use any pc with SD > 1
-var_exp <- cbind(var_exp, summary(vwc20.07.pca)$importance[,1:4])
+var_exp <- summary(vwc20.07.pca)$importance[,1:4]
+# Put them in the table (don't increment year yet)
+varexp.table <- addtotable(varexp.table, var_exp[,1:4])
 
 # Make a screeplot of this
 screeplot(vwc20.07.pca)
@@ -173,8 +209,9 @@ rownames(scores) <- 1:dim(scores)[1]
 # Look at loadings
 loadings[,1:4]
 
-# Put them in a matrix
-pc_loadings <- cbind(pc_loadings, loadings[,1:4])
+# Put them in the table and increment year
+loadings.table <- addtotable(loadings.table, loadings[,1:4])
+yearcount <- yearcount + 1
 
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
@@ -216,7 +253,8 @@ AIC(lm1) # -77.78469
 summary(lm1)
 
 # Put them in a matrix
-lm_coeffs <- cbind(lm_coeffs, summary(lm1)$coefficients)
+lm_coeffs <- cbind(lm_coeffs, rbind(summary(lm1)$coefficients[,c(1,2,4)],
+                                    c(NA, summary(lm1)$adj.r.squared, NA)))
 
 lm2 <- lm(jfmVWC20mean ~ pc1score+pc2score+pc3score, data=soilVWCData)
 AIC(lm2) # -47.06656
@@ -233,7 +271,9 @@ vwc20.09.pca <- prcomp(data.matrix(varframe.09[varframe.cmplt,]),
 summary(vwc20.09.pca)
 
 # We'll use any pc with SD > 1
-var_exp <- cbind(var_exp, summary(vwc20.09.pca)$importance[,1:4])
+var_exp <- summary(vwc20.09.pca)$importance[,1:4]
+# Put them in the table (don't increment year yet)
+varexp.table <- addtotable(varexp.table, var_exp[,1:4])
 
 # Make a screeplot of this
 screeplot(vwc20.09.pca)
@@ -248,8 +288,9 @@ rownames(scores) <- 1:dim(scores)[1]
 # Look at loadings
 loadings[,1:4]
 
-# Put them in a matrix
-pc_loadings <- cbind(pc_loadings, loadings[,1:4])
+# Put them in the table and increment year
+loadings.table <- addtotable(loadings.table, loadings[,1:4])
+yearcount <- yearcount + 1
 
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
@@ -291,7 +332,8 @@ AIC(lm1) # -82.17018
 summary(lm1)
 
 # Put them in a matrix
-lm_coeffs <- cbind(lm_coeffs, summary(lm1)$coefficients)
+lm_coeffs <- cbind(lm_coeffs, rbind(summary(lm1)$coefficients[,c(1,2,4)],
+                                    c(NA, summary(lm1)$adj.r.squared, NA)))
 
 lm2 <- lm(jfmVWC20mean ~ pc1score+pc2score+pc3score, data=soilVWCData)
 AIC(lm2) # -56.36391
@@ -308,7 +350,9 @@ vwc20.11.pca <- prcomp(data.matrix(varframe.11[varframe.cmplt,]),
 summary(vwc20.11.pca)
 
 # We'll use any pc with SD > 1
-var_exp <- cbind(var_exp, summary(vwc20.11.pca)$importance[,1:4])
+var_exp <- summary(vwc20.11.pca)$importance[,1:4]
+# Put them in the table (don't increment year yet)
+varexp.table <- addtotable(varexp.table, var_exp[,1:4])
 
 # Make a screeplot of this
 screeplot(vwc20.11.pca)
@@ -323,8 +367,9 @@ rownames(scores) <- 1:dim(scores)[1]
 # Look at loadings
 loadings[,1:4]
 
-# Put them in a matrix
-pc_loadings <- cbind(pc_loadings, loadings[,1:4])
+# Put them in the table and increment year
+loadings.table <- addtotable(loadings.table, loadings[,1:4])
+yearcount <- yearcount + 1
 
 # Built-in biplot function - axes 1 & 2
 biplot(scores[,1:2], loadings[,1:2], xlab=rownames(scores), cex=0.7)
@@ -366,7 +411,8 @@ AIC(lm1) # -68.46771
 summary(lm1)
 
 # Put them in a matrix
-lm_coeffs <- cbind(lm_coeffs, summary(lm1)$coefficients)
+lm_coeffs <- cbind(lm_coeffs, rbind(summary(lm1)$coefficients[,c(1,2,4)],
+                                    c(NA, summary(lm1)$adj.r.squared, NA)))
 
 lm2 <- lm(jfmVWC20mean ~ pc1score+pc2score+pc3score, data=soilVWCData)
 AIC(lm2) # -69.10273
@@ -376,10 +422,35 @@ summary(lm2)
 # DONE - now show the tables we created
 
 # The variance explained:
-var_exp
+varexp.table
+rownames(varexp.table) <- c('Std. Deviation', '% Var. Explained',
+                            'Cum. Var. Explained')
+#print(xtable(varexp.table, floating=T), file='../tables/rawtableA1.tex')
 
 # The loadings
-pc_loadings
+loadings.table
+rownames(loadings.table) <- c('Elevation', 'Snow-covered days\tnote{a}',
+                              'Snow-free day','Snowpack start day', 'Peak SWE',
+                              'Below-snow period T\textsubscript{air}\tnote{b}',
+                              'Oct. Mean T\textsubscript{air}',
+                              'Nov. Mean T\textsubscript{air}',
+                              'Dec. Mean T\textsubscript{air}',
+                              'Jan. Mean T\textsubscript{air}',
+                              'Feb. Mean T\textsubscript{air}',
+                              'Mar. Mean T\textsubscript{air}',
+                              'Apr. Mean T\textsubscript{air}',
+                              'May Mean T\textsubscript{air}',
+                              'Oct. Mean SWE', 'Nov. Mean SWE', 'Dec. Mean SWE',
+                              'Jan. Mean SWE', 'Feb. Mean SWE', 'Mar. Mean SWE',
+                              'Apr. Mean SWE', 'May Mean SWE',
+                              'Presnowpack θ\tnote{c}',
+                              'Presnowpack T\textsubscript{soil}\tnote{c}',
+                              'Presnowpack T\textsubscript{air}')
+
+#print(xtable(loadings.table, floating=T), file='../tables/rawtableA2.tex')
 
 # The regression coefficients
 lm_coeffs
+rownames(lm_coeffs) <- c('(Intercept', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
+                         'Model adj. R\textsuperscript{2}')
+print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableA4.tex')

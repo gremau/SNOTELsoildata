@@ -550,7 +550,9 @@ text(0.05, 0.9, 'b. Cumulative', 'Units', 'normalized', 'Fontangle', 'italic',..
     'Fontsize',20);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figF.eps']) 
+print(h,'-depsc2','-painters',[figpath 'monthly_theta.eps'])
+figpath = '../../manuscript_1/figs/';
+print(h,'-depsc2','-painters',[figpath 'monthly_theta.eps']);
 
 junk = 99;
 end

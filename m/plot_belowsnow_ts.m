@@ -398,7 +398,9 @@ for i=plotorder
     end
 end
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figE.eps']) 
+print(h,'-depsc2','-painters',[figpath 'tsoil_vs_swe.eps']) 
+figpath = '../../manuscript_1/figs/';
+print(h,'-depsc2','-painters',[figpath 'tsoil_vs_swe.eps'])
 
 % FIG 6 - Plot a small subset of months/depths and use better fitlines
 fignum = fignum+1;    
@@ -454,7 +456,9 @@ for i=plotorder
     end
 end
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figE2.eps']) 
+print(h,'-depsc2','-painters',[figpath 'tsoil_vs_swe_5cm.eps']) 
+figpath = '../../manuscript_1/figs/';
+print(h,'-depsc2','-painters',[figpath 'tsoil_vs_swe_5cm.eps']) 
 
 %------------------------------------------------------
 % FIG 7 - Soil temp and offset - plot for wasatch and uinta sites
@@ -563,6 +567,8 @@ leg = legend('T_{air}', 'T_{soil}');
 set(leg,'FontSize',15);
 
 figpath = '../figures/';
-print(h,'-depsc2','-painters',[figpath 'figM.eps']) 
+print(h,'-depsc2','-painters',[figpath 'tair_tsoil_dist.eps']);
+figpath = '../../manuscript_1/figs/';
+print(h,'-depsc2','-painters',[figpath 'tair_tsoil_dist.eps']);
 
 junk = 99;

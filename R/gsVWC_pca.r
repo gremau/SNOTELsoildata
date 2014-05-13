@@ -3,7 +3,7 @@
 # pca results) on growing season soil VWC across the SNOTEL network. This pca 
 # is designed for testing the predictors of mean growing season soil VWC at 
 # 20cm depth.
-
+setwd('/home/greg/data/current/SNOTELsoil-climate/data_analysis/R/')
 source('getdata.r')
 library(xtable)
 
@@ -155,8 +155,8 @@ AIC(lm4) # -2179.495
 summary(lm1)
 
 # Put them in a matrix
-lm_coeffs <- summary(lm2)$coefficients[,c(1,2,4)]
-lm_coeffs <- rbind(summary(lm2)$coefficients[,c(1,2,4)],
+lm_coeffs <- summary(lm2)$coefficients
+lm_coeffs <- rbind(lm_coeffs[,c(1,2,4)],
                    c(NA, summary(lm2)$adj.r.squared, NA))
 
 summary(lm2)
@@ -438,4 +438,4 @@ print(xtable(loadings.table, floating=T), file='../tables/rawtableA6.tex')
 lm_coeffs
 rownames(lm_coeffs) <- c('(Intercept', 'PC 1', 'PC 2', 'PC 3',
                          'Model adj. R\textsuperscript{2}')
-print(xtable(lm_coeffs, floating=T), file='../tables/rawtableA7.tex')
+print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableA7.tex')

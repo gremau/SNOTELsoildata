@@ -8,6 +8,7 @@
 #    the script can easily be run with VWC variables
 
 # Get the summary datasets
+setwd('/home/greg/data/current/SNOTELsoil-climate/data_analysis/R/')
 source('getdata.r')
 
 #==INTER-ANNUAL VARIABILITY===================================================
