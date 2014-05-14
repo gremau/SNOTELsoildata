@@ -20,6 +20,7 @@ datapath = '../processed_data/';
 if strcmpi(interval, 'daily')
     filelist = sortrows(csvread([datapath 'filelist_daily.txt']));
     outfile = 'excludefiles_daily.txt';
+    missdaysthresh = 347;
 elseif strcmpi(interval, 'hourly')
     filelist = sortrows(csvread([datapath 'filelist_hourly.txt']));
     outfile = 'excludefiles_hourly.txt';
@@ -96,7 +97,7 @@ ylabel({'number of','occurences'});
 xlabel('Low measurement days (<6)');
 
 % Remove any files in which > 5% of data is missing (18 days worth).
-test = checklist(:,3) < 347 | checklist(:,4) > 18;
+test = checklist(:,3) < 28 | checklist(:,4) > 17;
 excludefiles = checklist(test, 1:2);
 
 % Write output to a textfile in the data directory

@@ -90,6 +90,7 @@ for i = 1:length(climatesummary)
     if site~=climatesummary(i,1)
         site = climatesummary(i, 1);
         dailydata = loadsnotel(site, 'daily', 'exclude');
+        dailydata = reind_snotel(dailydata, 'daily');
         % Filter SWE, temp, and depth data. Windowsize=11 days
         for j = [4, 6:10]
             dailydata{j} = filterseries(dailydata{j}, 'sigma', 11, 3);
@@ -310,6 +311,7 @@ for i = 1:length(soilsiteslist)
         site = soilsiteslist(i, 1);
         % Load daily or hourly data based on user input
         data = loadsnotel(site, soilinput, 'exclude');
+        data = reind_snotel(data, soilinput);
         % Filter data using filtlist
         % Daily = SWE, temp, depth, and VWC data. windowsize=11 days
         % Hourly = all soil sensors, windowsize = 25

@@ -287,6 +287,13 @@ elseif strcmpi(interval, 'daily')
             clear test;
         end
         
+        % Air temperature
+        if i>5 && i<10 
+            test = m{i} > 45.0 | m{i} < -45;
+            m{i}(test) = nan;
+            clear test;
+        end
+        
         % Set negative snow depth values to 0
         if i>9 && i<11
             test = m{i} < 0.0;
