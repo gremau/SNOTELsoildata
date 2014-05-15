@@ -15,10 +15,10 @@ library(xtable)
 varframe <- data.frame(climData.sub$elev,climData.sub$totaldaysSC,
                        climData.sub$meltdoy,climData.sub$onsetdoy,
                        climData.sub$maxswe, climData.sub$scovmat,
-                       climData.sub$octTairMean,climData.sub$novTairMean,
-                       climData.sub$decTairMean,climData.sub$janTairMean,
-                       climData.sub$febTairMean,climData.sub$marTairMean,
-                       climData.sub$aprTairMean,climData.sub$mayTairMean,
+                       climData.sub$octTairmean,climData.sub$novTairmean,
+                       climData.sub$decTairmean,climData.sub$janTairmean,
+                       climData.sub$febTairmean,climData.sub$marTairmean,
+                       climData.sub$aprTairmean,climData.sub$mayTairmean,
                        climData.sub$octSWEmean,climData.sub$novSWEmean,
                        climData.sub$decSWEmean,climData.sub$janSWEmean,
                        climData.sub$febSWEmean,climData.sub$marSWEmean,
@@ -451,7 +451,7 @@ rownames(loadings.table) <- c('Elevation', 'Snow-covered days\tnote{a}',
 
 # The regression coefficients
 lm_coeffs
-rownames(lm_coeffs) <- c('(Intercept', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
+rownames(lm_coeffs) <- c('(Intercept)', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
                          'Model adj. R\textsuperscript{2}')
 print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableB4.tex')
 print(xtable(lm_coeffs, floating=T, digits=3),

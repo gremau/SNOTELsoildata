@@ -446,7 +446,7 @@ print(xtable(loadings.table, floating=T),
 
 # The regression coefficients
 lm_coeffs
-rownames(lm_coeffs) <- c('(Intercept', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
+rownames(lm_coeffs) <- c('(Intercept)', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
                          'Model adj. R\textsuperscript{2}')
 print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableB3.tex')
 print(xtable(lm_coeffs, floating=T, digits=3),

@@ -637,7 +637,7 @@ monsites_lolo = monsites(elevAgg(mtest)<2850 & maxsweAgg(mtest)<300);
 %
 % 2 plots = Sensor timeseries for each site and then seasonal histograms
 
-sensordepth = 3; %(1=5cm, 2=20cm, 3=50cm);
+sensordepth = 1; %(1=5cm, 2=20cm, 3=50cm);
 startwy = 2006;
 
 % Set distribution bins and plot axes
@@ -732,9 +732,9 @@ for i = 1:8;
 end
 
 figpath = '../figures/';
-print(figure4,'-depsc2','-painters',[figpath 'summer_theta_50cm_med.eps']);
-%figpath = '../../manuscript_1/figs/';
-%print(figure4,'-depsc2','-painters',[figpath 'summer_theta_5cm_med.eps']);
+print(figure4,'-depsc2','-painters',[figpath 'summer_theta_5cm_med.eps']);
+figpath = '../../manuscript_1/figs/';
+print(figure4,'-depsc2','-painters',[figpath 'summer_theta_5cm_med.eps']);
 
 end
 
