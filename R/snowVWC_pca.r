@@ -453,4 +453,6 @@ rownames(loadings.table) <- c('Elevation', 'Snow-covered days\tnote{a}',
 lm_coeffs
 rownames(lm_coeffs) <- c('(Intercept', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
                          'Model adj. R\textsuperscript{2}')
-print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableA4.tex')
+print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableB4.tex')
+print(xtable(lm_coeffs, floating=T, digits=3),
+      file='../../manuscript_1/tables/rawtableB4.tex')

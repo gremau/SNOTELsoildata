@@ -1,4 +1,4 @@
-Last updated in testsensors.m script on 12-May-2014                                         
+Last updated in testsensors.m script on 12-May-2014          
 site_id, year, wteq, prec, snwd, tobs, tmax, tmin, tavg, ts5, ts20, ts50, vwc5, vwc20, vwc50
 303,2001,0,0,1,0,0,0,0,0,0,0,0,0,0
 303,2002,0,0,0,0,0,0,0,0,0,0,0,0,0

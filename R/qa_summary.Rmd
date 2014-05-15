@@ -1,0 +1,62 @@
+SNOTEL data QA summary
+========================================================
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring web pages (click the **Help** toolbar button for more details on using R Markdown).
+
+When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+setwd('/home/greg/data/current/SNOTELsoil-climate/data_analysis/R/')
+#source('getdata.r')
+library(xtable)
+library(plyr)
+```
+
+You can also embed plots, for example:
+
+```{r}
+datapath = '../processed_data/'
+
+# Load a few datafiles
+soilsens_excl <- read.csv(paste(datapath, 'excludesensors_hourly.txt', sep=''),
+                          skip=1, header=T)
+soilfile_excl <- read.csv(paste(datapath, 'excludefiles_hourly.txt', sep=''),
+                          skip=1, header=T)
+
+
+
+# Create a vector where non-NA values indicate soilsens_excl row mathing a
+# soilfile_excl
+sensfile_match <- match(data.frame(t(soilsens_excl[,1:2])),
+                        data.frame(t(soilfile_excl)))
+# Use this to make sure all the matching rows are totally excluded (all 1s)
+test <- !is.na(sensfile_match)
+soilsens_excl[test,3:ncol(soilsens_excl)] <- 1
+
+# Calculate number of sites with data removed
+affectedsites <-ddply(soilsens_excl, .(site_id), "colSums")
+affectedsites <- affectedsites > 0
+tbl <- colSums(affectedsites)
+tbl <- rbind(tbl, 100 * colSums(affectedsites)/nrow(affectedsites))
+
+# Calculate number of full water years removed
+tbl <- rbind(tbl, colSums(soilsens_excl))
+tbl <- rbind(tbl, 100 * colSums(soilsens_excl)/nrow(soilsens_excl))
+
+for (i in 2001:2011) {
+  sub <- subset(soilsens_excl, soilsens_excl$year==i)
+  #tbl <- rbind(tbl, colSums(sub))
+  tbl <- rbind(tbl, 100 * colSums(sub)/nrow(sub))
+}
+
+tbl <- tbl[,3:ncol(tbl)]
+rownames(tbl) <- c('Sites affected (n)', 'Sites affected (%)',
+                   'Water years removed (n)', 'Water years removed (%)',
+                   '2001 data removed (% of sites)', '2002', '2003','2004',
+                   '2005', '2006','2007','2008', '2009','2010','2011')
+print(xtable(tbl, floating=T, digits=0), 
+      file='../tables/rawtableA1.tex')
+print(xtable(tbl, floating=T, digits=0), 
+      file='../../manuscript_1/tables/rawtableA1.tex')
+```
+

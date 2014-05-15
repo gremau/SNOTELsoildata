@@ -416,7 +416,9 @@ summary(lm2)
 varexp.table
 rownames(varexp.table) <- c('Std. Deviation', '% Var. Explained',
                             'Cum. Var. Explained')
-print(xtable(varexp.table, floating=T), file='../tables/rawtableA1.tex')
+print(xtable(varexp.table, floating=T), file='../tables/rawtableB1.tex')
+print(xtable(varexp.table, floating=T),
+      file='../../manuscript_1/tables/rawtableB1.tex')
 
 # The loadings
 loadings.table
@@ -438,10 +440,14 @@ rownames(loadings.table) <- c('Elevation', 'Snow-covered days\tnote{a}',
                               'Presnowpack T\textsubscript{soil}\tnote{c}',
                               'Presnowpack T\textsubscript{air}')
 
-print(xtable(loadings.table, floating=T), file='../tables/rawtableA2.tex')
+print(xtable(loadings.table, floating=T), file='../tables/rawtableB2.tex')
+print(xtable(loadings.table, floating=T),
+      file='../../manuscript_1/tables/rawtableB2.tex')
 
 # The regression coefficients
 lm_coeffs
 rownames(lm_coeffs) <- c('(Intercept', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
                          'Model adj. R\textsuperscript{2}')
-print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableA3.tex')
+print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableB3.tex')
+print(xtable(lm_coeffs, floating=T, digits=3),
+      file='../../manuscript_1/tables/rawtableB3.tex')

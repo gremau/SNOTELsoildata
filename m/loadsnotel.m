@@ -22,7 +22,11 @@ if strcmpi(interval, 'daily')
     listfiles = csvread('../processed_data/filelist_daily.txt');
     checkyears = sort(listfiles(listfiles(:,1)==siteID, 2));
     % A list of sensors and water years to exclude
-    excludeWY = csvread('../processed_data/excludefiles_daily.txt', 2, 0);
+    try
+        excludeWY = csvread('../processed_data/excludefiles_daily.txt', 2, 0);
+    catch
+        excludeWY = [0,0];
+    end
     excludeSens = csvread('../processed_data/excludesensors_daily.txt', 2, 0);
     % A complete datafile has this many sensors
     completesensorset = 20;
@@ -220,6 +224,9 @@ if strcmpi(interval, 'hourly')
     % remove rows marked in subhourly array
     for i = 1:completesensorset
         m{i}(subhourly) = [];
+        if length(m{i}) < length(tvec)
+            m{i} = [m{i};nan];
+        end
     end
     
     % Create a water-year vector and add to end of matrix
@@ -263,9 +270,12 @@ elseif strcmpi(interval, 'daily')
     tvec(subdaily,:) = [];
     clear test;
 
-    % Remove rows marked in subdaily array
+    % Remove rows marked in subdaily array and pad short columns with nan
     for i = 1:completesensorset
         m{i}(subdaily) = [];
+        if length(m{i}) < length(tvec)
+            m{i} = [m{i};nan];
+        end
     end
         
     % Create a water-year vector and add to end of matrix
