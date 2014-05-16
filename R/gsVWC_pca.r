@@ -419,24 +419,33 @@ print(xtable(varexp.table, floating=T),
 
 # The loadings
 loadings.table
+# Change rownames
 rownames(loadings.table) <- c('Elevation', 'Total snow-covered days', 'Snow-free day',
-                            'Peak SWE', 'Below-snow period T\textsubscript{air}',
-                            'Summer quarter mean T\textsubscript{air}',
-                            'Apr. Mean T\textsubscript{air}',
-                            'May. Mean T\textsubscript{air}',
-                            'Jun. Mean T\textsubscript{air}',
-                            'Jul. Mean T\textsubscript{air}',
-                            'Aug. Mean T\textsubscript{air}',
-                            'Sep. Mean T\textsubscript{air}',
+                            'Peak SWE', 'Below-snow period T\\textsubscript{air}',
+                            'Summer quarter mean T\\textsubscript{air}',
+                            'Apr. Mean T\\textsubscript{air}',
+                            'May. Mean T\\textsubscript{air}',
+                            'Jun. Mean T\\textsubscript{air}',
+                            'Jul. Mean T\\textsubscript{air}',
+                            'Aug. Mean T\\textsubscript{air}',
+                            'Sep. Mean T\\textsubscript{air}',
                             'Summer quarter precip.',
                             'May precip.', 'Jun. precip.', 'Jul. precip.',
                             'Aug. precip.', 'Sep. precip.',
-                            'Winter quarter 5 cm T\textsubscript{soil}',
+                            'Winter quarter 5 cm T\\textsubscript{soil}',
                             'Winter quarter 20 cm θ')
 
-print(xtable(loadings.table, floating=T), file='../tables/rawtableB6.tex')
-print(xtable(loadings.table, floating=T),
-      file='../../manuscript_1/tables/rawtableB6.tex')
+# Important loadings
+test <- loadings.table > 0.245 | loadings.table < -0.245
+# Create the xtable
+loadings.xtable <- xtable(loadings.table, floating=T)
+# Format the important loadings as bold
+loadings.xtable[test] <- paste("\\textbf{", formatC(loadings.xtable[test], digits=2, format='f'), "}")
+# For some reason the last step messes up the other formatting, so fix that
+loadings.xtable[!test] <- formatC(as.numeric(loadings.xtable[!test]), digits=2, format='f')
+
+print(loadings.xtable, sanitize.text.function = identity, file='../tables/rawtableB6.tex')
+print(loadings.xtable, sanitize.text.function = identity, file='../../manuscript_1/tables/rawtableB6.tex')
 
 # The regression coefficients
 lm_coeffs

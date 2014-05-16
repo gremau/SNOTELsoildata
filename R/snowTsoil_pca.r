@@ -422,32 +422,40 @@ print(xtable(varexp.table, floating=T),
 
 # The loadings
 loadings.table
-rownames(loadings.table) <- c('Elevation', 'Snow-covered days\tnote{a}',
+rownames(loadings.table) <- c('Elevation', 'Snow-covered days\\tnote{a}',
                               'Snow-free day','Snowpack start day', 'Peak SWE',
-                              'Below-snow period T\textsubscript{air}\tnote{b}',
-                              'Oct. Mean T\textsubscript{air}',
-                              'Nov. Mean T\textsubscript{air}',
-                              'Dec. Mean T\textsubscript{air}',
-                              'Jan. Mean T\textsubscript{air}',
-                              'Feb. Mean T\textsubscript{air}',
-                              'Mar. Mean T\textsubscript{air}',
-                              'Apr. Mean T\textsubscript{air}',
-                              'May Mean T\textsubscript{air}',
+                              'Below-snow period T\\textsubscript{air}\\tnote{b}',
+                              'Oct. Mean T\\textsubscript{air}',
+                              'Nov. Mean T\\textsubscript{air}',
+                              'Dec. Mean T\\textsubscript{air}',
+                              'Jan. Mean T\\textsubscript{air}',
+                              'Feb. Mean T\\textsubscript{air}',
+                              'Mar. Mean T\\textsubscript{air}',
+                              'Apr. Mean T\\textsubscript{air}',
+                              'May Mean T\\textsubscript{air}',
                               'Oct. Mean SWE', 'Nov. Mean SWE', 'Dec. Mean SWE',
                               'Jan. Mean SWE', 'Feb. Mean SWE', 'Mar. Mean SWE',
                               'Apr. Mean SWE', 'May Mean SWE',
-                              'Presnowpack θ\tnote{c}',
-                              'Presnowpack T\textsubscript{soil}\tnote{c}',
-                              'Presnowpack T\textsubscript{air}')
+                              'Presnowpack θ\\tnote{c}',
+                              'Presnowpack T\\textsubscript{soil}\\tnote{c}',
+                              'Presnowpack T\\textsubscript{air}')
 
-print(xtable(loadings.table, floating=T), file='../tables/rawtableB2.tex')
-print(xtable(loadings.table, floating=T),
-      file='../../manuscript_1/tables/rawtableB2.tex')
+# Important loadings
+test <- loadings.table > 0.245 | loadings.table < -0.245
+# Create the xtable
+loadings.xtable <- xtable(loadings.table, floating=T)
+# Format the important loadings as bold
+loadings.xtable[test] <- paste("\\textbf{", formatC(loadings.xtable[test], digits=2, format='f'), "}")
+# For some reason the last step messes up the other formatting, so fix that
+loadings.xtable[!test] <- formatC(as.numeric(loadings.xtable[!test]), digits=2, format='f')
+
+print(loadings.xtable, sanitize.text.function = identity, file='../tables/rawtableB2.tex')
+print(loadings.xtable, sanitize.text.function = identity, file='../../manuscript_1/tables/rawtableB2.tex')
 
 # The regression coefficients
 lm_coeffs
 rownames(lm_coeffs) <- c('(Intercept)', 'PC 1', 'PC 2', 'PC 3', 'PC 4',
-                         'Model adj. R\textsuperscript{2}')
+                         'Model adj. R\\textsuperscript{2}')
 print(xtable(lm_coeffs, floating=T, digits=3), file='../tables/rawtableB3.tex')
 print(xtable(lm_coeffs, floating=T, digits=3),
       file='../../manuscript_1/tables/rawtableB3.tex')

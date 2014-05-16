@@ -23,8 +23,6 @@ soilsens_excl <- read.csv(paste(datapath, 'excludesensors_hourly.txt', sep=''),
 soilfile_excl <- read.csv(paste(datapath, 'excludefiles_hourly.txt', sep=''),
                           skip=1, header=T)
 
-
-
 # Create a vector where non-NA values indicate soilsens_excl row mathing a
 # soilfile_excl
 sensfile_match <- match(data.frame(t(soilsens_excl[,1:2])),

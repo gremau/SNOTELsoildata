@@ -70,7 +70,7 @@ sigp <- as.data.frame(scovTs.lm < 0.05)
 pdat <- sapply(sigp, sum, na.rm=TRUE)
 
 #Show a matrix of these values
-cbind(meandat[3:20], pdat[3:20])
+cbind(meandat[seq(4,20,2)], pdat[seq(4,20,2)])
 # maxswe
 # onsetdoy
 # preonsetTair
@@ -112,7 +112,7 @@ df <- data.frame(reg.dat$maxswe,reg.dat$meltdoy,reg.dat$jasMAT,
 sitevec <- reg.dat$siteClim
 for (i in 1:9) {
   x <- df[,i] # Get the x variable from the list
-  mod <- lme(y ~ x, random=~-1 + x| sitevec,
+  mod <- lme(y ~ x, random=~1 | sitevec,
           na.action = na.omit)
   print(i)
   print(anova(mod))
@@ -160,7 +160,7 @@ sigp <- as.data.frame(scovVWC.lm < 0.05)
 pdat <- sapply(sigp, sum, na.rm=TRUE)
 
 #Show a matrix of these values
-cbind(meandat[3:20], pdat[3:20])
+cbind(meandat[seq(4,20,2)], pdat[seq(4,20,2)])
 # maxswe
 # onsetdoy
 # preonsetTair
@@ -209,7 +209,7 @@ sigp <- as.data.frame(jasVWC.lm < 0.05)
 pdat <- sapply(sigp, sum, na.rm=TRUE)
 
 #Show a matrix of these values
-cbind(meandat[3:12], pdat[3:12])
+cbind(meandat[seq(4,12,2)], pdat[seq(4,12,2)])
 # maxswe
 # meltdoy
 # jasTair
