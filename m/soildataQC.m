@@ -337,13 +337,16 @@ datetick('x', 'mmm-yy');
 
 % Some example sites
 
+% where to put wateryear markers
+wymarks = str2num(datestr(decday_d, 'mmdd'))== 1001;
+
 if siteID==762
     
     fignum = fignum+1;
     
     fig1 = figure('position',[100 0 800 450],'paperpositionmode',...
-        'auto', 'color','none','InvertHardcopy','off');
-    set(fig1, 'Name', ['Data exclusion and filtering for site 762'])
+        'auto', 'color','white','InvertHardcopy','off');
+    set(fig1, 'Name', ['Data exclusion and filtering for site 762']);
     set(fig1, 'DefaultAxesFontSize',11, 'DefaultTextFontSize', 11);
     
     subplot(2, 1, 1)
@@ -356,10 +359,12 @@ if siteID==762
     h3 = plot(decday_hRaw(dlerrors), ts50Raw(dlerrors), '.b');
     h4 = plot(decday_hRaw(incwy), ts50Raw(incwy), '.g');
     ylim([-105, 55]);
+    xlim([datenum('Sept 30, 2004'), datenum('Oct 1, 2011')])
+    vline(decday_d(wymarks), ':k');
     text(0.95, 0.9, 'a','Units', 'normalized');
     datetick('x', 'mmm-yy', 'keeplimits');
     legend([h1, h3, h4], 'Data removed after visual inspection',...
-        'Datalogger error', 'Incomplete water year',...
+        'Errors flagged by datalogger', 'Incomplete water year',...
         'Location', 'southeast');
     set(gca, 'position', [1 .9 1 1.1] .* get(gca, 'position'));
     
@@ -368,6 +373,7 @@ if siteID==762
     hold on
     h2 = plot(decday_h, ts50_F1, '.k');
     xlim([datenum('Sept 30, 2006'), datenum('Oct 1, 2011')]);
+    vline(decday_d(wymarks), ':k');
     text(0.95, 0.9, 'b','Units', 'normalized');
     datetick('x', 'mmm-yy', 'keeplimits');
     legend([h1], 'Filtered data (> 3 S.D.)', 'Location', 'south');
@@ -377,14 +383,14 @@ if siteID==762
     figpath = '../figures/';
     print(fig1,'-depsc2','-painters',[figpath 'tsoil_exclude.eps']);
     figpath = '../../manuscript_1/figs/';
-    print(fig1,'-depsc2','-painters',[figpath 'tsoil_exclude.eps'])
+    print(fig1,'-dpng','-painters','-r600',[figpath 'tsoil_exclude.png'])
     
 elseif siteID==550
     
     fignum = fignum+1;
     
     fig2 = figure('position',[100 0 800 450],'paperpositionmode',...
-        'auto', 'color','none','InvertHardcopy','off');
+        'auto', 'color','white','InvertHardcopy','off');
     set(fig2, 'Name', ['Data exclusion and filtering for site 550'])
     set(fig2, 'DefaultAxesFontSize',11, 'DefaultTextFontSize', 11);
     
@@ -398,10 +404,12 @@ elseif siteID==550
     h3 = plot(decday_hRaw(dlerrors), vwc50Raw(dlerrors), '.b');
     %h4 = plot(decday_hRaw(incwy), vwc50Raw(incwy), '.g');
     ylim([-105, 55]);
+    xlim([datenum('Sept 30, 1997'), datenum('Oct 1, 2011')])
+    vline(decday_d(wymarks), ':k');
     text(0.95, 0.9, 'a','Units', 'normalized');
     datetick('x', 'mmm-yy', 'keeplimits');
     legend([h1, h3], 'Data removed after visual inspection',...
-        'Datalogger error',...
+        'Errors flagged by datalogger',...
         'Location', 'southeast');
     set(gca, 'position', [1 .9 1 1.1] .* get(gca, 'position'));
     
@@ -409,6 +417,7 @@ elseif siteID==550
     h1 = plot(decday_h, vwc50, '.r');
     hold on
     h2 = plot(decday_h, vwc50_F1, '.k');
+    vline(decday_d(wymarks), ':k');
     xlim([datenum('Sept 30, 2006'), datenum('Oct 1, 2011')]);
     text(0.95, 0.9, 'b','Units', 'normalized');
     datetick('x', 'mmm-yy', 'keeplimits');
@@ -417,16 +426,61 @@ elseif siteID==550
     set(gca, 'position', [1 1 1 1.1] .* get(gca, 'position'));
     
     figpath = '../figures/';
-    print(fig2,'-depsc2','-painters',[figpath 'theta_exclude.eps']);
+    print(fig2,'-depsc2','-painters',[figpath 'theta_exclude1.eps']);
     figpath = '../../manuscript_1/figs/';
-    print(fig2,'-depsc2','-painters',[figpath 'theta_exclude.eps'])
+    print(fig2,'-dpng','-painters','-r600',[figpath 'theta_exclude1.png'])
+    
+elseif siteID==373
+    
+    fignum = fignum+1;
+    
+    fig2 = figure('position',[100 0 800 450],'paperpositionmode',...
+        'auto', 'color','white','InvertHardcopy','off');
+    set(fig2, 'Name', ['Data exclusion and filtering for site 337'])
+    set(fig2, 'DefaultAxesFontSize',11, 'DefaultTextFontSize', 11);
+    
+    subplot(2, 1, 1)
+    dlerrors = vwc20Raw < -90;
+    %incwy = decday_hRaw > datenum('Oct 1 2008') & ...
+    %    decday_hRaw < datenum('Sept 30 2009')
+    h1 = plot(decday_hRaw, vwc20Raw, '.r');
+    hold on
+    h2 = plot(decday_h, vwc20, '.k');
+    h3 = plot(decday_hRaw(dlerrors), vwc20Raw(dlerrors), '.b');
+    %h4 = plot(decday_hRaw(incwy), vwc50Raw(incwy), '.g');
+    ylim([-105, 55]);
+    xlim([datenum('Sept 30, 2004'), datenum('Oct 1, 2011')]);
+    vline(decday_d(wymarks), ':k');
+    text(0.96, 0.9, 'a','Units', 'normalized');
+    datetick('x', 'mmm-yy', 'keeplimits');
+    legend([h1, h3], 'Data removed after visual inspection',...
+        'Errors flagged by datalogger',...
+        'Location', 'southeast');
+    set(gca, 'position', [1 .9 1 1.1] .* get(gca, 'position'));
+    
+    subplot(2, 1, 2)
+    h1 = plot(decday_h, vwc20, '.r');
+    hold on
+    h2 = plot(decday_h, vwc20_F1, '.k');
+    vline(decday_d(wymarks), ':k');
+    xlim([datenum('Sept 30, 2004'), datenum('Oct 1, 2011')]);
+    text(0.96, 0.9, 'b','Units', 'normalized');
+    datetick('x', 'mmm-yy', 'keeplimits');
+    legend([h1], 'Filtered data (> 3 S.D.)', 'Location', 'southeast');
+    text(-.07, .93,'\theta (%)','Units', 'normalized', 'rotation', 90);
+    set(gca, 'position', [1 1 1 1.1] .* get(gca, 'position'));
+    
+    figpath = '../figures/';
+    print(fig2,'-depsc2','-painters',[figpath 'theta_exclude2.eps']);
+    figpath = '../../manuscript_1/figs/';
+    print(fig2,'-dpng','-painters','-r600',[figpath 'theta_exclude2.png'])
     
 elseif siteID==342
     
     fignum = fignum+1;
     
     fig3 = figure('position',[100 0 800 250],'paperpositionmode',...
-        'auto', 'color','none','InvertHardcopy','off');
+        'auto', 'color','white','InvertHardcopy','off');
     set(fig3, 'Name', ['Calibration problem at site 342'])
     set(fig3, 'DefaultAxesFontSize',11, 'DefaultTextFontSize', 11);
     
@@ -439,6 +493,8 @@ elseif siteID==342
     %h3 = plot(decday_hRaw(dlerrors), vwc50Raw(dlerrors), '.b');
     %h4 = plot(decday_hRaw(incwy), vwc50Raw(incwy), '.g');
     ylim([-5, 55]);
+    xlim([datenum('Sept 30, 2001'), datenum('Oct 1, 2011')])
+    vline(decday_d(wymarks), ':k');
     datetick('x', 'mmm-yy', 'keeplimits');
     legend(h1, 'Data removed after visual inspection',...
         'Location', 'northwest');
@@ -448,7 +504,7 @@ elseif siteID==342
     figpath = '../figures/';
     print(fig3,'-depsc2','-painters',[figpath 'calproblem.eps']);
     figpath = '../../manuscript_1/figs/';
-    print(fig3,'-depsc2','-painters',[figpath 'calproblem.eps'])
+    print(fig3,'-dpng','-painters','-r600',[figpath 'calproblem.png'])
     
 end
 
